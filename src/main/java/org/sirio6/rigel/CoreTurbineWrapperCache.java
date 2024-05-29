@@ -65,7 +65,7 @@ public class CoreTurbineWrapperCache extends WrapperCacheBase
 
     basePath = new String[]
     {
-      "org.sirio5.rigel.table" // NOI18N
+      "org.sirio6.rigel.table" // NOI18N
     };
 
     wrpBuilder = mdl;

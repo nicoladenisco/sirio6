@@ -152,23 +152,23 @@ public class CoreModelliXML extends AbstractCoreBaseService
 
     ValidatorsFactory.getInstance().setClassRadixs(new String[]
     {
-      "org.sirio5.rigel.validators"
+      "org.sirio6.rigel.validators"
     });
 
     CustomEditFactory.getInstance().setClassRadixs(new String[]
     {
-      "org.sirio5.rigel.customedit"
+      "org.sirio6.rigel.customedit"
     });
 
     CustomButtonFactory.getInstance().setClassRadixs(new String[]
     {
-      "org.sirio5.rigel.custombuttons"
+      "org.sirio6.rigel.custombuttons"
     });
 
     CustomFormatterFactory.getInstance().setClassRadixs(new String[]
     {
-      "org.sirio5.rigel.customformatter",
-      "org.sirio5.utils.format"
+      "org.sirio6.rigel.customformatter",
+      "org.sirio6.utils.format"
     });
 
     tryInitRigelPath();

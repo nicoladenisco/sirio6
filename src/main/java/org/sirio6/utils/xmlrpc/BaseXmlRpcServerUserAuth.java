@@ -68,7 +68,7 @@ abstract public class BaseXmlRpcServerUserAuth
    * @return informazioni di logon
    * @throws Exception
    */
-  public HashtableRpc initClient(Hashtable param)
+  public HashtableRpc initClient(Map param)
      throws Exception
   {
     try
@@ -77,12 +77,7 @@ abstract public class BaseXmlRpcServerUserAuth
       TokenAuthItem item = addClient(param, (ActionEvent e) -> logoutClient(e));
 
       // copia gli attributi di logon nel token
-      Enumeration enKeys = param.keys();
-      while(enKeys.hasMoreElements())
-      {
-        Object key = enKeys.nextElement();
-        item.setAttribute(key.toString(), param.get(key));
-      }
+      param.forEach((k, v) -> item.setAttribute(k.toString(), v));
 
       try
       {
@@ -175,7 +170,7 @@ abstract public class BaseXmlRpcServerUserAuth
    * @return token di autenticazione
    * @throws Exception
    */
-  protected TokenAuthItem addClient(Hashtable htParam, ActionListener expireAction)
+  protected TokenAuthItem addClient(Map htParam, ActionListener expireAction)
      throws Exception
   {
     TokenAuthService tAuth = (TokenAuthService) (TurbineServices.getInstance().
@@ -279,16 +274,16 @@ abstract public class BaseXmlRpcServerUserAuth
 
   /**
    * Esporta lista di oggetti.
-   * Viene creato un vector di hashtable (una per ogni oggetto).
+   * Viene creato un List di hashtable (una per ogni oggetto).
    * @param lsObj lista di oggetti figli di Persistent
    * @param prefix prefisso per i campi esportati
    * @return vettore di hashtable
    * @throws Exception
    */
-  protected Vector exportListObject(Collection lsObj, String prefix)
+  protected List exportListObject(Collection lsObj, String prefix)
      throws Exception
   {
-    Vector vObj = new Vector();
+    List vObj = new ArrayList();
     BeanWrapper bw = new BeanWrapper();
     for(Object bobj : lsObj)
     {
@@ -322,7 +317,7 @@ abstract public class BaseXmlRpcServerUserAuth
 
   protected List preparaList(List params)
   {
-    Vector rv = new Vector();
+    List rv = new ArrayList();
     for(Object value : (List) params)
     {
       if(value != null)
@@ -341,7 +336,7 @@ abstract public class BaseXmlRpcServerUserAuth
 
   protected Map preparaMap(Map params)
   {
-    Hashtable rv = new Hashtable();
+    Map rv = new HashMap();
     Set<Map.Entry<Object, Object>> entrySet = params.entrySet();
     for(Map.Entry<Object, Object> entry : entrySet)
     {

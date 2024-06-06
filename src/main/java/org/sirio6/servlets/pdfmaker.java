@@ -27,6 +27,7 @@ import org.apache.turbine.services.TurbineServices;
 import org.sirio6.services.localization.INT;
 import org.sirio6.services.print.AsyncPdfRunningException;
 import org.sirio6.services.print.PdfPrint;
+import org.sirio6.services.print.PrintContext;
 import org.sirio6.services.security.SEC;
 import org.sirio6.utils.LI;
 import org.sirio6.utils.SU;
@@ -262,7 +263,8 @@ public class pdfmaker extends HttpServlet
      HttpServletRequest request, HttpServletResponse response)
      throws Exception
   {
-    Map params = SU.getParMap(request);
+    PrintContext context = new PrintContext();
+    context.putAll(SU.getParMap(request));
     int idUser = authRequest(request);
 
     String mappaParametri = null;
@@ -273,15 +275,15 @@ public class pdfmaker extends HttpServlet
     Map parameters = (Map) request.getSession().getAttribute(mappaParametri);
     if(parameters != null)
     {
-      params.put(mappaParametri, parameters);
-      params.putAll(parameters);
+      context.put(mappaParametri, parameters);
+      context.putAll(parameters);
       if(SU.checkTrueFalse(parameters.get("autoremove"), true))
         request.getSession().removeAttribute(mappaParametri);
     }
 
-    params.put(PdfPrint.PATH_INFO, request.getPathInfo());
-    params.put(PdfPrint.SESSION_ID, request.getSession().getId());
-    params.put(PdfPrint.QUERY_STRING, request.getQueryString());
+    context.put(PdfPrint.PATH_INFO, request.getPathInfo());
+    context.put(PdfPrint.SESSION_ID, request.getSession().getId());
+    context.put(PdfPrint.QUERY_STRING, request.getQueryString());
 
     // estrae il nome del plugin e quello del report dalla richiesta
     // la richiesta è http://server/pdf/plugin/report?param1=val1&...
@@ -291,13 +293,13 @@ public class pdfmaker extends HttpServlet
     PdfPrint.JobInfo info = null;
     if((pos = sRequest.indexOf('/')) == -1)
     {
-      info = pp.generatePrintJob(idUser, sRequest, params, request.getSession());
+      info = pp.generatePrintJob(idUser, sRequest, context, request.getSession());
     }
     else
     {
       pluginName = sRequest.substring(0, pos);
       reportName = sRequest.substring(pos + 1);
-      info = pp.generatePrintJob(idUser, pluginName, reportName, null, params, request.getSession());
+      info = pp.generatePrintJob(idUser, pluginName, reportName, null, context, request.getSession());
     }
 
     if(info == null)

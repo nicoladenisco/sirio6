@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Nicola De Nisco
+ * Copyright (C) 2024 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,30 +15,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.sirio6.services.print.plugin;
+package org.sirio6.services.print;
 
-import org.apache.commons.configuration2.Configuration;
-import org.sirio6.utils.factory.CoreAbstractPoolPluginFactory;
+import java.util.Map;
+import org.sirio6.utils.SirioGenericContext;
 
 /**
- * Costruttore dei generatori di pdf.
+ * Context per il generatore di PDF
  * @author Nicola De Nisco
  */
-public class PdfGeneratorFactory extends CoreAbstractPoolPluginFactory<PdfGenPlugin>
+public class PrintContext extends SirioGenericContext
 {
-  private static final PdfGeneratorFactory theInstance = new PdfGeneratorFactory();
+  public static final String REPORT_NAME_KEY = "REPORT_NAME_KEY",
+     REPORT_INFO_KEY = "REPORT_INFO_KEY",
+     PBEAN_KEY = "PBEAN_KEY",
+     PDFTOGEN_KEY = "PDFTOGEN_KEY",
+     SESSION_KEY = "SESSION_KEY";
 
-  private PdfGeneratorFactory()
+  public PrintContext()
   {
   }
 
-  public static PdfGeneratorFactory getInstance()
+  public PrintContext(Map<? extends String, ? extends Object> m)
   {
-    return theInstance;
+    super(m);
   }
 
-  public void configure(Configuration cfg)
+  public PrintContext(SirioGenericContext ctx)
   {
-    super.configure(cfg, "plugin");
+    super(ctx);
   }
 }

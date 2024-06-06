@@ -25,6 +25,7 @@ import org.apache.commons.logging.*;
 import org.apache.fulcrum.cache.CachedObject;
 import org.sirio6.services.AbstractCoreBaseService;
 import org.sirio6.services.cache.CACHE;
+import org.sirio6.services.print.parametri.ParametroBuilderFactory;
 import org.sirio6.services.print.plugin.PdfGenPlugin;
 import org.sirio6.services.print.plugin.PdfGeneratorFactory;
 
@@ -42,62 +43,74 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
   public static final String CACHE_CLASS_PARAM_INFO = "AbstractPdfPrint:CACHE_CLASS_PARAM_INFO";
   //
   /** variabili locali */
-  protected File dirTmp = null; // directory per i temporanei
   protected String xmlbaseuri = null;
   protected boolean enableCache = false;
+  protected File dirTmp;
 
   @Override
   public void coreInit()
      throws Exception
   {
-    String s;
     Configuration cfg = getConfiguration();
-
     enableCache = cfg.getBoolean("enableCache", true);
+    PdfGeneratorFactory.getInstance().configure(cfg);
+    ParametroBuilderFactory.getInstance().configure(cfg);
 
-    dirTmp = getWorkTmpFile("pdfprint");
-    dirTmp.mkdirs();
+    dirTmp = getWorkTmpFile("print");
     ASSERT_DIR_WRITE(dirTmp);
-
-    PdfGeneratorFactory.getInstance().configure(cfg, dirTmp);
   }
 
   @Override
-  public AbstractReportParametersInfo getParameters(int idUser, String codiceStampa, Map params)
+  public AbstractReportParametersInfo getParameters(int idUser, String codiceStampa, PrintContext context)
      throws Exception
   {
-    AbstractReportParametersInfo info = null;
-    if(enableCache && (info = (AbstractReportParametersInfo) CACHE.getContentQuiet(CACHE_CLASS_PARAM_INFO, codiceStampa)) != null)
-      return info;
+    {
+      AbstractReportParametersInfo info = null;
+      if(enableCache && (info
+         = (AbstractReportParametersInfo) CACHE.getContentQuiet(CACHE_CLASS_PARAM_INFO, codiceStampa)) != null)
+        return info;
+    }
 
-    info = createReportInfo(codiceStampa);
+    AbstractReportParametersInfo f_info = createReportInfo(codiceStampa);
+    context.put(PrintContext.PBEAN_KEY, f_info);
+    PdfGeneratorFactory.getInstance().runPlugin(f_info.getPlugin(), (plg) -> plg.getParameters(idUser, context));
 
-    PdfGenPlugin plg = PdfGeneratorFactory.getInstance().build(info.getPlugin());
-    plg.getParameters(idUser, info.getNome(), info.getInfo(), params, info);
-
-    CACHE.addContent(CACHE_CLASS_PARAM_INFO, codiceStampa, info);
-    return info;
+    CACHE.addContent(CACHE_CLASS_PARAM_INFO, codiceStampa, f_info);
+    return f_info;
   }
 
   @Override
-  public JobInfo generatePrintJob(int idUser, String codiceStampa, Map params, HttpSession sessione)
+  public JobInfo generatePrintJob(int idUser,
+     String codiceStampa, PrintContext context, HttpSession sessione)
      throws Exception
   {
+    AbstractReportParametersInfo ri = getParameters(idUser, codiceStampa, context);
+    context.put(PrintContext.PBEAN_KEY, ri);
+    context.put(PrintContext.REPORT_INFO_KEY, ri.getInfo());
+    context.put(PrintContext.REPORT_NAME_KEY, ri.getNome());
+    context.put(PrintContext.SESSION_KEY, sessione);
+
     JobInfo info = new JobInfo();
     info.idUser = idUser;
-    AbstractReportParametersInfo ri = getParameters(idUser, codiceStampa, params);
-    info.filePdf = makePdf(info, idUser, ri.getPlugin(), ri.getNome(), ri.getInfo(), params, ri, sessione);
+    info.filePdf = makePdf(info, idUser, ri.getPlugin(), context);
     info.percCompleted = 100;
     return info;
   }
 
   @Override
-  public JobInfo generatePrintJob(int idUser, String pluginName, String reportName, String reportInfo, Map params, HttpSession sessione)
+  public JobInfo generatePrintJob(int idUser,
+     String pluginName, String reportName, String reportInfo, PrintContext context, HttpSession sessione)
      throws Exception
   {
+    DirectReportParametersInfo pbean = new DirectReportParametersInfo(reportName, reportInfo);
+    context.put(PrintContext.PBEAN_KEY, pbean);
+    context.put(PrintContext.REPORT_INFO_KEY, reportInfo);
+    context.put(PrintContext.REPORT_NAME_KEY, reportName);
+    context.put(PrintContext.SESSION_KEY, sessione);
+
     JobInfo info = new JobInfo();
     info.idUser = idUser;
-    info.filePdf = makePdf(info, idUser, pluginName, reportName, reportInfo, params, null, sessione);
+    info.filePdf = makePdf(info, idUser, pluginName, context);
     info.percCompleted = 100;
     return info;
   }
@@ -115,19 +128,17 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
     return null;
   }
 
-  protected File makePdf(JobInfo job,
-     int idUser, String pluginName, String reportName, String reportInfo,
-     Map params, AbstractReportParametersInfo pbean, HttpSession sessione)
+  protected File makePdf(JobInfo job, int idUser, String pluginName, PrintContext ctx)
      throws Exception
   {
-    log.info("Avvita elaborazione job per plugin=" + pluginName + " reportName=" + reportName);
-    PdfGenPlugin plg = PdfGeneratorFactory.getInstance().build(pluginName);
+    return PdfGeneratorFactory.getInstance()
+       .functionPlugin(pluginName, (plg) -> makePdfWorker(plg, job, idUser, pluginName, ctx));
+  }
 
-    if(pbean == null)
-    {
-      pbean = new DirectReportParametersInfo(reportName, reportInfo);
-      plg.getParameters(idUser, reportName, reportInfo, params, pbean);
-    }
+  private File makePdfWorker(PdfGenPlugin plg, JobInfo job, int idUser, String pluginName, PrintContext context)
+     throws Exception
+  {
+    String reportName = context.getAsString(PrintContext.REPORT_NAME_KEY);
 
     // imposta il tipo mime di default (PDF)
     job.tipoMime = CONTENT_TYPE_PDF;
@@ -135,7 +146,9 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
       job.saveName = reportName + ".pdf";
 
     File pdfFile = getTmpFile();
-    plg.buildPdf(job, idUser, reportName, reportInfo, params, pbean, pdfFile, sessione);
+    context.put(PrintContext.PDFTOGEN_KEY, pdfFile);
+    plg.buildPdf(job, idUser, context);
+
     log.info("Elaborazione job per plugin=" + pluginName + " reportName=" + reportName
        + " conclusa con successo.");
 

@@ -18,7 +18,6 @@
 package org.sirio6.services.print;
 
 import java.util.Iterator;
-import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.fulcrum.cache.CachedObject;
 import org.apache.turbine.services.TurbineServices;
@@ -40,22 +39,25 @@ public class PRINT
     return (PdfPrint) __pp;
   }
 
-  public static AbstractReportParametersInfo getParameters(int idUser, String codiceStampa, Map params)
+  public static AbstractReportParametersInfo getParameters(int idUser,
+     String codiceStampa, PrintContext context)
      throws Exception, IllegalAccessException
   {
-    return getService().getParameters(idUser, codiceStampa, params);
+    return getService().getParameters(idUser, codiceStampa, context);
   }
 
-  public static JobInfo generatePrintJob(int idUser, String codiceStampa, Map params, HttpSession sessione)
+  public static JobInfo generatePrintJob(int idUser,
+     String codiceStampa, PrintContext context, HttpSession sessione)
      throws Exception, IllegalAccessException
   {
-    return getService().generatePrintJob(idUser, codiceStampa, params, sessione);
+    return getService().generatePrintJob(idUser, codiceStampa, context, sessione);
   }
 
-  public static JobInfo generatePrintJob(int idUser, String pluginName, String reportName, String reportInfo, Map params, HttpSession sessione)
+  public static JobInfo generatePrintJob(int idUser,
+     String pluginName, String reportName, String reportInfo, PrintContext context, HttpSession sessione)
      throws Exception, IllegalAccessException
   {
-    return getService().generatePrintJob(idUser, pluginName, reportName, reportInfo, params, sessione);
+    return getService().generatePrintJob(idUser, pluginName, reportName, reportInfo, context, sessione);
   }
 
   public static JobInfo refreshInfo(String jobCode)

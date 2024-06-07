@@ -17,36 +17,30 @@
  */
 package org.sirio6.services.print;
 
-import java.util.Map;
-import org.sirio6.utils.SirioGenericContext;
+import static org.sirio6.services.localization.INT.I;
 
 /**
- * Context per il generatore di PDF
+ * Questa eccezione non è un vero e proprio errore,
+ * ma segnala che l'elaborazione di una stampa è in
+ * corso e verrà inviata alla stampante appena pronta.
+ *
  * @author Nicola De Nisco
  */
-public class PrintContext extends SirioGenericContext
+public class DirectPrintException extends Exception
 {
-  public static final String REPORT_NAME_KEY = "REPORT_NAME_KEY",
-     REPORT_INFO_KEY = "REPORT_INFO_KEY",
-     PBEAN_KEY = "PBEAN_KEY",
-     PDFTOGEN_KEY = "PDFTOGEN_KEY",
-     PREPARED_DATA_KEY = "PREPARED_DATA_KEY",
-     SESSION_KEY = "SESSION_KEY",
-     PATH_INFO_KEY = "PATH_INFO",
-     SESSION_ID_KEY = "SESSION_ID",
-     QUERY_STRING_KEY = "QUERY_STRING";
+  public PdfPrint.JobInfo job = null;
+  public Throwable err = null;
 
-  public PrintContext()
+  public DirectPrintException(PdfPrint.JobInfo job)
   {
+    super(I("Elaborazione del job %s in corso", job.jobCode));
+    this.job = job;
   }
 
-  public PrintContext(Map<? extends String, ? extends Object> m)
+  public DirectPrintException(PdfPrint.JobInfo job, Throwable err)
   {
-    super(m);
-  }
-
-  public PrintContext(SirioGenericContext ctx)
-  {
-    super(ctx);
+    super((I("Errore durante l'elaborazione del job %s: %s", job.jobCode, err.getMessage())), err);
+    this.job = job;
+    this.err = err;
   }
 }

@@ -24,6 +24,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import org.apache.commons.logging.*;
 import org.apache.turbine.services.TurbineServices;
+import org.sirio6.rigel.RigelHtmlI18n;
 import org.sirio6.services.localization.INT;
 import org.sirio6.services.print.AsyncPdfRunningException;
 import org.sirio6.services.print.PdfPrint;
@@ -264,6 +265,7 @@ public class pdfmaker extends HttpServlet
      throws Exception
   {
     PrintContext context = new PrintContext();
+    context.setI18n(new RigelHtmlI18n(request));
     context.putAll(SU.getParMap(request));
     int idUser = authRequest(request);
 

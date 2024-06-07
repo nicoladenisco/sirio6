@@ -674,6 +674,8 @@ abstract public class AbstractReportParametersInfo extends DefaultHandler
 
   abstract public String getInfo();
 
+  abstract public String getDataMaker();
+
   public static class CommonInfoParametro
   {
     public String tabellaValori, campoChiave, campoValore, valori;

@@ -30,6 +30,7 @@ public class PrintContext extends SirioGenericContext
      REPORT_INFO_KEY = "REPORT_INFO_KEY",
      PBEAN_KEY = "PBEAN_KEY",
      PDFTOGEN_KEY = "PDFTOGEN_KEY",
+     PREPARED_DATA_KEY = "PREPARED_DATA_KEY",
      SESSION_KEY = "SESSION_KEY";
 
   public PrintContext()

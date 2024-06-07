@@ -25,6 +25,7 @@ import org.apache.commons.logging.*;
 import org.apache.fulcrum.cache.CachedObject;
 import org.sirio6.services.AbstractCoreBaseService;
 import org.sirio6.services.cache.CACHE;
+import org.sirio6.services.print.datamaker.DatamakerGeneratorFactory;
 import org.sirio6.services.print.parametri.ParametroBuilderFactory;
 import org.sirio6.services.print.plugin.PdfGenPlugin;
 import org.sirio6.services.print.plugin.PdfGeneratorFactory;
@@ -39,7 +40,7 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
    implements PdfPrint
 {
   /** Logging */
-  private static Log log = LogFactory.getLog(AbstractPdfPrint.class);
+  private static final Log log = LogFactory.getLog(AbstractPdfPrint.class);
   public static final String CACHE_CLASS_PARAM_INFO = "AbstractPdfPrint:CACHE_CLASS_PARAM_INFO";
   //
   /** variabili locali */
@@ -55,6 +56,11 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
     enableCache = cfg.getBoolean("enableCache", true);
     PdfGeneratorFactory.getInstance().configure(cfg);
     ParametroBuilderFactory.getInstance().configure(cfg);
+    DatamakerGeneratorFactory.getInstance().configure(cfg);
+
+    PdfGeneratorFactory.getInstance().addBasePath("org.sirio6.services.print.plugin");
+    ParametroBuilderFactory.getInstance().addBasePath("org.sirio6.services.print.parametri");
+    DatamakerGeneratorFactory.getInstance().addBasePath("org.sirio6.services.print.datamaker");
 
     dirTmp = getWorkTmpFile("print");
     ASSERT_DIR_WRITE(dirTmp);
@@ -92,7 +98,7 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
 
     JobInfo info = new JobInfo();
     info.idUser = idUser;
-    info.filePdf = makePdf(info, idUser, ri.getPlugin(), context);
+    info.filePdf = makePdfInternal(info, idUser, ri.getPlugin(), ri.getDataMaker(), context);
     info.percCompleted = 100;
     return info;
   }
@@ -110,7 +116,7 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
 
     JobInfo info = new JobInfo();
     info.idUser = idUser;
-    info.filePdf = makePdf(info, idUser, pluginName, context);
+    info.filePdf = makePdfInternal(info, idUser, pluginName, null, context);
     info.percCompleted = 100;
     return info;
   }
@@ -128,9 +134,17 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
     return null;
   }
 
-  protected File makePdf(JobInfo job, int idUser, String pluginName, PrintContext ctx)
+  protected File makePdfInternal(JobInfo job, int idUser, String pluginName, String dataMaker, PrintContext ctx)
      throws Exception
   {
+    if(dataMaker != null)
+    {
+      // usa il datamaker per preparare i dati per il rendering
+      Object data = DatamakerGeneratorFactory.getInstance().functionPlugin(dataMaker, (dm) -> dm.prepareData(ctx));
+      if(data != null)
+        ctx.put(PrintContext.PREPARED_DATA_KEY, data);
+    }
+
     return PdfGeneratorFactory.getInstance()
        .functionPlugin(pluginName, (plg) -> makePdfWorker(plg, job, idUser, pluginName, ctx));
   }

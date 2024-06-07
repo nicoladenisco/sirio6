@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -61,5 +61,11 @@ public class DirectReportParametersInfo extends AbstractReportParametersInfo
   public String getInfo()
   {
     return reportInfo;
+  }
+
+  @Override
+  public String getDataMaker()
+  {
+    return null;
   }
 }

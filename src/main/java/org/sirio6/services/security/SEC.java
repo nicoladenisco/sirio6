@@ -17,6 +17,9 @@
  */
 package org.sirio6.services.security;
 
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.mutable.MutableInt;
@@ -605,5 +608,15 @@ public class SEC
           return false;
     }
     return true;
+  }
+
+  public static Collection<String> getProibiti()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public static int rigeneraPassword(Connection con, List<String> lsUtenti)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

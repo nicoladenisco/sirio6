@@ -68,7 +68,7 @@ abstract public class BaseXmlRpcServerUserAuth
    * @return informazioni di logon
    * @throws Exception
    */
-  public HashtableRpc initClient(Map param)
+  public Map initClient(Map param)
      throws Exception
   {
     try

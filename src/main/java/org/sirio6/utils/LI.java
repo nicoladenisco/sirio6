@@ -44,7 +44,7 @@ public class LI extends HtmlUtils
   private static String __myContextPath = null;
 
   /**
-   * Ritorna la uri (http://.../pgm/template/mia.vm)
+   * Ritorna la uri (http://.../app/template/mia.vm)
    * del file di modello vm indicato.
    * @param data
    * @param templatePage
@@ -210,14 +210,15 @@ public class LI extends HtmlUtils
    */
   public static String getLinkUrl(String url)
   {
-    if(!url.startsWith("http:"))
-      if(url.startsWith("@action/"))
-        return getContextPath() + APP_PREFIX + "/action/" + url.substring(8);
-      else if(url.contains(".vm"))
-        return getContextPath() + APP_PREFIX + "/template/" + url;
-      else
-        return mergePath(getContextPath(), url);
-    return url;
+    if(url.startsWith("http://") || url.startsWith("https://"))
+      return url;
+
+    if(url.startsWith("@action/"))
+      return getContextPath() + APP_PREFIX + "/action/" + url.substring(8);
+    else if(url.contains(".vm"))
+      return getContextPath() + APP_PREFIX + "/template/" + url;
+    else
+      return mergePath(getContextPath(), url);
   }
 
   /**
@@ -231,6 +232,11 @@ public class LI extends HtmlUtils
   public static String getLinkUrlwParams(String url, Map params)
   {
     return mergeUrl(getLinkUrl(url), params);
+  }
+
+  public static String getLinkUrlPairParams(String url, Object... params)
+  {
+    return mergeUrlPairTestUnique(getLinkUrl(url), params);
   }
 
   /**

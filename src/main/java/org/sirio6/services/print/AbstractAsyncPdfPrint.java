@@ -18,6 +18,7 @@
 package org.sirio6.services.print;
 
 import java.util.Iterator;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.logging.Log;
@@ -123,6 +124,11 @@ abstract public class AbstractAsyncPdfPrint extends AbstractPdfPrint
       return super.generatePrintJob(idUser, pluginName, reportName, reportInfo, context, sessione);
 
     AsyncPdfJob job = createJob();
+    DirectReportParametersInfo pbean = new DirectReportParametersInfo(reportName, reportInfo);
+    context.put(PrintContext.PBEAN_KEY, pbean);
+    context.put(PrintContext.REPORT_INFO_KEY, reportInfo);
+    context.put(PrintContext.REPORT_NAME_KEY, reportName);
+    context.put(PrintContext.SESSION_KEY, sessione);
 
     job.init(this, idUser, pluginName, context);
     job.start();

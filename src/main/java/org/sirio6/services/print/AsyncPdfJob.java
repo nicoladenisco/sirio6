@@ -48,6 +48,7 @@ public class AsyncPdfJob
   {
     this.service = service;
     this.pluginName = pluginName;
+    this.ctx = ctx;
 
     info = new JobInfo();
     info.jobCode = generateJobCode();
@@ -81,8 +82,9 @@ public class AsyncPdfJob
     try
     {
       AbstractReportParametersInfo pbean = (AbstractReportParametersInfo) ctx.get(PrintContext.PBEAN_KEY);
+      String dataMaker = pbean == null ? null : pbean.getDataMaker();
 
-      info.filePdf = service.makePdfInternal(info, info.idUser, pluginName, pbean.getDataMaker(), ctx);
+      info.filePdf = service.makePdfInternal(info, info.idUser, pluginName, dataMaker, ctx);
       info.percCompleted = 100;
 
       if(info.printer != null)

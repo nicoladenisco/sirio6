@@ -17,6 +17,8 @@
  */
 package org.sirio6.utils.format;
 
+import org.jdom2.Element;
+
 /**
  * Fromattatore per stringhe per un massimo di 64 caratteri.
  *
@@ -24,9 +26,10 @@ package org.sirio6.utils.format;
  */
 public class Max64StringFormatter extends Max32StringFormatter
 {
-  @Override
-  public int getMaxLen()
+  public Max64StringFormatter(Element xml)
   {
-    return 64;
+    super(xml);
+    if(maxLen == 32)
+      maxLen = 64;
   }
 }

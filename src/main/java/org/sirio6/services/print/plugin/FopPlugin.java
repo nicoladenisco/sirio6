@@ -50,6 +50,8 @@ public class FopPlugin extends BasePdfPlugin
   protected String xmlbaseuri = null;
   // posizione dell'applicazione fop
   protected String fopAppLocation = null;
+  /** mapping del nome del report all'effettiva jsp per la generazione dell'XML */
+  protected final Map<String, String> mapReport2Jsp = new HashMap<>();
 
   @Override
   public void configure(String pluginName, Configuration cfg)
@@ -57,6 +59,15 @@ public class FopPlugin extends BasePdfPlugin
   {
     super.configure(pluginName, cfg);
     xmlbaseuri = cfg.getString("xmlbaseuri", null);
+
+    // carica il mapping nomereport -> jsp relativa da setup
+    String[] mapping = cfg.getStringArray("mapping");
+    for(int i = 0; i < mapping.length; i++)
+    {
+      String[] ss = SU.split(mapping[i], '|');
+      if(ss.length >= 2)
+        mapReport2Jsp.put(ss[0], ss[1]);
+    }
 
     // legge locazione dell'applicazione fopApp (NON DAL SERVIZIO)
     if((fopAppLocation = TR.getString("path.app.fop")) == null)
@@ -76,7 +87,11 @@ public class FopPlugin extends BasePdfPlugin
     if(pbean != null)
       reportParams = pbean.parseParameterString(context);
 
-    doGetXmlReport(reportName, context, reportParams);
+    if(reportName.isEmpty())
+      die("Nome report non specificato nella richiesta.");
+
+    String jspName = mapReport2Jsp.getOrDefault(reportName, reportName);
+    doGetXmlReport(jspName, context, reportParams);
   }
 
   protected File doGetXmlReport(String sJsp, PrintContext context, Map reportParams)

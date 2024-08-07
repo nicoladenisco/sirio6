@@ -172,6 +172,10 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
   protected File getTmpFile()
      throws Exception
   {
+    if(!dirTmp.isDirectory())
+      if(!dirTmp.mkdirs())
+        throw new IOException("Impossibile creare la directory " + dirTmp.getAbsolutePath());
+
     File ftmp = File.createTempFile("pdfmaker", ".tmp", dirTmp);
     ftmp.deleteOnExit();
     return ftmp;

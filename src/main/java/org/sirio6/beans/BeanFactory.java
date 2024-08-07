@@ -217,6 +217,7 @@ public class BeanFactory
    * @param <T> classe del bean (deve estendere CoreBaseBean)
    * @param beanClass classe del bean
    * @return una istanza del bean
+   * @throws Exception
    */
   public static <T extends CoreBaseBean> T createBean(Class<T> beanClass)
   {

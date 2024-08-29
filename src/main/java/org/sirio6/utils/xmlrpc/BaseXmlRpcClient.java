@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcException;
@@ -108,6 +111,31 @@ public class BaseXmlRpcClient
       throw new RemoteErrorException("Errore segnalato dal server remoto: "
          + ((XmlRpcException) rv).getMessage(), (Throwable) rv);
     return rv;
+  }
+
+  protected List callAsList(String method, Object... parameters)
+     throws RemoteErrorException, XmlRpcException, IOException
+  {
+    Object rv = call(method, parameters);
+
+    if(rv instanceof List)
+      return (List) rv;
+
+    if(rv instanceof Object[])
+      return Arrays.asList((Object[]) rv);
+
+    throw new XmlRpcException("The return type is not compatible with List.");
+  }
+
+  protected Map callAsMap(String method, Object... parameters)
+     throws RemoteErrorException, XmlRpcException, IOException
+  {
+    Object rv = call(method, parameters);
+
+    if(rv instanceof Map)
+      return (Map) rv;
+
+    throw new XmlRpcException("The return type is not compatible with List.");
   }
 
   /**

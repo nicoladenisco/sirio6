@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ import org.sirio6.services.token.TokenAuthService;
  */
 public class FileTransferServerHelper extends CoreTokenBean
 {
-  private String unique;
+  private final String unique;
   private static final Object semaforo = new Object();
   //
   public static final String REF_TRANSFER_CACHE_KEY = "refTransferCacheKey";

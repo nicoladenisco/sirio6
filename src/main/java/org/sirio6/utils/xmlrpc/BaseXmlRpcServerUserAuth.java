@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.torque.om.ColumnAccessByName;
 import org.apache.torque.om.Persistent;
 import org.apache.turbine.services.TurbineServices;
+import org.apache.xmlrpc.XmlRpcException;
 import org.commonlib5.xmlrpc.HashtableRpc;
 import org.commonlib5.xmlrpc.XmlRpcCostant;
 import org.sirio6.services.localization.INT;
@@ -358,5 +359,26 @@ abstract public class BaseXmlRpcServerUserAuth
       }
     }
     return rv;
+  }
+
+  public List getAsList(Object rv)
+     throws XmlRpcException
+  {
+    if(rv instanceof List)
+      return (List) rv;
+
+    if(rv instanceof Object[])
+      return Arrays.asList((Object[]) rv);
+
+    throw new XmlRpcException("The return type is not compatible with List.");
+  }
+
+  public Map getAsMap(Object rv)
+     throws XmlRpcException
+  {
+    if(rv instanceof Map)
+      return (Map) rv;
+
+    throw new XmlRpcException("The return type is not compatible with List.");
   }
 }

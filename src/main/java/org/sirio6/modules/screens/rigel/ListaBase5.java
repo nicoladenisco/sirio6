@@ -63,18 +63,9 @@ abstract public class ListaBase5 extends RigelEditBaseScreen
       if((hwb = wpc.getListaEditCache(type)) == null)
         return null;
 
-//    AbstractHtmlTablePagerFilter pager = (AbstractHtmlTablePagerFilter) hwb.getPager();
-//    if(pager.getMascheraRicerca() == null)
-//      pager.setMascheraRicerca(getMascheraRG(pager.getI18n(), (SqlTableModel) pager.getTableModel()));
     return hwb;
   }
 
-//  public MascheraRicercaGenerica getMascheraRG(RigelI18nInterface i18n, SqlTableModel tm)
-//     throws Exception
-//  {
-//    String nometab = tm.getQuery().getVista();
-//    return new HtmlMascheraRicercaGenericaNoscript(new SqlBuilderRicercaGenerica(tm, nometab), tm, i18n);
-//  }
   @Override
   protected void doBuildTemplate2(CoreRunData data, Context context)
      throws Exception

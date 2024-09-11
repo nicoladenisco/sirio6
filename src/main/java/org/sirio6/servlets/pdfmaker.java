@@ -484,7 +484,7 @@ public class pdfmaker extends HttpServlet
 
       File tmp = File.createTempFile("risposta", ".html");
       VelocityParser vp = new VelocityParser(ctx);
-      vp.parseFileToFile(template, tmp);
+      vp.parseFileToFile("setup/" + template, tmp);
       pgmlog.info("Risposta template in " + tmp.getAbsolutePath());
       FU.sendFileAsHTML(request, response, tmp, false);
       tmp.delete();

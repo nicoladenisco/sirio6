@@ -206,7 +206,7 @@ final public class CalendarioBean extends CoreBaseBean
         switch(bootstrapVersion)
         {
           case 5: // bootstrap 5
-          case 4: // bootstrap 5
+          case 4: // bootstrap 4
           case 3: // bootstrap 3
           {
             html2.append("<TD WIDTH=50 HEIGHT=30 CLASS=\"").append(style).
@@ -220,9 +220,6 @@ final public class CalendarioBean extends CoreBaseBean
             html2.append("<TD WIDTH=50 HEIGHT=30 CLASS=\"").append(style).
                append("\" onclick=\"").append(func).append("('").append(sDate).
                append("'); chiudiCalendario();\">").append(gg).append("</TD>\r\n"); // NOI18N
-//            html2.append("<TD WIDTH=50 HEIGHT=30 CLASS=\"").append(style)
-//               .append("\" onclick=\"changeDay('").append(sDate).append("')\">")
-//               .append(gg).append("</TD>\r\n");
             break;
           }
         }
@@ -435,7 +432,7 @@ final public class CalendarioBean extends CoreBaseBean
     switch(bootstrapVersion)
     {
       case 5: // bootstrap 5
-      case 4: // bootstrap 5
+      case 4: // bootstrap 4
       {
         return "<li><a class=\"dropdown-item\" href=\"#\" onclick=\""
            + fint + "('" + spg + "|" + sug + "'); chiudiCalendario();\">" + descrizione + "</a></li>\n"; // NOI18N

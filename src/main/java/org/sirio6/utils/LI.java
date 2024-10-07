@@ -276,10 +276,14 @@ public class LI extends HtmlUtils
       return getImgAwesomeFas(SU.okStr(icon.substring(4)), text);
     if(icon.startsWith("far:"))
       return getImgAwesomeFar(SU.okStr(icon.substring(4)), text);
+    if(icon.startsWith("fab:"))
+      return getImgAwesomeFab(SU.okStr(icon.substring(4)), text);
     if(icon.startsWith("fas-spin:"))
       return getImgAwesomeFasSpin(SU.okStr(icon.substring(9)), text);
     if(icon.startsWith("far-spin:"))
       return getImgAwesomeFarSpin(SU.okStr(icon.substring(9)), text);
+    if(icon.startsWith("fab-spin:"))
+      return getImgAwesomeFabSpin(SU.okStr(icon.substring(9)), text);
 
     return LI.getIconHtml(icon, text);
   }

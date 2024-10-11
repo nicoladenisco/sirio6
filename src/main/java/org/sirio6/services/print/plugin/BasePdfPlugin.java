@@ -74,6 +74,10 @@ abstract public class BasePdfPlugin implements PdfGenPlugin
   protected File getTmpFile()
      throws Exception
   {
+    if(!dirTmp.isDirectory())
+      if(!dirTmp.mkdirs())
+        throw new IOException("Impossibile creare la directory " + dirTmp.getAbsolutePath());
+
     File ftmp = File.createTempFile("pdfplg", ".tmp", dirTmp);
     ftmp.deleteOnExit();
     return ftmp;

@@ -18,6 +18,7 @@
 package org.sirio6.services.print;
 
 import java.util.Iterator;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.fulcrum.cache.CachedObject;
 import org.apache.turbine.services.TurbineServices;

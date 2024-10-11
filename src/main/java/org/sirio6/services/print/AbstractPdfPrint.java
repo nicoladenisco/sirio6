@@ -44,15 +44,16 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
   public static final String CACHE_CLASS_PARAM_INFO = "AbstractPdfPrint:CACHE_CLASS_PARAM_INFO";
   //
   /** variabili locali */
+  protected File dirTmp = null; // directory per i temporanei
   protected String xmlbaseuri = null;
   protected boolean enableCache = false;
-  protected File dirTmp;
 
   @Override
   public void coreInit()
      throws Exception
   {
     Configuration cfg = getConfiguration();
+
     enableCache = cfg.getBoolean("enableCache", true);
     PdfGeneratorFactory.getInstance().configure(cfg);
     ParametroBuilderFactory.getInstance().configure(cfg);

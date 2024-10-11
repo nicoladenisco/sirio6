@@ -34,6 +34,8 @@ import org.rigel5.table.peer.PeerBuilderRicercaGenerica;
 import org.rigel5.table.peer.html.PeerTableModel;
 import org.rigel5.table.sql.SqlBuilderRicercaGenerica;
 import org.rigel5.table.sql.html.SqlTableModel;
+import static org.sirio6.CoreConst.HTML_END_CUT;
+import static org.sirio6.CoreConst.HTML_START_CUT;
 import org.sirio6.modules.screens.rigel.ListaBase5;
 import org.sirio6.modules.screens.rigel.ListaInfo;
 import org.sirio6.services.localization.INT;
@@ -154,12 +156,17 @@ public class ToolRenderListeRigel extends ListaBase5
       throw new Exception(INT.I("Context non presente in sessione; tool non disponibile."));
 
     String html = renderHtml(data, ctx);
+    return cutHtml(html);
+  }
 
+  protected String cutHtml(String html)
+  {
     // da tutto l'html estrae solo la parte racchiusa da <form></form>
     // il resto non si può toccare
+
     int pos1, pos2;
-    if((pos1 = html.indexOf("<!-- __START_CUT__ -->")) != -1)
-      if((pos2 = html.indexOf("<!-- __END_CUT__ -->", pos1)) != -1)
+    if((pos1 = html.indexOf(HTML_START_CUT)) != -1)
+      if((pos2 = html.indexOf(HTML_END_CUT, pos1)) != -1)
         return html.substring(pos1, pos2);
 
     return html;
@@ -213,9 +220,11 @@ public class ToolRenderListeRigel extends ListaBase5
       vp.parseReader(reader, writer, "ToolLista.vm");
     }
 
+    String html = writer.toString();
+
     // rimaneggia javascript sostituendo submit con funzione specifica
     String url = (String) ctx.get("selfurl");
-    return SU.strReplace(writer.toString(),
+    return SU.strReplace(cutHtml(html),
        "document." + formName + ".submit();",
        "rigel.submitTool('" + unique + "', '" + url + "')");
   }

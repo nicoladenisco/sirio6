@@ -28,6 +28,7 @@ import org.apache.turbine.util.uri.TemplateURI;
 import org.apache.velocity.context.Context;
 import org.sirio6.CsrfProtectionException;
 import org.sirio6.ErrorMessageException;
+import org.sirio6.RedirectMessageException;
 import org.sirio6.beans.BeanFactory;
 import org.sirio6.beans.CoreBaseBean;
 import org.sirio6.beans.NavigationStackBean;
@@ -260,6 +261,12 @@ public class CoreBaseAction extends VelocitySecureAction
     catch(UnmodificableRecordException ex)
     {
       SU.reportUnmodificableRecordError(rdata, ex);
+    }
+    catch(RedirectMessageException ex)
+    {
+      rdata.setMessage(ex.getMessage());
+      rdata.setRedirectURI(ex.getUri().toString());
+      rdata.setStatusCode(302);
     }
   }
 

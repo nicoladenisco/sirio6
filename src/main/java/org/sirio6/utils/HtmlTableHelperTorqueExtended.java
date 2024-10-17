@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.torque.om.ColumnAccessByName;
-import org.commonlib5.lambda.FunctionTrowException;
 import org.commonlib5.utils.HtmlTableHelper;
 
 /**
@@ -32,12 +31,12 @@ import org.commonlib5.utils.HtmlTableHelper;
  *
  * @author Nicola De Nisco
  */
-public class HtmlTableHelperTorque extends HtmlTableHelper
+public class HtmlTableHelperTorqueExtended extends HtmlTableHelper
 {
   public static class Holder
   {
     String caption, fieldName, peerName;
-    FunctionTrowException<Object, String> convert;
+    Extractor<ColumnAccessByName, Object, String> convert;
   }
 
   protected final List<Holder> lsHolder = new ArrayList<>();
@@ -52,7 +51,7 @@ public class HtmlTableHelperTorque extends HtmlTableHelper
     return addFieldByPeerName(caption, fieldName, null);
   }
 
-  public int addFieldByName(String caption, String fieldName, FunctionTrowException<Object, String> convert)
+  public int addFieldByName(String caption, String fieldName, Extractor<ColumnAccessByName, Object, String> convert)
   {
     Holder h = new Holder();
     h.caption = caption;
@@ -62,7 +61,7 @@ public class HtmlTableHelperTorque extends HtmlTableHelper
     return lsHolder.size();
   }
 
-  public int addFieldByPeerName(String caption, String peerName, FunctionTrowException<Object, String> convert)
+  public int addFieldByPeerName(String caption, String peerName, Extractor<ColumnAccessByName, Object, String> convert)
   {
     Holder h = new Holder();
     h.caption = caption;
@@ -90,7 +89,7 @@ public class HtmlTableHelperTorque extends HtmlTableHelper
       if(value == null)
         value = "";
 
-      return h.convert == null ? value.toString() : h.convert.apply(value);
+      return h.convert == null ? value.toString() : h.convert.apply(object, value);
     }
     catch(Exception e)
     {
@@ -121,6 +120,13 @@ public class HtmlTableHelperTorque extends HtmlTableHelper
   {
     return lsHolder;
   }
+
+  @FunctionalInterface
+  public interface Extractor<OB, T, R>
+  {
+    R apply(OB object, T t)
+       throws Exception;
+  }
 }
 
 /*
@@ -131,7 +137,7 @@ public class HtmlTableHelperTorque extends HtmlTableHelper
     ht.addFieldByName(i18n.msg("ID"), "NodiTopolinoId");
     ht.addFieldByName(i18n.msg("DESCRIZIONE"), "Descrizione");
     ht.addFieldByName(i18n.msg("UUID"), "Uniqueid");
-    ht.addFieldByName(i18n.msg("FUNZIONI"), "NodiTopolinoId", (v) -> formattaFunzioniNodo((Integer) v));
+    ht.addFieldByName(i18n.msg("FUNZIONI"), "NodiTopolinoId", (obj, v) -> formattaFunzioniNodo(obj, (Integer) v));
     ht.buildFromTorque(lsNodi);
 
     StringBuilder sb = new StringBuilder(512);

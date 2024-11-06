@@ -619,4 +619,18 @@ public class SEC
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }
+
+  public static Role createRole(String roleName)
+     throws Exception
+  {
+    Role r = getTurbineSecurity().getRoleInstance(roleName);
+    return getTurbineSecurity().addRole(r);
+  }
+
+  public static Group createGroup(String groupName)
+     throws Exception
+  {
+    Group r = getTurbineSecurity().getGroupInstance(groupName);
+    return getTurbineSecurity().addGroup(r);
+  }
 }

@@ -1,0 +1,57 @@
+<!-- INIZIO ToolDatatable.vm -->
+
+<SCRIPT LANGUAGE="JavaScript">
+
+  var table_${unique};
+
+  jQuery(function () {
+
+    table_${unique} = $("#idtable_${unique}").DataTable({
+
+      stateSave: true,
+      stateSaveCallback: function (settings, data) {
+        localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data));
+      },
+      stateLoadCallback: function (settings) {
+        return JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance));
+      },
+
+      ajax: "${data.getContextPath()}/rigeltool/datatable/unique/${unique}",
+      processing: true,
+      search: {
+        return: true
+      },
+      serverSide: true,
+      bAutoWidth: false,
+
+      columnDefs: [{type: 'html'}]
+    });
+
+    #if($func)
+    table_${unique}.on('click', 'tbody tr', function () {
+      let data = table_${unique}.row(this).data();
+
+      //console.log('You clicked on ' + data[0] + "'s row ($func)");
+      $func
+    });
+    #end
+  });
+
+</SCRIPT>
+
+<$tableStatement>
+<thead>
+  <tr>
+    $commonHeader
+  </tr>
+</thead>
+#if($visFooter)
+<tfoot>
+  <tr>
+    $commonHeader
+  </tr>
+</tfoot>
+#end
+</table>
+
+<!-- FINE ToolDatatable.vm -->

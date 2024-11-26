@@ -44,7 +44,6 @@ import org.sirio6.utils.velocity.VelocityParser;
  * Questa servlet ha il compito di assistere la generazione
  * la volo di PDF utilizzati per le stampe on line.
  * @author Nicola De Nisco
- * @version 1.1
  */
 public class pdfmaker extends HttpServlet
 {

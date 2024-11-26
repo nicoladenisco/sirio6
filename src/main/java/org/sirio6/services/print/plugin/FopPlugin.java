@@ -103,11 +103,6 @@ public class FopPlugin extends BasePdfPlugin
     if(!fopSheetDir.isDirectory())
       die("La directory " + fopSheetDir + " non esiste o non è leggibile.");
 
-    // esrae nome della JSP per la generazione dell'XML
-    print.ASSERT(sJsp != null, "sJsp != null");
-    if(!sJsp.endsWith(".jsp"))
-      sJsp += ".jsp";
-
     // estrae nome del file XSL per conversione dati XML
     File xslFile = null;
     {

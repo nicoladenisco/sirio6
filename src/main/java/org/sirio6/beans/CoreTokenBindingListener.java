@@ -21,7 +21,7 @@ import org.sirio6.services.token.TokenAuthItem;
 
 /**
  * Ascoltatore eventi inserimento e rimozione oggetti da token.
- * Ha uno scopo e un funzionamento simile a HttpSessionBindingListener
+ * Ha uno scopo e un funzionamento simile a HttpSessionBindingListener.
  * @author Nicola De Nisco
  */
 public interface CoreTokenBindingListener

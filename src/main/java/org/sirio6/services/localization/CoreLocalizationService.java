@@ -37,7 +37,8 @@ import org.sirio6.utils.SU;
  * aggiungendo anche la gestione dei files translation.xml.
  *
  * Le stringhe non presenti in translation.xml sono inviate alla log
- * con 'Unknow key [stringa non presente]'.
+ * con 'Unknow key [stringa non presente]'. Questo consente di
+ * recuperarle velocemente.
  *
  * <br>
  * FILENOI18N

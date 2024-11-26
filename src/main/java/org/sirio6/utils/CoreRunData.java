@@ -46,14 +46,24 @@ import org.sirio6.services.security.SEC;
  */
 public class CoreRunData extends DefaultTurbineRunData
 {
+  private LocalizationService lsrv = null;
   private String refresh = null;
   private static String homeLink = null;
 
-  private DataFormatter df;
-  private ValutaFormatter vf;
-  private NumFormatter nf;
-  private modelliXML modXML;
-  private LocalizationService lsrv = null;
+  private final DataFormatter df;
+  private final ValutaFormatter vf;
+  private final NumFormatter nf;
+  private final modelliXML modXML;
+
+  public CoreRunData()
+  {
+    super();
+
+    df = getService(DataFormatter.SERVICE_NAME);
+    vf = getService(ValutaFormatter.SERVICE_NAME);
+    nf = getService(NumFormatter.SERVICE_NAME);
+    modXML = getService(modelliXML.SERVICE_NAME);
+  }
 
   public <T> T getService(String serviceName)
   {
@@ -63,18 +73,12 @@ public class CoreRunData extends DefaultTurbineRunData
   public String formatData(Date data)
      throws Exception
   {
-    if(df == null)
-      df = getService(DataFormatter.SERVICE_NAME);
-
     return data == null ? "&nbsp;" : df.formatData(data);
   }
 
   public String formatDataFull(Date data)
      throws Exception
   {
-    if(df == null)
-      df = getService(DataFormatter.SERVICE_NAME);
-
     return data == null ? "&nbsp;" : df.formatDataFull(data);
   }
 
@@ -84,9 +88,6 @@ public class CoreRunData extends DefaultTurbineRunData
     if(data == null)
       return "&nbsp;";
 
-    if(df == null)
-      df = getService(DataFormatter.SERVICE_NAME);
-
     String s = df.formatDataFull(data);
     return s.substring(0, s.length() - 3);
   }
@@ -94,9 +95,6 @@ public class CoreRunData extends DefaultTurbineRunData
   public String formatDataOggi(Date data)
      throws Exception
   {
-    if(df == null)
-      df = getService(DataFormatter.SERVICE_NAME);
-
     return data == null || !(data instanceof Date)
               ? df.formatData(new Date())
               : df.formatData(data);
@@ -105,9 +103,6 @@ public class CoreRunData extends DefaultTurbineRunData
   public String formatDataFullOggi(Date data)
      throws Exception
   {
-    if(df == null)
-      df = getService(DataFormatter.SERVICE_NAME);
-
     return data == null || !(data instanceof Date)
               ? df.formatDataFull(new Date())
               : df.formatDataFull(data);
@@ -125,36 +120,24 @@ public class CoreRunData extends DefaultTurbineRunData
   public String formatValuta(double valuta)
      throws Exception
   {
-    if(vf == null)
-      vf = getService(ValutaFormatter.SERVICE_NAME);
-
     return vf.fmtValuta(valuta);
   }
 
   public String formatNumero(double numero, int nInteri, int nDecimali)
      throws Exception
   {
-    if(nf == null)
-      nf = getService(NumFormatter.SERVICE_NAME);
-
     return nf.format(numero, nInteri, nDecimali);
   }
 
   public String formatQta(double qta)
      throws Exception
   {
-    if(nf == null)
-      nf = getService(NumFormatter.SERVICE_NAME);
-
     return nf.format(qta, 0, 2);
   }
 
   public String formatDiskSpace(double qta)
      throws Exception
   {
-    if(nf == null)
-      nf = getService(NumFormatter.SERVICE_NAME);
-
     if(qta > CoreConst.TERABYTE)
       return formatQta(qta / CoreConst.TERABYTE) + "T";
     if(qta > CoreConst.GIGABYTE)
@@ -508,9 +491,6 @@ public class CoreRunData extends DefaultTurbineRunData
   {
     try
     {
-      if(modXML == null)
-        modXML = getService(modelliXML.SERVICE_NAME);
-
       return modXML.getCampoData(nomeCampo, nomeForm, valore, size);
     }
     catch(Exception ex)
@@ -524,9 +504,6 @@ public class CoreRunData extends DefaultTurbineRunData
   {
     try
     {
-      if(modXML == null)
-        modXML = getService(modelliXML.SERVICE_NAME);
-
       return modXML.getCampoDataIntervalloInizio(nomeCampoInizio, nomeCampoFine, nomeForm, valore, size);
     }
     catch(Exception ex)
@@ -540,9 +517,6 @@ public class CoreRunData extends DefaultTurbineRunData
   {
     try
     {
-      if(modXML == null)
-        modXML = getService(modelliXML.SERVICE_NAME);
-
       return modXML.getCampoDataIntervalloFine(nomeCampoInizio, nomeCampoFine, nomeForm, valore, size);
     }
     catch(Exception ex)

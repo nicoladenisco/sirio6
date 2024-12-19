@@ -46,8 +46,6 @@ public class CoreAppSanity
   protected void sanityApplication(AbstractCoreBaseService service)
      throws Exception
   {
-    // questo non è il modulo principale, quindi si occupa solo del db
-
     sanitySystem(service);
     sanityJava(service);
     sanityDatabase(service);

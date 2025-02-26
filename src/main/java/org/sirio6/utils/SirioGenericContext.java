@@ -140,6 +140,15 @@ public class SirioGenericContext extends HashMap<String, Object>
     return rv;
   }
 
+  public String getNotNullAsString(String key)
+  {
+    String rv = SU.okStrNull(get(key));
+    if(rv == null)
+      throw new RuntimeException(i18n.msg("Il parametro '%s' non è presente nel context.", key));
+
+    return rv;
+  }
+
   public Object get(String key, Object defVal)
   {
     Object rv = get(key);

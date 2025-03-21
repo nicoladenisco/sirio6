@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.commonlib5.utils.StringJoin;
+import org.commonlib5.xmlrpc.MapParser;
 import org.rigel5.RigelI18nInterface;
 import org.sirio6.rigel.RigelDefaultI18n;
 
@@ -546,5 +547,15 @@ public class SirioGenericContext extends HashMap<String, Object>
   {
     T val = (T) get(key);
     return val != null ? val : fun.call();
+  }
+
+  public MapParser getAsMapParser(String key)
+  {
+    return getAsMapParser(key, Collections.EMPTY_MAP);
+  }
+
+  public MapParser getAsMapParser(String key, Map defval)
+  {
+    return new MapParser((Map) get(key, defval));
   }
 }

@@ -973,9 +973,23 @@ public class SU extends StringOper
    * Trasforma lista di parametri in mappa chiave/valore.
    * I parametri devono essere in numero pari; quelli pari saranno le chiavi,
    * quelli dispari diventeranno i valori (0/1, 2/3, 4/5).
+   * Le stringhe chiave e valore sono trimmate.
+   * @param parameters elenco di parametri
+   * @return hashmap con chiave/valore
+   */
+  public static Map<String, String> pair2HashMap(Object... parameters)
+  {
+    return pair2Map(new HashMap<>(), parameters);
+  }
+
+  /**
+   * Trasforma lista di parametri in mappa chiave/valore.
+   * I parametri devono essere in numero pari; quelli pari saranno le chiavi,
+   * quelli dispari diventeranno i valori (0/1, 2/3, 4/5).
+   * Le stringhe chiave e valore sono trimmate.
    * @param map mappa da popolare
    * @param parameters elenco di parametri
-   * @return
+   * @return la mappa popolata
    */
   public static Map<String, String> pair2Map(Map<String, String> map, Object... parameters)
   {

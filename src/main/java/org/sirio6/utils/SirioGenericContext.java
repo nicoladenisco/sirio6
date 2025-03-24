@@ -132,6 +132,14 @@ public class SirioGenericContext extends HashMap<String, Object>
     });
   }
 
+  public void putAllObjects(Map params)
+  {
+    params.forEach((k, v) ->
+    {
+      this.put(k.toString(), v);
+    });
+  }
+
   public Object getNotNull(String key)
   {
     Object rv = get(key);

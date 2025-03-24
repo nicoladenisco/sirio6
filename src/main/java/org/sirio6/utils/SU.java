@@ -1229,6 +1229,7 @@ public class SU extends StringOper
   /**
    * Verifica valore per possibili alternative.
    * Questa funzione è pensata per valori numerici (int, float, short, ecc.).
+   * @param <T>
    * @param toTest
    * @param values
    * @return vero se toTest è contenuto in values

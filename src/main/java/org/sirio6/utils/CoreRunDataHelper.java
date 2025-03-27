@@ -29,6 +29,21 @@ import org.apache.turbine.util.TurbineException;
 
 /**
  * Helper per la generazione di un oggetto CoreRunData in posti strani (tipo JSP).
+ * Implementa Closeable per l'uso in un try with resource.
+ * <pre>
+ * <code>
+ * try(CoreRunDataHelper rh = new CoreRunDataHelper(request, response, config))
+ * {
+ *   CoreRunData data = rh.getCoreRunData()
+ *   ...
+ *   ...
+ *   LocalizationService ls = rh.getService(LocalizationService.ROLE);
+ *   ...
+ *   ...
+ * }
+ *
+ * </code>
+ * </pre>
  * @author Nicola De Nisco
  */
 public class CoreRunDataHelper implements Closeable
@@ -37,19 +52,27 @@ public class CoreRunDataHelper implements Closeable
   private RunDataService rundataService = null;
   private CoreRunData data;
 
-  public CoreRunDataHelper(HttpServletRequest req,
-     HttpServletResponse res,
-     ServletConfig config)
+  public CoreRunDataHelper(HttpServletRequest req, HttpServletResponse res, ServletConfig config)
      throws ServletException
   {
+    if((rundataService = getService(RunDataService.SERVICE_NAME)) == null)
+      throw new ServletException("RunData Service is not configured!");
 
-    if((rundataService = (RunDataService) TurbineServices.getInstance()
-       .getService(RunDataService.SERVICE_NAME)) == null)
-      throw new ServletException("No RunData Service configured!");
+    open(req, res, config);
+  }
+
+  public void open(HttpServletRequest req, HttpServletResponse res, ServletConfig config)
+     throws ServletException
+  {
+    if(data != null)
+      return;
 
     try
     {
       data = (CoreRunData) rundataService.getRunData(req, res, config);
+
+      // Pull user from session.
+      data.populate();
     }
     catch(TurbineException ex)
     {
@@ -63,10 +86,16 @@ public class CoreRunDataHelper implements Closeable
   {
     // restituisce RunData al pool
     rundataService.putRunData(data);
+    data = null;
   }
 
   public CoreRunData getCoreRunData()
   {
     return data;
+  }
+
+  final public <T> T getService(String serviceName)
+  {
+    return (T) TurbineServices.getInstance().getService(serviceName);
   }
 }

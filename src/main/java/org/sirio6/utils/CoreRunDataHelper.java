@@ -30,8 +30,10 @@ import org.apache.turbine.util.TurbineException;
 /**
  * Helper per la generazione di un oggetto CoreRunData in posti strani (tipo JSP).
  * Implementa Closeable per l'uso in un try with resource.
+ * L'oggetto CoreRunData viene inizializzato con i dati utente che sono quindi disponibili.
  * <pre>
  * <code>
+ *
  * try(CoreRunDataHelper rh = new CoreRunDataHelper(request, response, config))
  * {
  *   CoreRunData data = rh.getCoreRunData()
@@ -61,18 +63,30 @@ public class CoreRunDataHelper implements Closeable
     open(req, res, config);
   }
 
-  public void open(HttpServletRequest req, HttpServletResponse res, ServletConfig config)
+  /**
+   * Ricostruisce un oggetto CoreRunData.
+   * Viene chiamata dal costruttore e va usata solo se per qualche motivo
+   * è stata chiamata close() in modo esplicito e si vuole ricreare l'oggetto CoreRunData.
+   * @param req
+   * @param res
+   * @param config
+   * @return
+   * @throws ServletException
+   */
+  public CoreRunData open(HttpServletRequest req, HttpServletResponse res, ServletConfig config)
      throws ServletException
   {
     if(data != null)
-      return;
+      return data;
 
     try
     {
       data = (CoreRunData) rundataService.getRunData(req, res, config);
 
-      // Pull user from session.
+      // Pull user information from session.
       data.populate();
+
+      return data;
     }
     catch(TurbineException ex)
     {

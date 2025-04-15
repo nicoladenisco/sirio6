@@ -50,6 +50,7 @@ public interface PdfPrint extends CoreServiceExtension
   public static final String PATH_INFO = "PATH_INFO";
   public static final String SESSION_ID = "SESSION_ID";
   public static final String QUERY_STRING = "QUERY_STRING";
+  public static final String CONTEXT_PATH = "CONTEXT_PATH";
 
   /**
    * Descrittore di un job di stampa.

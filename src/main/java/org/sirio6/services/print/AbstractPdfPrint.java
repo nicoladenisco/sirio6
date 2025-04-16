@@ -22,7 +22,6 @@ import java.util.*;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.logging.*;
-import org.apache.fulcrum.cache.CachedObject;
 import org.sirio6.services.AbstractCoreBaseService;
 import org.sirio6.services.cache.CACHE;
 import org.sirio6.services.print.datamaker.DatamakerGeneratorFactory;
@@ -188,7 +187,7 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
   }
 
   @Override
-  public Iterator<CachedObject> getJobs()
+  public List<JobInfo> getJobs()
      throws Exception
   {
     return null;

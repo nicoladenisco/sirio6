@@ -134,7 +134,7 @@ public class FopPlugin extends BasePdfPlugin
     print.ASSERT(sessionid != null, "sessionid != null");
 
     // eventuale url esterna per la costruzione dell'xml.
-    String sUrl = context.getAsStringNull("xmlBuildUrl");
+    String sUrl = context.getAsStringNull(PdfPrint.XML_BUILD_URL);
 
     // costruisce url per chiamare la JSP per generare l'XML
     // qualcosa del tipo 'http://localhost:8080/nomeapp/xml/mia.jsp;jsessionid=identificativosessione?param1=val1...'

@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.logging.Log;
@@ -46,6 +47,7 @@ import org.apache.turbine.services.pull.tools.UITool;
 import org.apache.turbine.util.RunData;
 import org.commonlib5.exec.ExecHelper;
 import org.commonlib5.utils.*;
+import org.json.JSONObject;
 import org.sirio6.CoreConst;
 import org.sirio6.services.cache.CACHE;
 import org.sirio6.services.localization.INT;
@@ -1214,5 +1216,31 @@ public class SU extends StringOper
     }
 
     return sb.toString();
+  }
+
+  public static Map<String, String> configuration2map(Configuration cfg)
+  {
+    // copia la configurazione in una map per passarla al servizio
+    Map<String, String> cfgmap = new HashMap<>();
+    for(Iterator<String> cfgKeys = cfg.getKeys(); cfgKeys.hasNext();)
+    {
+      String key = cfgKeys.next();
+      String value = cfg.getString(key);
+      cfgmap.put(key, value);
+    }
+    return cfgmap;
+  }
+
+  public static JSONObject configuration2Json(Configuration cfg)
+  {
+    // copia la configurazione in una map per passarla al servizio
+    JSONObject rv = new JSONObject();
+    for(Iterator<String> cfgKeys = cfg.getKeys(); cfgKeys.hasNext();)
+    {
+      String key = cfgKeys.next();
+      String value = cfg.getString(key);
+      rv.put(key, value);
+    }
+    return rv;
   }
 }

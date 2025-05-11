@@ -45,7 +45,7 @@ public abstract class CoreAbstractPluginFactory<T extends CoreBasePlugin>
   protected Configuration cfg = null;
   protected String pluginCfgRadix = null;
   protected HashMap<String, Pair<String, Configuration>> cache = new HashMap<>();
-  protected ArrayList<String> arPlugins = new ArrayList<String>();
+  protected ArrayList<String> arPlugins = new ArrayList<>();
   public static final Pattern patClassname = Pattern.compile("^(.+).classname");
 
   /**

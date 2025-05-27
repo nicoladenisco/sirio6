@@ -45,6 +45,7 @@ import org.apache.turbine.services.TurbineServices;
 import org.apache.turbine.services.pull.PullService;
 import org.apache.turbine.services.pull.tools.UITool;
 import org.apache.turbine.util.RunData;
+import org.apache.velocity.context.Context;
 import org.commonlib5.exec.ExecHelper;
 import org.commonlib5.utils.*;
 import org.json.JSONObject;
@@ -1242,5 +1243,16 @@ public class SU extends StringOper
       rv.put(key, value);
     }
     return rv;
+  }
+
+  public static void json2Context(JSONObject jo, Context context)
+  {
+    Iterator<String> itr = jo.keys();
+    while(itr.hasNext())
+    {
+      String key = itr.next();
+      Object val = jo.get(key);
+      context.put(key, val);
+    }
   }
 }

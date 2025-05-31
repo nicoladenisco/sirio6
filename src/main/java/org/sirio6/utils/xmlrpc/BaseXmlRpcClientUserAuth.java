@@ -228,14 +228,14 @@ public class BaseXmlRpcClientUserAuth extends BaseXmlRpcClient
   /**
    * Ritorna la lista dei profili dell'utente autenticato.
    * @param clientID identificativo del token
-   * @return vettore di hashtable con i dati dei profili dell'utente
+   * @return lista di Map con i dati dei profili dell'utente
    * @deprecated usa i dati restituiti al logon (getInitResult)
    * @throws Exception
    */
   public List getListaProfiliUtente(String clientID)
      throws Exception
   {
-    return (List) call("getListaProfiliUtente", clientID);
+    return callAsList("getListaProfiliUtente", clientID);
   }
 
   /**

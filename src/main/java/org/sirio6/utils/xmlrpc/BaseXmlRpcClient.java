@@ -34,6 +34,8 @@ import org.commonlib5.xmlrpc.RemoteErrorException;
 /**
  * Implementazione di base dei client XML-RPC.
  *
+ * Nota: per aggiungere header al client vedi https://jugojava.blogspot.com/2011/03/custom-http-headers-with-xmlrpcclient.html
+ *
  * @author Nicola De Nisco
  */
 public class BaseXmlRpcClient
@@ -50,6 +52,16 @@ public class BaseXmlRpcClient
     this.server = url.getHost();
     this.port = url.getPort();
     init(url);
+  }
+
+  public BaseXmlRpcClient(String stubName, String server, int port)
+     throws Exception
+  {
+    this.stubName = stubName;
+    this.server = server;
+    this.port = port;
+    uri = String.format("http://%s:%d/RPC2", server, port);
+    init(new URL(uri));
   }
 
   protected void init(URL url)
@@ -80,16 +92,6 @@ public class BaseXmlRpcClient
     }
   }
 
-  public BaseXmlRpcClient(String stubName, String server, int port)
-     throws Exception
-  {
-    this.stubName = stubName;
-    this.server = server;
-    this.port = port;
-    uri = String.format("http://%s:%d/RPC2", server, port);
-    init(new URL(uri));
-  }
-
   /**
    * Chiamata di metodo remoto.
    * Lo stubname viene aggiunto al nome del metodo se non nullo.
@@ -117,7 +119,12 @@ public class BaseXmlRpcClient
      throws RemoteErrorException, XmlRpcException, IOException
   {
     Object rv = call(method, parameters);
+    return getAsList(rv);
+  }
 
+  public List getAsList(Object rv)
+     throws XmlRpcException
+  {
     if(rv instanceof List)
       return (List) rv;
 
@@ -131,11 +138,16 @@ public class BaseXmlRpcClient
      throws RemoteErrorException, XmlRpcException, IOException
   {
     Object rv = call(method, parameters);
+    return getAsMap(rv);
+  }
 
+  public Map getAsMap(Object rv)
+     throws XmlRpcException
+  {
     if(rv instanceof Map)
       return (Map) rv;
 
-    throw new XmlRpcException("The return type is not compatible with List.");
+    throw new XmlRpcException("The return type is not compatible with Map.");
   }
 
   /**

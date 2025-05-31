@@ -20,6 +20,7 @@ package org.sirio6.services.token;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
@@ -441,7 +442,7 @@ public class CoreTokenAuthService extends AbstractCoreBaseService
     jo.put("address", req.getRemoteAddr());
     jo.put("time", System.currentTimeMillis());
 
-    ByteBufferInputStream input = new ByteBufferInputStream(false, jo.toString().getBytes("UTF-8"));
+    ByteBufferInputStream input = new ByteBufferInputStream(false, jo.toString().getBytes(StandardCharsets.UTF_8));
     ByteBufferOutputStream encrypt = new ByteBufferOutputStream();
     RSAEncryptUtils.encryptDecryptFile(input, encrypt, prk, Cipher.ENCRYPT_MODE);
 
@@ -457,7 +458,7 @@ public class CoreTokenAuthService extends AbstractCoreBaseService
     ByteBufferOutputStream decrypt = new ByteBufferOutputStream();
     RSAEncryptUtils.encryptDecryptFile(input, decrypt, puk, Cipher.DECRYPT_MODE);
 
-    JSONObject jo = new JSONObject(new String(decrypt.getBytes(), "UTF-8"));
+    JSONObject jo = new JSONObject(decrypt.toString(StandardCharsets.UTF_8));
 
     if(decryptOnly)
       return jo;

@@ -19,24 +19,26 @@ package org.sirio6.servlets;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.FileItem;
+import javax.servlet.http.Part;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.fulcrum.mimetype.MimeTypeService;
-import org.apache.fulcrum.parser.DefaultParameterParser;
-import org.apache.fulcrum.upload.UploadService;
-import org.apache.turbine.services.TurbineServices;
+import org.apache.fulcrum.parser.ParameterParser;
 import org.commonlib5.utils.Pair;
 import org.sirio6.CoreConst;
 import org.sirio6.services.cache.FileCacheItem;
 import org.sirio6.services.localization.INT;
+import org.sirio6.utils.CoreRunData;
+import org.sirio6.utils.CoreRunDataHelper;
 import org.sirio6.utils.FU;
 import org.sirio6.utils.SU;
 
@@ -50,49 +52,33 @@ public class FileCacheServlet extends HttpServlet
   /** Logging */
   private static final Log pgmlog = LogFactory.getLog(FileCacheServlet.class);
 
-  private UploadService us = null;
-  private MimeTypeService mts = null;
-
-  // Initialize global variables
-  @Override
-  public void init()
-     throws ServletException
-  {
-    us = (UploadService) TurbineServices.getInstance().
-       getService(UploadService.ROLE);
-
-    mts = (MimeTypeService) TurbineServices.getInstance().
-       getService(MimeTypeService.ROLE);
-  }
-
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
      throws ServletException, IOException
   {
-    try
+    ArrayList<Pair<String, String>> arTickets = new ArrayList<>();
+
+    try(CoreRunDataHelper rundata = new CoreRunDataHelper(req, resp, this))
     {
-      DefaultParameterParser params = new DefaultParameterParser("UTF-8");
-      List<FileItem> fis = us.parseRequest(req);
+      CoreRunData data = rundata.getCoreRunData();
+      ParameterParser params = data.getParameters();
 
-      String nome = SU.okStrNull(params.getString("nome", null));
-      String tipoMime = SU.okStrNull(params.getString("tipoMime", null));
+      if(!data.isAuthorizedAll("uploadfiles"))
+        throw new Exception(INT.I("Operazione non consentita."));
 
-      if(fis == null || fis.isEmpty())
-        throw new Exception(INT.I("Nessun dato da salvare!"));
-
-      ArrayList<Pair<String, String>> arTickets = new ArrayList<>(fis.size());
-      for(FileItem fi : fis)
+      Collection<Part> parts = params.getParts();
+      for(Part part : parts)
       {
-        if(!SU.isOkStr(tipoMime) || SU.isEqu(CoreConst.AUTO_MIME, tipoMime))
-          if((tipoMime = fi.getContentType()) == null)
-            // nessuna definizione esplicita di tipo mime:
-            // cerchiamo di determinarlo automaticamente
-            tipoMime = mts.getContentType(fi.getName().toLowerCase());
+        String nome = SU.okStr(part.getName(), UUID.randomUUID().toString());
+        String tipoMime = SU.okStr(part.getContentType(), CoreConst.MIME_BINARY);
 
         File tmpFile = File.createTempFile("upload", ".tmp");
-        fi.write(tmpFile);
+        try(InputStream input = part.getInputStream())
+        {
+          Files.copy(input, tmpFile.toPath());
+        }
 
-        String fileName = SU.okStr(fi.getName(), nome);
+        String fileName = SU.okStr(part.getSubmittedFileName(), nome);
         String ticket = FileCacheItem.addFileToCache(tmpFile, tipoMime, fileName, false);
         arTickets.add(new Pair<>(fileName, ticket));
       }
@@ -102,14 +88,14 @@ public class FileCacheServlet extends HttpServlet
       arTickets.forEach((pa) -> out.printf("%s=%s\n", pa.first, pa.second));
       out.flush();
     }
-    catch(ServletException ex)
+    catch(ServletException | IOException ex)
     {
-      pgmlog.error("", ex);
+      pgmlog.error("UPLOAD FAILURE", ex);
       throw ex;
     }
     catch(Exception ex)
     {
-      pgmlog.error("", ex);
+      pgmlog.error("UPLOAD FAILURE", ex);
       throw new ServletException(ex);
     }
   }
@@ -137,12 +123,12 @@ public class FileCacheServlet extends HttpServlet
     }
     catch(ServletException ex)
     {
-      pgmlog.error("", ex);
+      pgmlog.error("DOWNLOAD FAILURE", ex);
       throw ex;
     }
     catch(Exception ex)
     {
-      pgmlog.error("", ex);
+      pgmlog.error("DOWNLOAD FAILURE", ex);
       throw new ServletException(ex);
     }
   }

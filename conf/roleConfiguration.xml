@@ -15,5 +15,9 @@ I componenti già registrati (name="...") vanno disattivati.
     name="org.apache.fulcrum.localization.LocalizationService"
     shorthand="localization"
     default-class="org.sirio6.services.localization.CoreLocalizationService"/>
+  <role
+    name="org.apache.fulcrum.parser.ParserService"
+    shorthand="parser"
+    default-class="org.sirio6.utils.CoreParserService"/>
 </role-list>
 

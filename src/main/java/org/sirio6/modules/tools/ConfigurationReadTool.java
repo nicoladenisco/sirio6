@@ -35,7 +35,8 @@ import org.commonlib5.utils.StringOper;
  */
 public class ConfigurationReadTool implements ApplicationTool
 {
-  Configuration cfg = null;
+  private Configuration cfg = null;
+  private final Properties tmpProp = new Properties();
 
   @Override
   public void init(Object data)
@@ -125,5 +126,20 @@ public class ConfigurationReadTool implements ApplicationTool
   public String getJavaEnv(String nome)
   {
     return System.getProperty(nome);
+  }
+
+  public String setJavaEnv(String nome, String valore)
+  {
+    return System.setProperty(nome, valore);
+  }
+
+  public String getTmpProp(String nome)
+  {
+    return tmpProp.getProperty(nome);
+  }
+
+  public String setTmpProp(String nome, String valore)
+  {
+    return (String) tmpProp.setProperty(nome, valore);
   }
 }

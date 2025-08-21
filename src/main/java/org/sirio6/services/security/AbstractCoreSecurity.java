@@ -211,6 +211,7 @@ abstract public class AbstractCoreSecurity extends BaseService
     return acl == null ? false : acl.hasRole(ADMIN_ROLE);
   }
 
+  @Override
   public boolean isAdmin(User user, TurbineAccessControlList acl)
   {
     // utente con id == 0 è amministratore (turbine)

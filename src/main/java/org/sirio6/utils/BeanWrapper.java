@@ -39,10 +39,10 @@ public class BeanWrapper
   protected PropertyDescriptor prop;
   protected Method getter = null;
   protected Method setter = null;
-  private Class valClass = null;
-  private Object refObject = null;
-  private final HashMap<String, PropertyDescriptor> htProp = new HashMap<>();
-  private final DataFormatter df = (DataFormatter) (TurbineServices.getInstance().
+  protected Class valClass = null;
+  protected Object refObject = null;
+  protected final HashMap<String, PropertyDescriptor> htProp = new HashMap<>();
+  protected final DataFormatter df = (DataFormatter) (TurbineServices.getInstance().
      getService(DataFormatter.SERVICE_NAME));
   public static final String OBJTYPE = "objClassName";
 
@@ -80,7 +80,7 @@ public class BeanWrapper
       makeObject(bean.getClass());
   }
 
-  private void makeHash()
+  protected void makeHash()
   {
     for(int i = 0; i < props.length; i++)
     {
@@ -93,7 +93,7 @@ public class BeanWrapper
     return refObject;
   }
 
-  private PropertyDescriptor findPropInternal(String propName)
+  protected PropertyDescriptor findPropInternal(String propName)
      throws Exception
   {
     PropertyDescriptor pd;
@@ -488,7 +488,7 @@ public class BeanWrapper
      throws Exception
   {
     if(ht == null)
-      ht = new HashMap<String, String>();
+      ht = new HashMap<>();
 
     Object val;
     for(int i = 0; i < props.length; i++)
@@ -512,7 +512,7 @@ public class BeanWrapper
      throws Exception
   {
     if(ht == null)
-      ht = new HashMap<String, String>();
+      ht = new HashMap<>();
 
     Object val;
     for(int i = 0; i < props.length; i++)
@@ -573,7 +573,7 @@ public class BeanWrapper
      throws Exception
   {
     if(st == null)
-      st = new HashSet<String>();
+      st = new HashSet<>();
 
     for(int i = 0; i < props.length; i++)
     {

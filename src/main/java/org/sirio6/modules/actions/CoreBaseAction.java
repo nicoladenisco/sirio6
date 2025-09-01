@@ -46,7 +46,7 @@ import org.sirio6.utils.TR;
  */
 public class CoreBaseAction extends VelocitySecureAction
 {
-  private Class beanClass = null;
+  protected Class beanClass = null;
   public CoreFatalErrorManager errorManager = new CoreFatalErrorManager();
 
   public Class getBeanClass()

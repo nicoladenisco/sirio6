@@ -160,6 +160,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @deprecated usare le funzioni salva con utente specificato: sono rientranti
    */
   @Override
+  @Deprecated
   public synchronized void setUserInfo(int idUser, boolean isAdmin)
      throws Exception
   {
@@ -174,6 +175,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @throws Exception
    * @deprecated usare le funzioni salva con utente specificato: sono rientranti
    */
+  @Deprecated
   public void setUserInfo(int idUser)
      throws Exception
   {
@@ -207,7 +209,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
         }
       }
 
-      try ( TableDataSet td = new TableDataSet(con, sc.tableName()))
+      try(TableDataSet td = new TableDataSet(con, sc.tableName()))
       {
         td.fetchByPrimaryKeysValues(pKey);
         return td.size() == 0 ? null : td.getRecord(0);
@@ -300,6 +302,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @deprecated usare la funzione salva(..,userID,...) perchè rientrante
    */
   @Override
+  @Deprecated
   public void salva(Record obj)
      throws Exception
   {
@@ -319,6 +322,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @deprecated usare la funzione salva(..,userID,...) perchè rientrante
    */
   @Override
+  @Deprecated
   public void salva(Record obj, int statoRecNew)
      throws Exception
   {
@@ -339,6 +343,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @throws Exception
    * @deprecated usare la funzione salva(..,userID,...) perchè rientrante
    */
+  @Deprecated
   public synchronized void salva(Record obj, int statoRecNew, int writeLevel)
      throws Exception
   {
@@ -362,6 +367,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @deprecated usare la funzione salva(..,userID,...) perchè rientrante
    */
   @Override
+  @Deprecated
   public void salva(Record obj, Connection dbCon, int statoRecNew)
      throws Exception
   {
@@ -378,6 +384,7 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
    * @throws Exception
    * @deprecated usare la funzione salva(..,userID,...) perchè rientrante
    */
+  @Deprecated
   public synchronized void salva(Record obj, Connection dbCon, int statoRecNew, int writeLevel)
      throws Exception
   {
@@ -530,7 +537,6 @@ public class CoreRecordObjectSaver implements RecordObjectSaver
     return Math.abs(d1.getTime() - d2.getTime()) < CoreConst.EPSI_DATE;
   }
 
-  //////////////////////////////////////////////////////////////////////
   public int getIdUser()
   {
     return idUser;

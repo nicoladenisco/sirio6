@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@ import javax.swing.tree.TreeNode;
  * @deprecated usa la nuova versione generic CoreTreeNodeImpl
  * @see CoreTreeNodeImpl
  */
+@Deprecated
 public abstract class CoreTreeNodeBaseImpl
    implements CoreTreeNode, Iterable, Collection
 {
@@ -187,17 +188,17 @@ public abstract class CoreTreeNodeBaseImpl
     if(idx > 0)
     {
       vChild.remove(child);
-      vChild.add(idx-1, child);
+      vChild.add(idx - 1, child);
     }
   }
 
   public void moveDown(TreeNode child)
   {
     int idx = vChild.indexOf(child);
-    if(idx > -1 && idx < vChild.size()-1)
+    if(idx > -1 && idx < vChild.size() - 1)
     {
       vChild.remove(child);
-      vChild.add(idx+1, child);
+      vChild.add(idx + 1, child);
     }
   }
 

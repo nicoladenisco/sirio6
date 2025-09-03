@@ -63,8 +63,9 @@ public class RigelListeTool
    * @param selfUrlVM url della pagina che contiene il tool
    * @return html completo
    * @throws Exception
-   * @deprecated
+   * @deprecated usa il metodo html()
    */
+  @Deprecated
   public String getHtml(RunData data, String lista, String selfUrlVM)
      throws Exception
   {
@@ -81,8 +82,9 @@ public class RigelListeTool
    * @param params parametri nella forma 'chiave=valore, chiave=valore'
    * @return html completo
    * @throws Exception
-   * @deprecated
+   * @deprecated usa il metodo html()
    */
+  @Deprecated
   public String getHtml(RunData data, String lista, String selfUrlVM, String params)
      throws Exception
   {

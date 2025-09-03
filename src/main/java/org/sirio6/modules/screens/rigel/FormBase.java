@@ -109,6 +109,7 @@ abstract public class FormBase extends RigelEditBaseScreen
     HashMap<String, String> extraParams = new HashMap<>();
     extraParams.put("jlc", type);
     extraParams.put("jvm", ClassOper.getClassName(getClass()) + ".vm");
+    params.forEach((k, v) -> extraParams.put(k.toString(), v.toString()));
 
     String html = getHtmlEdit(data, context, pwl, params, session, forceNew, extraParams);
     String scTest = getScriptTest(data, context, pwl, params, session, forceNew);

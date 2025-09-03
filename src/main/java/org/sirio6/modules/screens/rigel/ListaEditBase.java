@@ -65,6 +65,7 @@ abstract public class ListaEditBase extends RigelEditBaseScreen
     HashMap<String, String> extraParams = new HashMap<>();
     extraParams.put("jlc", type);
     extraParams.put("jvm", ClassOper.getClassName(getClass()) + ".vm");
+    params.forEach((k, v) -> extraParams.put(k.toString(), v.toString()));
 
     synchronized(eh)
     {

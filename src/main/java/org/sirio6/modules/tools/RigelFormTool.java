@@ -63,8 +63,9 @@ public class RigelFormTool
    * @param params parametri nella forma 'chiave=valore, chiave=valore'
    * @return html completo
    * @throws Exception
-   * @deprecated
+   * @deprecated usa il metodo html()
    */
+  @Deprecated
   public String getHtml(RunData data, String form, String selfUrlVM, String params)
      throws Exception
   {
@@ -108,8 +109,9 @@ public class RigelFormTool
    * @param params parametri nella forma 'chiave=valore, chiave=valore'
    * @return html completo
    * @throws Exception
-   * @deprecated
+   * @deprecated usa il metodo htmlNoForm()
    */
+  @Deprecated
   public String getHtmlNoForm(RunData data, String form, String selfUrlVM, String formName, String params)
      throws Exception
   {

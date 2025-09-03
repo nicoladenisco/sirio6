@@ -40,6 +40,7 @@ import org.sirio6.utils.SU;
  * @param <T>
  * @deprecated usa TableRelationCache2, TableRelationCache3, TableRelationCache4
  */
+@Deprecated
 public class TableRelationCache<T extends Persistent> extends ArrayList<T>
 {
   private Map<ObjectKey, Persistent> mapValues = new HashMap<ObjectKey, Persistent>();

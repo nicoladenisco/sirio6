@@ -232,6 +232,7 @@ public class BaseXmlRpcClientUserAuth extends BaseXmlRpcClient
    * @deprecated usa i dati restituiti al logon (getInitResult)
    * @throws Exception
    */
+  @Deprecated
   public List getListaProfiliUtente(String clientID)
      throws Exception
   {

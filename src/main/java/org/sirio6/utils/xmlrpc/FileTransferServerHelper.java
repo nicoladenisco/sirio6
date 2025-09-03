@@ -141,6 +141,7 @@ public class FileTransferServerHelper extends CoreTokenBean
    * @throws Exception
    * @deprecated usa getFileBlockCRC32
    */
+  @Deprecated
   public byte[] getFileBlock(String idFile, int block)
      throws Exception
   {
@@ -255,6 +256,7 @@ public class FileTransferServerHelper extends CoreTokenBean
    * @throws Exception
    * @deprecated usa putFileBlockCRC32
    */
+  @Deprecated
   public int putFileBlock(String idFile, int block, byte[] data)
      throws Exception
   {

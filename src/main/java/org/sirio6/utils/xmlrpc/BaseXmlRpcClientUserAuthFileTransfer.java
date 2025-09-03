@@ -69,6 +69,7 @@ public class BaseXmlRpcClientUserAuthFileTransfer extends BaseXmlRpcClientUserAu
    * @deprecated usa getFileBlockCRC32
    */
   @Override
+  @Deprecated
   public byte[] getFileBlock(String clientID, String idFile, int block)
      throws Exception
   {
@@ -87,6 +88,7 @@ public class BaseXmlRpcClientUserAuthFileTransfer extends BaseXmlRpcClientUserAu
    * @throws Exception
    * @deprecated usa getFileBlockCRC32
    */
+  @Deprecated
   public byte[] getFileBlock(String idFile, int block)
      throws Exception
   {
@@ -133,6 +135,7 @@ public class BaseXmlRpcClientUserAuthFileTransfer extends BaseXmlRpcClientUserAu
    * @deprecated usa putFileBlockCRC32
    */
   @Override
+  @Deprecated
   public int putFileBlock(String clientID, String idFile, int block, byte[] data)
      throws Exception
   {
@@ -153,6 +156,7 @@ public class BaseXmlRpcClientUserAuthFileTransfer extends BaseXmlRpcClientUserAu
    * @throws Exception
    * @deprecated usa putFileBlockCRC32
    */
+  @Deprecated
   public int putFileBlock(String idFile, int block, byte[] data)
      throws Exception
   {

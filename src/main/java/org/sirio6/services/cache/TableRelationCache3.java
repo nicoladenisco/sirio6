@@ -42,7 +42,9 @@ import org.sirio6.utils.SU;
  * @author Nicola De Nisco
  * @param <T> Tipo di oggetti recuperati
  * @param <O> Tipo di oggetti origine
+ * @deprecated usa TableRelationCache5 per una implementazione migliore e semplificata
  */
+@Deprecated
 public class TableRelationCache3<T extends Persistent, O extends Persistent> extends ArrayList<T>
 {
   private final Map<ObjectKey, Persistent> mapValues = new HashMap<>();

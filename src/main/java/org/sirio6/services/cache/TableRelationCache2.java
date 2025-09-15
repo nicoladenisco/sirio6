@@ -42,7 +42,9 @@ import org.sirio6.utils.SU;
  * @author Nicola De Nisco
  * @param <T> Tipo di oggetti recuperati
  * @param <O> Tipo di oggetti origine
+ * @deprecated usa TableRelationCache4 per una implementazione migliore e semplificata
  */
+@Deprecated
 public class TableRelationCache2<T extends Persistent, O extends Persistent> extends ArrayList<T>
    implements TableRelationLink<T, O>
 {

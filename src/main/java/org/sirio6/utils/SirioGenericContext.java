@@ -224,6 +224,11 @@ public class SirioGenericContext extends HashMap<String, Object>
 
   public String getMessage()
   {
+    return getMessage("\n");
+  }
+
+  public String getMessage(String separatore)
+  {
     switch(messages.size())
     {
       case 0:
@@ -233,7 +238,7 @@ public class SirioGenericContext extends HashMap<String, Object>
         return messages.get(0);
 
       default:
-        return StringJoin.build("\n").add(messages).join();
+        return StringJoin.build(separatore).add(messages).join();
     }
   }
 

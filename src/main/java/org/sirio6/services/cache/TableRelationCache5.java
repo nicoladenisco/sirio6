@@ -140,6 +140,29 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
     throw new Exception("nessuna chiave esterna disponibile");
   }
 
+  public boolean haveDetail(Collection<O> lsDettails)
+     throws Exception
+  {
+    if(lsDettails.isEmpty())
+      return false;
+
+    O primo = lsDettails.iterator().next();
+    TableMapHelper tmDettail = TableMapHelper.getByObject(primo);
+
+    for(ForeignKeyMap fkm : tmDettail.getTmap().getForeignKeys())
+    {
+      if(fkm.getForeignTableName().equals(targetTableName))
+      {
+        if(fkm.getColumns().size() != 1)
+          throw new Exception("troppe colonne in chiave esterna: solo una supportata");
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /**
    * Caricatore dei dati da detail.
    * Carica in memoria tutti gli oggetti collegati all'array passato come parametro.
@@ -291,6 +314,31 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
     throw new Exception("Nessuna chiave esterna disponibile.");
   }
 
+  public boolean haveMaster(Collection<O> lsMasters)
+     throws Exception
+  {
+    if(lsMasters.isEmpty())
+      return false;
+
+    O primo = lsMasters.iterator().next();
+    TableMapHelper tmMaster = TableMapHelper.getByObject(primo);
+    String masterTableName = tmMaster.getNomeTabella();
+
+    TableMap tm = (TableMap) getTableMap.invoke(null);
+    for(ForeignKeyMap fkm : tm.getForeignKeys())
+    {
+      if(fkm.getForeignTableName().equals(masterTableName))
+      {
+        if(fkm.getColumns().size() != 1)
+          throw new Exception("troppe colonne in chiave esterna: solo una supportata");
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /**
    * Caricatore dei dati da master.
    * Carica in memoria tutti gli oggetti collegati all'array passato come parametro.
@@ -400,6 +448,27 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
       Persistent val = (Persistent) lsValues.get(i);
       mapValues.put(val.getPrimaryKey(), val);
     }
+  }
+
+  public void loadDataAuto(Collection<O> lsOther, Collection<String> ignoreTableName, Connection con)
+     throws Exception
+  {
+    if(lsOther.isEmpty())
+      return;
+
+    if(haveDetail(lsOther))
+    {
+      loadDataFromDetailAuto(lsOther, ignoreTableName, con);
+      return;
+    }
+
+    if(haveMaster(lsOther))
+    {
+      loadDataFromMasterAuto(lsOther, ignoreTableName, con);
+      return;
+    }
+
+    throw new Exception("Nessuna chiave esterna disponibile.");
   }
 
   /**

@@ -243,6 +243,7 @@ public class CoreBaseAction extends VelocitySecureAction
      throws Exception
   {
     CoreRunData rdata = (CoreRunData) getRunData(data);
+    rdata.setLastAction(this.getClass());
 
     if(!rdata.getUser().hasLoggedIn())
     {

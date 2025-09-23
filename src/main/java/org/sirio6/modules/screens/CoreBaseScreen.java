@@ -184,6 +184,7 @@ public class CoreBaseScreen extends VelocitySecureScreen
   {
     int numAllarmi = 0;
     CoreRunData rdata = (CoreRunData) getRunData(data);
+    rdata.setLastScreen(this.getClass());
 
     if((numAllarmi = ALLARM.getActiveAllarms()) != 0)
     {

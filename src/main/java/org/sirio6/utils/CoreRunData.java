@@ -48,6 +48,7 @@ public class CoreRunData extends DefaultTurbineRunData
 {
   private LocalizationService lsrv = null;
   private String refresh = null;
+  private Class lastScreen = null, lastAction = null;
   private static String homeLink = null;
 
   private final DataFormatter df;
@@ -584,6 +585,26 @@ public class CoreRunData extends DefaultTurbineRunData
     {
       return "ERRORE: " + ex.getMessage();
     }
+  }
+
+  public Class getLastScreen()
+  {
+    return lastScreen;
+  }
+
+  public void setLastScreen(Class lastScreen)
+  {
+    this.lastScreen = lastScreen;
+  }
+
+  public Class getLastAction()
+  {
+    return lastAction;
+  }
+
+  public void setLastAction(Class lastAction)
+  {
+    this.lastAction = lastAction;
   }
 
   /**

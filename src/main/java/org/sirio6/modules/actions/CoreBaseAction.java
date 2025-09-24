@@ -296,7 +296,14 @@ public class CoreBaseAction extends VelocitySecureAction
   protected boolean verificaPaginaRitorno(CoreRunData data, CoreBaseBean bean)
      throws Exception
   {
-    return verificaPaginaRitorno(data, SU.okStrNull(bean.getJlc()), SU.okStrNull(bean.getJvm()));
+    final String jlc = bean == null ? null : SU.okStrNull(bean.getJlc());
+    final String jvm = bean == null ? null : SU.okStrNull(bean.getJvm());
+    if(verificaPaginaRitorno(data, jlc, jvm))
+      return true;
+
+    // se non può fare meglio torna alla homepage
+    data.getTemplateInfo().setScreenTemplate(data.getHomeScreen());
+    return true;
   }
 
   protected boolean verificaPaginaRitorno(CoreRunData data, String jlc, String jvm)

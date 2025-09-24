@@ -29,8 +29,6 @@ import org.apache.torque.om.NumberKey;
 import org.apache.torque.om.ObjectKey;
 import org.apache.torque.om.Persistent;
 import org.apache.torque.om.SimpleKey;
-import org.commonlib5.lambda.PredicateThrowException;
-import org.sirio6.utils.SU;
 
 /**
  * Cache per relazioni fra tabelle.
@@ -340,102 +338,5 @@ public class TableRelationCache2<T extends Persistent, O extends Persistent> ext
   public T findByPrimaryKey(ObjectKey toSearch)
   {
     return (T) mapValues.get(toSearch);
-  }
-
-  /**
-   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
-   * @param fieldName nome del campo
-   * @param valueFilter valore del viltro
-   * @param ignoreDeleted se vero ignora cancellati (StatoRec ge 10)
-   * @return lista di oggetti
-   */
-  public List<T> extractByFieldValue(String fieldName, Object valueFilter, boolean ignoreDeleted)
-  {
-    ArrayList<T> rv = new ArrayList<>();
-
-    for(Iterator itr = iterator(); itr.hasNext();)
-    {
-      ColumnAccessByName val = (ColumnAccessByName) itr.next();
-
-      if(ignoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
-        continue;
-
-      if(SU.isEqu(valueFilter, val.getByName(fieldName)))
-        rv.add((T) val);
-    }
-
-    return rv;
-  }
-
-  /**
-   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
-   * @param fieldName nome del campo
-   * @param valueFilter valore del viltro
-   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
-   * @return lista di oggetti
-   */
-  public List<T> extractByFieldValuePeerName(String fieldName, Object valueFilter, boolean ignoreDeleted)
-  {
-    ArrayList<T> rv = new ArrayList<>();
-
-    for(Iterator itr = iterator(); itr.hasNext();)
-    {
-      ColumnAccessByName val = (ColumnAccessByName) itr.next();
-
-      if(ignoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
-        continue;
-
-      if(SU.isEqu(valueFilter, val.getByPeerName(fieldName)))
-        rv.add((T) val);
-    }
-
-    return rv;
-  }
-
-  /**
-   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
-   * @param cm riferimento al campo da cercare
-   * @param valueFilter valore del viltro
-   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
-   * @return lista di oggetti
-   */
-  public List<T> extractByFieldValuePeerName(ColumnMap cm, Object valueFilter, boolean ignoreDeleted)
-  {
-    return extractByFieldValuePeerName(cm.getColumnName(), valueFilter, ignoreDeleted);
-  }
-
-  /**
-   * Ritorna il primo oggetto che soddisfa il filtro.
-   * @param fn espressione lambda del filtro
-   * @return oggetto o null
-   * @throws Exception
-   */
-  public T findFirst(PredicateThrowException<T> fn)
-     throws Exception
-  {
-    for(T t : this)
-    {
-      if(fn.test(t))
-        return t;
-    }
-    return null;
-  }
-
-  /**
-   * Ritorna l'ultimo oggetto che soddisfa il filtro.
-   * @param fn espressione lambda del filtro
-   * @return oggetto o null
-   * @throws Exception
-   */
-  public T findLast(PredicateThrowException<T> fn)
-     throws Exception
-  {
-    T rv = null;
-    for(T t : this)
-    {
-      if(fn.test(t))
-        rv = t;
-    }
-    return rv;
   }
 }

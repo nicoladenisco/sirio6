@@ -29,11 +29,7 @@ import org.apache.torque.om.ColumnAccessByName;
 import org.apache.torque.om.NumberKey;
 import org.apache.torque.om.ObjectKey;
 import org.apache.torque.om.Persistent;
-import org.commonlib5.lambda.ConsumerThrowException;
-import org.commonlib5.lambda.FunctionTrowException;
-import org.commonlib5.lambda.PredicateThrowException;
 import org.rigel5.db.torque.TableMapHelper;
-import org.sirio6.utils.SU;
 
 /**
  * Cache per relazioni fra tabelle.
@@ -48,6 +44,7 @@ import org.sirio6.utils.SU;
  * @param <O> Tipo di oggetti origine
  */
 public class TableRelationCache5<T extends Persistent, O extends Persistent> extends ArrayList<T>
+   implements TableRelationLink<T, O>
 {
   private final Class targetPeerClass;
   private final Method doSelectJoinAllForBeans;
@@ -65,8 +62,8 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
         throw new Exception("Deve essere un oggetto Peer.");
 
       targetPeerClass = cls;
-      doSelectJoinAllForBeans
-         = cls.getMethod("doSelectJoinAllForBeans", Criteria.class, Collection.class, Connection.class);
+      doSelectJoinAllForBeans = targetPeerClass.getMethod(
+         "doSelectJoinAllForBeans", Criteria.class, Collection.class, Connection.class);
       getTableMap = targetPeerClass.getMethod("getTableMap");
 
       targetTableMap = (TableMap) getTableMap.invoke(null);
@@ -138,29 +135,6 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
     }
 
     throw new Exception("nessuna chiave esterna disponibile");
-  }
-
-  public boolean haveDetail(Collection<O> lsDettails)
-     throws Exception
-  {
-    if(lsDettails.isEmpty())
-      return false;
-
-    O primo = lsDettails.iterator().next();
-    TableMapHelper tmDettail = TableMapHelper.getByObject(primo);
-
-    for(ForeignKeyMap fkm : tmDettail.getTmap().getForeignKeys())
-    {
-      if(fkm.getForeignTableName().equals(targetTableName))
-      {
-        if(fkm.getColumns().size() != 1)
-          throw new Exception("troppe colonne in chiave esterna: solo una supportata");
-
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
@@ -314,31 +288,6 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
     throw new Exception("Nessuna chiave esterna disponibile.");
   }
 
-  public boolean haveMaster(Collection<O> lsMasters)
-     throws Exception
-  {
-    if(lsMasters.isEmpty())
-      return false;
-
-    O primo = lsMasters.iterator().next();
-    TableMapHelper tmMaster = TableMapHelper.getByObject(primo);
-    String masterTableName = tmMaster.getNomeTabella();
-
-    TableMap tm = (TableMap) getTableMap.invoke(null);
-    for(ForeignKeyMap fkm : tm.getForeignKeys())
-    {
-      if(fkm.getForeignTableName().equals(masterTableName))
-      {
-        if(fkm.getColumns().size() != 1)
-          throw new Exception("troppe colonne in chiave esterna: solo una supportata");
-
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   /**
    * Caricatore dei dati da master.
    * Carica in memoria tutti gli oggetti collegati all'array passato come parametro.
@@ -450,27 +399,6 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
     }
   }
 
-  public void loadDataAuto(Collection<O> lsOther, Collection<String> ignoreTableName, Connection con)
-     throws Exception
-  {
-    if(lsOther.isEmpty())
-      return;
-
-    if(haveDetail(lsOther))
-    {
-      loadDataFromDetailAuto(lsOther, ignoreTableName, con);
-      return;
-    }
-
-    if(haveMaster(lsOther))
-    {
-      loadDataFromMasterAuto(lsOther, ignoreTableName, con);
-      return;
-    }
-
-    throw new Exception("Nessuna chiave esterna disponibile.");
-  }
-
   /**
    * Recupera il record richiesto.
    * @param id chiave primaria
@@ -492,139 +420,44 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
   }
 
   /**
-   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
-   * @param fieldName nome del campo
-   * @param valueFilter valore del viltro
-   * @param ignoreDeleted se vero ignora cancellati (StatoRec ge 10)
-   * @return lista di oggetti
-   */
-  public List<T> extractByFieldValue(String fieldName, Object valueFilter, boolean ignoreDeleted)
-  {
-    ArrayList<T> rv = new ArrayList<>();
-
-    for(Iterator itr = iterator(); itr.hasNext();)
-    {
-      ColumnAccessByName val = (ColumnAccessByName) itr.next();
-
-      if(ignoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
-        continue;
-
-      if(SU.isEqu(valueFilter, val.getByName(fieldName)))
-        rv.add((T) val);
-    }
-
-    return rv;
-  }
-
-  /**
-   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
-   * @param fieldName nome del campo
-   * @param valueFilter valore del viltro
-   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
-   * @return lista di oggetti
-   */
-  public List<T> extractByFieldValuePeerName(String fieldName, Object valueFilter, boolean ignoreDeleted)
-  {
-    ArrayList<T> rv = new ArrayList<>();
-
-    for(Iterator itr = iterator(); itr.hasNext();)
-    {
-      ColumnAccessByName val = (ColumnAccessByName) itr.next();
-
-      if(ignoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
-        continue;
-
-      if(SU.isEqu(valueFilter, val.getByPeerName(fieldName)))
-        rv.add((T) val);
-    }
-
-    return rv;
-  }
-
-  /**
-   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
-   * @param cm riferimento al campo da cercare
-   * @param valueFilter valore del viltro
-   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
-   * @return lista di oggetti
-   */
-  public List<T> extractByFieldValuePeerName(ColumnMap cm, Object valueFilter, boolean ignoreDeleted)
-  {
-    return extractByFieldValuePeerName(cm.getColumnName(), valueFilter, ignoreDeleted);
-  }
-
-  /**
-   * Ritorna il primo oggetto che soddisfa il filtro.
-   * @param fn espressione lambda del filtro
-   * @return oggetto o null
+   * Analizza le relazioni fra le due tabelle
+   * e determina se il collegamento rispetto al target
+   * è master o detail.
+   * @param lsOther lista di altri oggetti
+   * @return una delle costanti TARGET_...
    * @throws Exception
    */
-  public T findFirst(PredicateThrowException<T> fn)
+  public int getRelationType(Collection<O> lsOther)
      throws Exception
   {
-    for(T t : this)
-    {
-      if(fn.test(t))
-        return t;
-    }
-    return null;
+    return getRelationType(lsOther, targetTableName, targetTableMap);
   }
 
   /**
-   * Ritorna l'ultimo oggetto che soddisfa il filtro.
-   * @param fn espressione lambda del filtro
-   * @return oggetto o null
+   * Caricamento automatico da dati collegati.
+   * Viene determinato in automatico il tipo di legame fra target e origin.
+   * @param lsOther lista di altri oggetti
+   * @param ignoreTableName una lista di tabelle da ignorare nella join all
+   * @param con connessione al db (read only)
    * @throws Exception
    */
-  public T findLast(PredicateThrowException<T> fn)
+  public void loadDataAuto(Collection<O> lsOther, Collection<String> ignoreTableName, Connection con)
      throws Exception
   {
-    T rv = null;
-    for(T t : this)
-    {
-      if(fn.test(t))
-        rv = t;
-    }
-    return rv;
-  }
+    if(lsOther.isEmpty())
+      return;
 
-  /**
-   * Esegue sul primo oggetto che soddisfa il filtro.
-   * @param fn espressione lambda del filtro
-   * @param call azione da intraprendere
-   * @return oggetto che ha ricevuto l'azione o null
-   * @throws Exception
-   */
-  public T findFirstExecute(PredicateThrowException<T> fn, ConsumerThrowException<T> call)
-     throws Exception
-  {
-    for(T t : this)
+    switch(getRelationType(lsOther))
     {
-      if(fn.test(t))
-      {
-        call.accept(t);
-        return t;
-      }
-    }
-    return null;
-  }
+      case TARGET_DETAIL:
+        loadDataFromDetailAuto(lsOther, ignoreTableName, con);
+        return;
 
-  /**
-   * Esegue sul primo oggetto che soddisfa il filtro.
-   * @param <V> tipo di ritorno azione
-   * @param fn espressione lambda del filtro
-   * @param call azione da intraprendere
-   * @return oggetto che ha ricevuto l'azione o null
-   * @throws Exception
-   */
-  public <V> V findFirstFunction(PredicateThrowException<T> fn, FunctionTrowException<T, V> call)
-     throws Exception
-  {
-    for(T t : this)
-    {
-      if(fn.test(t))
-        return call.apply(t);
+      case TARGET_MASTER:
+        loadDataFromMasterAuto(lsOther, ignoreTableName, con);
+        return;
     }
-    return null;
+
+    throw new Exception("Nessuna chiave esterna disponibile.");
   }
 }

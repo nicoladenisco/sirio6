@@ -24,12 +24,10 @@ import java.util.function.Function;
 import org.apache.torque.criteria.Criteria;
 import org.apache.torque.map.ColumnMap;
 import org.apache.torque.map.TableMap;
-import org.apache.torque.om.ColumnAccessByName;
 import org.apache.torque.om.NumberKey;
 import org.apache.torque.om.ObjectKey;
 import org.apache.torque.om.Persistent;
 import org.rigel5.db.torque.TableMapHelper;
-import org.sirio6.utils.SU;
 
 /**
  * Cache per relazioni fra tabelle.
@@ -46,6 +44,7 @@ import org.sirio6.utils.SU;
  */
 @Deprecated
 public class TableRelationCache3<T extends Persistent, O extends Persistent> extends ArrayList<T>
+   implements TableRelationLink<T, O>
 {
   private final Map<ObjectKey, Persistent> mapValues = new HashMap<>();
   private String tableName;
@@ -66,7 +65,7 @@ public class TableRelationCache3<T extends Persistent, O extends Persistent> ext
      throws Exception
   {
     // recupera tutte le chiavi primarie dalla lista oggetti
-    HashSet<Integer> primaryKeys = new HashSet<Integer>();
+    HashSet<Integer> primaryKeys = new HashSet<>();
     for(O obj : lsDettails)
     {
       primaryKeys.add((Integer) getLinkM.invoke(obj));
@@ -93,7 +92,7 @@ public class TableRelationCache3<T extends Persistent, O extends Persistent> ext
      throws Exception
   {
     // recupera tutte le chiavi primarie dalla lista oggetti
-    HashSet<Integer> primaryKeys = new HashSet<Integer>();
+    HashSet<Integer> primaryKeys = new HashSet<>();
     for(O obj : lsDettails)
     {
       primaryKeys.add(fnMap.apply(obj));
@@ -146,7 +145,7 @@ public class TableRelationCache3<T extends Persistent, O extends Persistent> ext
      throws Exception
   {
     // recupera tutti i valori dalla lista oggetti
-    HashSet<Integer> primaryKeys = new HashSet<Integer>();
+    HashSet<Integer> primaryKeys = new HashSet<>();
     for(O obj : lsMasters)
     {
       primaryKeys.add((Integer) getLinkM.invoke(obj));
@@ -175,7 +174,7 @@ public class TableRelationCache3<T extends Persistent, O extends Persistent> ext
      throws Exception
   {
     // recupera tutti i valori dalla lista oggetti
-    HashSet<Integer> primaryKeys = new HashSet<Integer>();
+    HashSet<Integer> primaryKeys = new HashSet<>();
     for(O obj : lsMasters)
     {
       primaryKeys.add(fnMap.apply(obj));
@@ -251,24 +250,5 @@ public class TableRelationCache3<T extends Persistent, O extends Persistent> ext
      throws Exception
   {
     return (T) mapValues.get(toSearch);
-  }
-
-  public List<T> extractByFieldValue(String fieldName, Object valueFilter, boolean ingoreDeleted)
-     throws Exception
-  {
-    ArrayList<T> rv = new ArrayList<>();
-
-    for(Iterator itr = iterator(); itr.hasNext();)
-    {
-      ColumnAccessByName val = (ColumnAccessByName) itr.next();
-
-      if(ingoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
-        continue;
-
-      if(SU.isEqu(valueFilter, val.getByName(fieldName)))
-        rv.add((T) val);
-    }
-
-    return rv;
   }
 }

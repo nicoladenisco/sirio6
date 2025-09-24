@@ -19,8 +19,20 @@ package org.sirio6.services.cache;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.torque.map.ColumnMap;
+import org.apache.torque.map.ForeignKeyMap;
+import org.apache.torque.map.TableMap;
+import org.apache.torque.om.ColumnAccessByName;
 import org.apache.torque.om.Persistent;
+import org.commonlib5.lambda.ConsumerThrowException;
+import org.commonlib5.lambda.FunctionTrowException;
+import org.commonlib5.lambda.PredicateThrowException;
+import org.rigel5.db.torque.TableMapHelper;
+import org.sirio6.utils.SU;
 
 /**
  * Caricamento ottimizzato di tabelle collegate.
@@ -30,7 +42,12 @@ import org.apache.torque.om.Persistent;
  * @param <O> Tipo di oggetti origine
  */
 public interface TableRelationLink<T extends Persistent, O extends Persistent>
+   extends Iterable<T>
 {
+  public static final int TARGET_UNDEFINED = 0;
+  public static final int TARGET_DETAIL = 1;
+  public static final int TARGET_MASTER = 2;
+
   /**
    * Recupera metodo per chiave primaria.
    * A causa del cambio nome in Torque 5.1 e successivi
@@ -69,5 +86,187 @@ public interface TableRelationLink<T extends Persistent, O extends Persistent>
     {
       throw securityException;
     }
+  }
+
+  /**
+   * Analizza le relazioni fra le due tabelle
+   * e determina se il collegamento rispetto al target
+   * è master o detail.
+   * @param lsOther lista di altri oggetti
+   * @param targetTableName nome tabella del target
+   * @param targetTableMap tablemap del target
+   * @return una delle costanti TARGET_...
+   * @throws Exception
+   */
+  public default int getRelationType(Collection<O> lsOther, String targetTableName, TableMap targetTableMap)
+     throws Exception
+  {
+    if(lsOther.isEmpty())
+      return TARGET_UNDEFINED;
+
+    O primo = lsOther.iterator().next();
+    TableMapHelper tmOther = TableMapHelper.getByObject(primo);
+    String otherTableName = tmOther.getNomeTabella();
+
+    for(ForeignKeyMap fkm : tmOther.getTmap().getForeignKeys())
+    {
+      if(fkm.getForeignTableName().equals(targetTableName))
+      {
+        if(fkm.getColumns().size() != 1)
+          throw new Exception("troppe colonne in chiave esterna: solo una supportata");
+
+        return TARGET_DETAIL;
+      }
+    }
+
+    for(ForeignKeyMap fkm : targetTableMap.getForeignKeys())
+    {
+      if(fkm.getForeignTableName().equals(otherTableName))
+      {
+        if(fkm.getColumns().size() != 1)
+          throw new Exception("troppe colonne in chiave esterna: solo una supportata");
+
+        return TARGET_MASTER;
+      }
+    }
+
+    return TARGET_UNDEFINED;
+  }
+
+  /**
+   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
+   * @param fieldName nome del campo
+   * @param valueFilter valore del viltro
+   * @param ignoreDeleted se vero ignora cancellati (StatoRec ge 10)
+   * @return lista di oggetti
+   */
+  public default List<T> extractByFieldValue(String fieldName, Object valueFilter, boolean ignoreDeleted)
+  {
+    ArrayList<T> rv = new ArrayList<>();
+
+    for(Iterator itr = iterator(); itr.hasNext();)
+    {
+      ColumnAccessByName val = (ColumnAccessByName) itr.next();
+
+      if(ignoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
+        continue;
+
+      if(SU.isEqu(valueFilter, val.getByName(fieldName)))
+        rv.add((T) val);
+    }
+
+    return rv;
+  }
+
+  /**
+   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
+   * @param fieldName nome del campo
+   * @param valueFilter valore del viltro
+   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
+   * @return lista di oggetti
+   */
+  public default List<T> extractByFieldValuePeerName(String fieldName, Object valueFilter, boolean ignoreDeleted)
+  {
+    ArrayList<T> rv = new ArrayList<>();
+
+    for(Iterator itr = iterator(); itr.hasNext();)
+    {
+      ColumnAccessByName val = (ColumnAccessByName) itr.next();
+
+      if(ignoreDeleted && SU.parse(val.getByName("StatoRec"), 0) >= 10)
+        continue;
+
+      if(SU.isEqu(valueFilter, val.getByPeerName(fieldName)))
+        rv.add((T) val);
+    }
+
+    return rv;
+  }
+
+  /**
+   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
+   * @param cm riferimento al campo da cercare
+   * @param valueFilter valore del viltro
+   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
+   * @return lista di oggetti
+   */
+  public default List<T> extractByFieldValuePeerName(ColumnMap cm, Object valueFilter, boolean ignoreDeleted)
+  {
+    return extractByFieldValuePeerName(cm.getColumnName(), valueFilter, ignoreDeleted);
+  }
+
+  /**
+   * Ritorna il primo oggetto che soddisfa il filtro.
+   * @param fn espressione lambda del filtro
+   * @return oggetto o null
+   * @throws Exception
+   */
+  public default T findFirst(PredicateThrowException<T> fn)
+     throws Exception
+  {
+    for(T t : this)
+    {
+      if(fn.test(t))
+        return t;
+    }
+    return null;
+  }
+
+  /**
+   * Ritorna l'ultimo oggetto che soddisfa il filtro.
+   * @param fn espressione lambda del filtro
+   * @return oggetto o null
+   * @throws Exception
+   */
+  public default T findLast(PredicateThrowException<T> fn)
+     throws Exception
+  {
+    T rv = null;
+    for(T t : this)
+    {
+      if(fn.test(t))
+        rv = t;
+    }
+    return rv;
+  }
+
+  /**
+   * Esegue sul primo oggetto che soddisfa il filtro.
+   * @param fn espressione lambda del filtro
+   * @param call azione da intraprendere
+   * @return oggetto che ha ricevuto l'azione o null
+   * @throws Exception
+   */
+  public default T findFirstExecute(PredicateThrowException<T> fn, ConsumerThrowException<T> call)
+     throws Exception
+  {
+    for(T t : this)
+    {
+      if(fn.test(t))
+      {
+        call.accept(t);
+        return t;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Esegue sul primo oggetto che soddisfa il filtro.
+   * @param <V> tipo di ritorno azione
+   * @param fn espressione lambda del filtro
+   * @param call azione da intraprendere
+   * @return oggetto che ha ricevuto l'azione o null
+   * @throws Exception
+   */
+  public default <V> V findFirstFunction(PredicateThrowException<T> fn, FunctionTrowException<T, V> call)
+     throws Exception
+  {
+    for(T t : this)
+    {
+      if(fn.test(t))
+        return call.apply(t);
+    }
+    return null;
   }
 }

@@ -18,6 +18,7 @@
 package org.sirio6.servlets;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -29,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.XmlRpcServletServer;
-import org.sirio6.services.localization.INT;
 import org.sirio6.utils.TR;
 
 /**
@@ -45,16 +45,21 @@ public class EmbeddedXmlRpc extends HttpServlet
   /** Logging */
   private static final Log log = LogFactory.getLog(EmbeddedXmlRpc.class);
   /** Gestore connessioni xmlrpc */
-  protected XmlRpcServletServer server = new XmlRpcServletServer();
+  protected final XmlRpcServletServer server = new XmlRpcServletServer();
+  protected boolean enabledForExtensions = true;
+  protected boolean contentLengthOptional = false;
 
   @Override
   public void init()
      throws ServletException
   {
     super.init();
-
+    Configuration conf = getPropertiesConfiguration();
     PropertyHandlerMapping phm = new PropertyHandlerMapping();
-    Configuration conf = TR.getConfiguration("services.XmlRpcService.embedded");
+
+    // setup generale dalla configurazione turbine
+    enabledForExtensions = conf.getBoolean("enabledForExtensions", enabledForExtensions);
+    contentLengthOptional = conf.getBoolean("contentLengthOptional", contentLengthOptional);
 
     // Check if there are any handlers to register at startup
     for(Iterator keys = conf.getKeys("handler"); keys.hasNext();)
@@ -63,17 +68,29 @@ public class EmbeddedXmlRpc extends HttpServlet
       String handlerName = handler.substring(handler.indexOf('.') + 1);
       String handlerClass = conf.getString(handler);
 
-      log.debug(INT.I("Found Handler %s as %s / %s", handler, handlerName, handlerClass));
+      log.debug("Found Handler " + handler + " as " + handlerName + " / " + handlerClass);
 
-      registerHandler(phm, handlerName, handlerClass);
+      try
+      {
+        registerHandler(handlerName, handlerClass, phm);
+      }
+      catch(ServletException ex)
+      {
+        log.error("Failed init fandler " + handler + " as " + handlerName + " / " + handlerClass, ex);
+        throw new ServletException("Failed init handler " + handler, ex);
+      }
     }
 
     server.setHandlerMapping(phm);
 
-    // some boilerplate stuff
     XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) server.getConfig();
-    serverConfig.setEnabledForExtensions(true);
-    serverConfig.setContentLengthOptional(false);
+    serverConfig.setEnabledForExtensions(enabledForExtensions);
+    serverConfig.setContentLengthOptional(contentLengthOptional);
+  }
+
+  protected Configuration getPropertiesConfiguration()
+  {
+    return TR.getConfiguration("services.XmlRpcService.embedded");
   }
 
   /**
@@ -82,22 +99,56 @@ public class EmbeddedXmlRpc extends HttpServlet
    * dynamic class loading and throw an InitializationException on
    * error.
    *
-   * @param phm
    * @param handlerName The name the handler is registered under.
    * @param handlerClass The name of the class to use as a handler.
-   * @throws javax.servlet.ServletException
+   * @param phm
+   * @exception ServletException Couldn't instantiate handler.
    */
-  public void registerHandler(PropertyHandlerMapping phm, String handlerName, String handlerClass)
+  public void registerHandler(String handlerName, String handlerClass, PropertyHandlerMapping phm)
      throws ServletException
   {
+    Class handlerClazz = null;
+
     try
     {
-      Class clHandler = Class.forName(handlerClass);
-      phm.addHandler(handlerName, clHandler);
+      handlerClazz = Class.forName(handlerClass);
+      phm.addHandler(handlerName, handlerClazz);
     }
-    catch(ClassNotFoundException ex)
+    catch(IllegalStateException ex)
     {
-      log.error(INT.I("Class %s not found: the handler %s is not available.", handlerClass, handlerName), ex);
+      // i metodi public sono automaticamente esportati; questo implica che se i parametri non sono XML-RPC compatibili solleva errore
+      // qui arricchiamo il messaggio d'errore evidenziando tutti i metodi esportati (public)
+
+      // Caused by: java.lang.IllegalStateException: Invalid parameter or result type: org.sirio6.services.token.TokenAuthItem
+      // Ottieni tutti i metodi pubblici della classe (inclusi quelli ereditati)
+      Method[] methods = handlerClazz.getMethods();
+      StringBuilder sb = new StringBuilder();
+      sb.append(ex.getMessage()).append("\n");
+      sb.append("Metodi pubblici di ").append(handlerClazz.getName()).append(":\n");
+
+      // Itera sui metodi e stampa i nomi
+      for(Method method : methods)
+      {
+        Class<?> ritorno = method.getReturnType();
+        Class<?>[] parametri = method.getParameterTypes();
+
+        if(ritorno == null)
+          sb.append("void ");
+        else
+          sb.append(ritorno.getName()).append(" ");
+        sb.append(method.getName()).append("(");
+        if(parametri != null)
+          for(int i = 0; i < parametri.length; i++)
+          {
+            Class<?> cp = parametri[i];
+            if(i > 0)
+              sb.append(", ");
+            sb.append(cp.getName());
+          }
+        sb.append(")\n");
+      }
+
+      log.error(sb, ex);
     }
     catch(ThreadDeath | OutOfMemoryError t)
     {
@@ -105,9 +156,7 @@ public class EmbeddedXmlRpc extends HttpServlet
     }
     catch(Throwable t)
     {
-      String msg = INT.I("Failed to instantiate %s", handlerClass);
-      log.error(msg, t);
-      throw new ServletException(msg, t);
+      throw new ServletException("Failed to instantiate " + handlerClass, t);
     }
   }
 
@@ -121,7 +170,15 @@ public class EmbeddedXmlRpc extends HttpServlet
   protected void processRequest(HttpServletRequest request, HttpServletResponse response)
      throws ServletException, IOException
   {
-    server.execute(request, response);
+    try
+    {
+      server.execute(request, response);
+    }
+    catch(Exception ex)
+    {
+      log.error("FATAL XML-RPC ERROR", ex);
+      throw ex;
+    }
   }
 
   // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -160,7 +217,6 @@ public class EmbeddedXmlRpc extends HttpServlet
   @Override
   public String getServletInfo()
   {
-    return "Short description";
+    return "XML-RPC interface";
   }// </editor-fold>
-
 }

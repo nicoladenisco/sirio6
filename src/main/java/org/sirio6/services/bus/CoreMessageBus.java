@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.turbine.services.BaseService;
 import org.commonlib5.utils.SimpleTimer;
-import org.sirio6.CoreConst;
 import org.sirio6.services.localization.INT;
 
 /**
@@ -62,7 +61,8 @@ public class CoreMessageBus extends BaseService
   public void init()
   {
     Configuration cfg = getConfiguration();
-    delayWarning = cfg.getInt("delayWarningMillis", 50);
+    delayWarning = cfg.getInt("delayWarningMillis", delayWarning);
+    delayDefaultAsyncMillis = cfg.getLong("delayDefaultAsyncMillis", delayDefaultAsyncMillis);
 
     tAsync = new Thread(() -> runAsync());
     tAsync.setName("busasync");
@@ -264,21 +264,21 @@ public class CoreMessageBus extends BaseService
 
   protected void idle()
   {
-    if(idle10Timer.isElapsed(10 * CoreConst.ONE_MINUTE_MILLIS))
+    if(idle10Timer.isElapsed(10, TimeUnit.MINUTES))
     {
       log.debug("Emetto segnale IDLE 10 minuti.");
       sendMessageSync(BusMessages.IDLE_10_MINUTES, this, null);
       idle10Timer.reset();
     }
 
-    if(idle30Timer.isElapsed(30 * CoreConst.ONE_MINUTE_MILLIS))
+    if(idle30Timer.isElapsed(30, TimeUnit.MINUTES))
     {
       log.debug("Emetto segnale IDLE 30 minuti.");
       sendMessageSync(BusMessages.IDLE_30_MINUTES, this, null);
       idle30Timer.reset();
     }
 
-    if(idle60Timer.isElapsed(60 * CoreConst.ONE_MINUTE_MILLIS))
+    if(idle60Timer.isElapsed(60, TimeUnit.MINUTES))
     {
       log.debug("Emetto segnale IDLE 60 minuti.");
       sendMessageSync(BusMessages.IDLE_60_MINUTES, this, null);

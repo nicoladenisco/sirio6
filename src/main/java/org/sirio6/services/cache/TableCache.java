@@ -393,6 +393,20 @@ public class TableCache<T extends ColumnAccessByName> implements Iterable<T>
   }
 
   /**
+   * Estrae tutti gli oggetti con un campo pari al valore richiesto.
+   * @param field nome del campo 'CODICE', 'DESCRIZIONE', 'ID_VALORE'
+   * @param valueFilter valore del viltro
+   * @param ignoreDeleted se vero ignora cancellati (STATO_REC ge 10)
+   * @return lista di oggetti
+   * @throws java.lang.Exception
+   */
+  public List<T> extractByFieldValuePeerName(ColumnMap field, Object valueFilter, boolean ignoreDeleted)
+     throws Exception
+  {
+    return extractByFieldValuePeerName(field.getColumnName(), valueFilter, ignoreDeleted);
+  }
+
+  /**
    * Ritorna numero di records nella tabella.
    * @return numero di records (elementi)
    * @throws Exception

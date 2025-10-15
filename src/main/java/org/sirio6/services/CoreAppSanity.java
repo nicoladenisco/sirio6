@@ -370,12 +370,9 @@ public class CoreAppSanity
         td.where("login_name='" + loginName + "'");
         td.fetchRecords();
 
-        Record r;
         if(td.size() == 0)
         {
-          r = td.addRecord();
-          long userID = DbUtils.getMaxField("turbine_user", "user_id", con);
-          r.setValue("user_id", userID);
+          Record r = td.addRecord();
           r.setValue("login_name", loginName);
           r.setValue("password_value", "disattiva123456!!!");
           r.setValue("first_name", loginName);
@@ -407,6 +404,7 @@ public class CoreAppSanity
     if(idu.length < 1 || idg.length < 1 || idr.length < 1)
       return false;
 
+    // verifica se l'associazione esiste
     try(PreparedStatement ps = con.prepareStatement(
        "SELECT * FROM turbine_user_group_role\n"
        + "WHERE user_id=? AND group_id=? AND role_id=?"))
@@ -418,6 +416,7 @@ public class CoreAppSanity
         return false;
     }
 
+    // aggiunge associazione
     try(PreparedStatement ps = con.prepareStatement(
        "INSERT INTO turbine_user_group_role(\n"
        + "	user_id, group_id, role_id)\n"

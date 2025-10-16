@@ -19,10 +19,13 @@ package org.sirio6.utils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
 import org.apache.fulcrum.localization.LocalizationService;
 import org.apache.turbine.om.security.User;
 import org.apache.turbine.services.TurbineServices;
@@ -506,6 +509,17 @@ public class CoreRunData extends DefaultTurbineRunData
     return (User) SEC.getUser(idUser);
   }
 
+  public int getYear()
+  {
+    Calendar c = new GregorianCalendar();
+    return c.get(Calendar.YEAR);
+  }
+
+  public long getCurrentTimeMillis()
+  {
+    return System.currentTimeMillis();
+  }
+
   public String getResource(String key, String defval)
   {
     return TR.getString(key, defval);
@@ -705,5 +719,10 @@ public class CoreRunData extends DefaultTurbineRunData
   {
     addMessagei18n(key, params);
     addMessage("<br>");
+  }
+
+  public String abbreviate(String s, int maxLen)
+  {
+    return StringUtils.abbreviate(okStr(s), maxLen);
   }
 }

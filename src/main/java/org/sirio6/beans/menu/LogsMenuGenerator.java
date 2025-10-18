@@ -23,7 +23,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.turbine.Turbine;
@@ -144,7 +145,8 @@ public class LogsMenuGenerator implements MenuGenerator
   {
     try
     {
-      PropertiesConfiguration cfg = new PropertiesConfiguration(fileLog4j);
+      Configurations configs = new Configurations();
+      Configuration cfg = configs.properties(fileLog4j);
       cfg.addProperty("applicationRoot", Turbine.getRealPath(""));
       ArrayList<MenuItemBean> arFiles = new ArrayList<>();
 

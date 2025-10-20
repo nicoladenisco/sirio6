@@ -1,0 +1,412 @@
+#* ------------------------------------------------------------------
+#
+# Macro per semplificare l'uso di Bootstrap 5
+# 2025-10-20
+#
+*# ------------------------------------------------------------------
+
+#macro (PROLOG $modulo)
+<!-- INIZIO $modulo -->
+#end
+
+#macro (EPILOG $modulo)
+<!-- FINE $modulo -->
+#end
+
+##
+## -- Gestione dei menu --------------------------------------------------------------
+##
+
+#macro (BEGIN_MENU $caption)
+<!-- inizio menu -->
+<div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 10px;">
+  <div class="btn-group me-2" role="group">
+    <button type="button" class="btn btn-sm btn-primary" onclick="ricarica();">$I.I($caption)</button>
+  </div>
+#end
+
+#macro (END_MENU)
+</div>
+<!-- fine menu -->
+#end
+
+## -- i submenu vengono visualizzati come dropdown --
+#macro (BEGIN_SUBMENU $titolo $style)
+<div class="btn-group">
+  <button type="button" class="btn btn-sm dropdown-toggle $style" data-bs-toggle="dropdown" aria-expanded="false">
+    $I.I($titolo)
+  </button>
+  <ul class="dropdown-menu">
+    #end  
+
+    #macro (END_SUBMENU $titolo $style)
+  </ul>
+</div>
+#end  
+
+#macro (itemSubmenu $body $lnk)
+<li><a class="dropdown-item" href="$lnk">$I.I($body)</a></li>
+#end  
+#macro (itemSubmenuScript $body $lnkScript)
+<li><a class="dropdown-item" href="#" onClick="$lnkScript">$I.I($body)</a></li>
+#end
+
+#macro (itemSubmenuDivider)
+<li><hr class="dropdown-divider"></li>
+#end
+
+#macro (BEGIN_BUTTON_GROUP $style)
+<div class="btn-group me-2 $!style" role="group">
+  #end
+
+  #macro (END_BUTTON_GROUP)
+</div>
+#end
+
+#macro (menuCell $body $lnk $style)
+<button type="button" class="btn btn-sm $style" onClick="window.location.href = '$lnk'">$I.I($body)</button>
+#end
+
+#macro (menuCellTest $formID $body $lnk $style)
+#if($cfg.isButtonEnabled($formID, $body))
+<button type="button" class="btn btn-sm $style" onClick="window.location.href = '$lnk'">$I.I($body)</button>
+#end
+#end
+
+#macro (menuCellScript $body $lnkScript $style)
+<button type="button" class="btn btn-sm $style" onClick="$lnkScript">$I.I($body)</button>
+#end
+
+#macro (menuCellTestScript $formID $body $lnkScript $style)
+#if($cfg.isButtonEnabled($formID, $body))
+<button type="button" class="btn btn-sm $style" onClick="$lnkScript">$I.I($body)</button>
+#end
+#end
+
+##
+## -- Dialog generica ----------------------------------------------------------------
+## una dialog con o senza footer; nel footer posso inserire più bottoni o altir gadget
+##
+
+#macro (BEGIN_DIALOG $nomeDialog $titolo $dimensione)
+<!-- INIZIO dialog $nomeDialog -->
+<div class="modal fade" id="$nomeDialog" tabindex="-1" aria-labelledby="${nomeDialog}Label" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog $dimensione">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <p class="modal-title fs-5" id="${nomeDialog}Label">$titolo</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+#end
+
+#macro (BEGIN_DIALOG_FOOTER $nomeDialog)
+      </div>
+      <div class="modal-footer">
+#end
+
+#macro (DIALOG_FOOTER_BUTTON_CLOSE $nomeDialog $caption)
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$caption</button>
+#end
+
+#macro (DIALOG_FOOTER_BUTTON $nomeDialog $caption $funzione $stile)
+        <button type="button" class="btn $stile" onclick="$funzione">$caption</button>
+#end
+
+#macro (END_DIALOG_FOOTER $nomeDialog)
+      </div>
+#end
+
+<!--
+<div class="modal-dialog modal-xl">...</div>
+<div class="modal-dialog modal-lg">...</div>
+<div class="modal-dialog modal-sm">...</div>
+-->
+
+#macro (END_DIALOG $nomeDialog)
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- FINE dialog $nomeDialog -->
+#end
+
+##
+## -- Dialog semplificata ----------------------------------------------------------------
+## una dialog con un footer fisso: un bottone per annullare e uno per confermare
+## $dimensione puo essere: ""=default, modal-xl, modal-lg, modal-sm
+##
+
+#macro (BEGIN_DIALOG_SIMPLE $id $titolo $dimensione)
+<!-- Dialog $titolo ($id) -->
+<div class="modal fade" id="$id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="titolo_$id" aria-hidden="true">
+  <div class="modal-dialog $dimensione">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h1 class="modal-title fs-5" id="titolo_$id">$titolo</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="$id-body" class="modal-body">
+#end
+
+<!--
+<div class="modal-dialog modal-xl">...</div>
+<div class="modal-dialog modal-lg">...</div>
+<div class="modal-dialog modal-sm">...</div>
+-->
+
+#macro (END_DIALOG_SIMPLE $capSalva $capChiudi $scriptConferma)
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$capChiudi</button>
+        <button type="button" class="btn btn-primary" onclick="$scriptConferma">$capSalva</button>
+      </div>
+    </div>
+  </div>
+</div>
+#end
+
+##
+## -- Card generica ----------------------------------------------------------------
+## una card (panel in bootstrap 3) è un riquadro con un contenuto.
+## $style è 'primary', 'warning', 'info', ecc.
+##
+
+#macro (BEGIN_CARD $id $style $titolo $titoloEsteso $commento)
+<div class="card border-$style mb-3" id="$id">
+  <div class="card-header text-bg-$style">
+    $titolo
+  </div>
+  <div id="$id-body" class="card-body">
+    <h5 class="card-title">$titoloEsteso</h5>
+    <p class="card-text">$commento</p>
+#end
+
+#macro (END_CARD)
+  </div>
+</div>
+#end
+
+##
+## -- Card semplificata ------------------------------------------------------------
+## una card (panel in bootstrap 3) è un riquadro con un contenuto.
+## $style è 'primary', 'warning', 'info', ecc.
+##
+
+#macro (BEGIN_CARD_SIMPLE $style $titolo)
+<div class="card border-$style mb-3">
+  <div class="card-header text-bg-$style">
+    $titolo
+  </div>
+  <div class="card-body">
+#end
+
+#macro (END_CARD_SIMPLE)
+  </div>
+</div>
+#end
+
+##
+## -- Data Table basilare ----------------------------------------------------------
+## Funzioni basilari di una DataTable applicate ad una tabella esistente.
+## Richiede il caricamento di datable.
+##
+
+#macro (BASIC_DATA_TABLE $selector)
+<SCRIPT>
+  jQuery(function () {
+    jQuery("$selector").DataTable({
+      bAutoWidth: false,
+      sPaginationType: 'full_numbers',
+      bSortClasses: false,
+      stateSave: true,
+      stateSaveCallback: function (settings, data) {
+        localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data))
+      },
+      stateLoadCallback: function (settings) {
+        return JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance))
+      },
+      oLanguage: {
+        "sLengthMenu": "$I.I('Mostra _MENU_ elementi per pagina')",
+        "sZeroRecords": "$I.I('Nessun elemento trovato')",
+        "sInfo": "$I.I('Mostrati elementi da _START_ a _END_ di _TOTAL_ elementi totali')",
+        "sInfoEmpty": "$I.I('0 elementi totali')",
+        "sInfoFiltered": "($I.I('filtrate da _MAX_ elementi totali'))",
+        "sSearch": "$I.I('Cerca')",
+        "oPaginate": {
+          "sFirst": "<<",
+          "sLast": ">>",
+          "sNext": ">",
+          "sPrevious": "<"
+        }
+      }
+    });
+  });
+</SCRIPT>
+#end
+
+##
+## -- Menu standard per liste rigel ------------------------------------------------
+## Le liste rigel hanno lo stesso menu: quello qui sotto.
+##
+
+#macro (MENU_LISTA $caption)
+#set ( $filtro = $data.getParameters().getInt("filtro", 0) )
+<div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 10px;">
+  <div class="btn-group me-2" role="group">
+    <button type="button" class="btn btn-sm btn-primary" onclick="ricarica();">$I.I($caption)</button>
+  </div>
+
+  #if ($filtro == 0 || $filtro == 2 || $filtro == 3)
+
+  #if($hbuts)
+  <div class="btn-group me-2" role="group">
+    #foreach($hb in $hbuts)
+    #menuCellScript ($hb.menuItem.descrizione $hb.menuItem.programma $ui.menuFieldTextStyle)
+    #end
+  </div>
+  #end
+
+  <div class="btn-group me-2" role="group">
+    #if($newEnabled)
+    #menuCell ("Nuovo" $urlNuovo $ui.menuFieldTextStyle)
+    #end
+    #menuCell ("Ricerca avanzata" "$baseUri/filtro/1" $ui.menuFieldTextStyle)
+    #menuCellScript ("Stampa verticale" "stampa();" $ui.menuFieldTextStyle)
+    #menuCellScript ("Stampa orizzontale" "stampaLand();" $ui.menuFieldTextStyle)
+  </div>
+
+  #else
+
+  <div class="btn-group me-2" role="group">
+    #menuCell ("Annulla" "$baseUri" $ui.menuFieldTextStyle)
+    #menuCellScript ("Applica" "document.fo.submit()" $ui.menuFieldTextStyle)
+    #menuCell ("Pulisci filtro" "$baseUri/filtro/3" $ui.menuFieldTextStyle)
+  </div>
+
+  #end
+
+</div>
+#end
+
+##
+## -- Menu standard per form rigel -------------------------------------------------
+## I form rigel hanno lo stesso menu: quello qui sotto.
+## Nel caso di form master/detail utilizza anche la macro MENU_FORM_DETAIL
+## Se siamo in popup prima di usare le macro aggiungere
+## #set($iam_popup = true)
+##
+
+#macro (MENU_FORM $caption)
+<div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 5px;">
+  <div class="btn-group me-2" role="group" aria-label="bg0">
+    <button type="button" class="btn btn-sm btn-primary">$I.I($caption)</button>
+  </div>
+
+  #if($hbuts)
+  <div class="btn-group me-2" role="group" aria-label="bg1">
+    #foreach($hb in $hbuts)
+    #menuCellScript ($hb.menuItem.descrizione $hb.menuItem.programma $ui.menuFieldTextStyle)
+    #end
+  </div>
+  #end
+
+  #if($editEnabled)
+  <div class="btn-group me-2" role="group" aria-label="bg2">
+    #if($saveEnabled)
+    #menuCellScript ("Salva" "salva()" $ui.menuFieldTextStyle)
+    #end
+    #if($saveEnabled && $newEnabled)
+    #menuCellScript ("Duplica" "duplica()" $ui.menuFieldTextStyle)
+    #menuCellScript ("Salva e nuovo" "salvanew()" $ui.menuFieldTextStyle)
+    #end
+    #if($saveEnabled)
+    #menuCellScript ("Salva ed esci" "salvaesci()" $ui.menuFieldTextStyle)
+    #end
+  </div>
+  #end
+
+  <div class="btn-group" role="group" aria-label="bg3">
+    #if($iam_popup)
+    #menuCellScript ("Chiudi" "chiudi()" $ui.menuFieldTextStyle)
+    #else
+    #menuCellScript ("Abbandona" "abbandona()" $ui.menuFieldTextStyle)
+    #end
+  </div>
+</div>
+#end
+
+#macro (MENU_FORM_DETAIL $caption)
+<div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 5px; margin-top: 15px;">
+  <div class="btn-group me-2" role="group" aria-label="bgd0">
+    <button type="button" class="btn btn-sm btn-info">$I.I($caption)</button>
+  </div>
+  <div class="btn-group me-2" role="group" aria-label="bgd1">
+    #if($hbutd)
+    #foreach($hb in $hbutd)
+    #menuCellScript ($hb.menuItem.descrizione $hb.menuItem.programma $ui.menuFieldTextStyle)
+    #end
+    #end
+  </div>
+  <div class="btn-group me-2" role="group" aria-label="bgd2">
+    #if($newEnabled)
+    #menuCellScript ("Nuovo" "nuovodett()" $ui.menuFieldTextStyle)
+    #end
+    #if($saveEnabled)
+    #menuCellScript ("Salva" "salva()" $ui.menuFieldTextStyle)
+    #end
+  </div>
+  <div class="btn-group me-2" role="group" aria-label="bgd2">
+    #if($iam_popup)
+    #menuCellScript ("Chiudi" "chiudi()" $ui.menuFieldTextStyle)
+    #else
+    #menuCellScript ("Abbandona" "abbandona()" $ui.menuFieldTextStyle)
+    #end
+  </div>
+</div>
+#end
+
+##
+## -- Menu standard per liste edit rigel -------------------------------------------
+## Le liste edit di rigel hanno lo stesso menu: quello qui sotto.
+## Se siamo in popup prima di usare le macro aggiungere
+## #set($iam_popup = true)
+##
+
+#macro (MENU_LISTE_EDIT $caption)
+<div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 5px;">
+  <div class="btn-group me-2" role="group" aria-label="bg0">
+    <button type="button" class="btn btn-sm btn-primary">$I.I($caption)</button>
+  </div>
+
+  #if($hbuts)
+  <div class="btn-group me-2" role="group" aria-label="bg1">
+    #foreach($hb in $hbuts)
+    #menuCellScript ($hb.menuItem.descrizione $hb.menuItem.programma $ui.menuFieldTextStyle)
+    #end
+  </div>
+  #end
+
+  #if($editEnabled)
+  <div class="btn-group me-2" role="group" aria-label="bg2">
+    #if($saveEnabled && $newEnabled)
+    #menuCellScript ("Nuovo" "nuovodett()" $ui.menuFieldTextStyle)
+    #end
+    #if($saveEnabled)
+    #menuCellScript ("Salva" "salva()" $ui.menuFieldTextStyle)
+    #end
+    #if($saveEnabled)
+    #menuCellScript ("Salva ed esci" "salvaesci()" $ui.menuFieldTextStyle)
+    #end
+  </div>
+  #end
+
+  <div class="btn-group" role="group" aria-label="bg3">
+    #if($iam_popup)
+    #menuCellScript ("Chiudi" "chiudi()" $ui.menuFieldTextStyle)
+    #else
+    #menuCellScript ("Abbandona" "abbandona()" $ui.menuFieldTextStyle)
+    #end
+  </div>
+</div>
+#end

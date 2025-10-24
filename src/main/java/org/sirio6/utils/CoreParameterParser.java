@@ -125,6 +125,7 @@ public class CoreParameterParser extends DefaultParameterParser
          + propclass.toString());
     }
 
-    setter.invoke(bean, arg);
+    if(arg != null)
+      setter.invoke(bean, arg);
   }
 }

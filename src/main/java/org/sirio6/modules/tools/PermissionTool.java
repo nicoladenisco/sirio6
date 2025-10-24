@@ -38,9 +38,11 @@ import org.sirio6.utils.SU;
  * Questo tool va registrato nel .properties come authorized
  * in modo che venga inzializzato dopo il login utente
  * e che ogni utente ne abbia una copia separata:
+ * <br>
  * <code>
- * tool.authorized.perm=org.sirio2.modules.tools.PermissionTool
+ * tool.authorized.perm=org.sirio6.modules.tools.PermissionTool
  * </code>
+ * <br>
  *
  * FILENOI18N
  * @author Nicola De Nisco

@@ -18,10 +18,12 @@
 package org.sirio6.services.security;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import javax.naming.NamingException;
@@ -47,6 +49,7 @@ import org.apache.turbine.services.InitializationException;
 import org.apache.turbine.services.rundata.DefaultTurbineRunData;
 import org.apache.turbine.services.security.SecurityService;
 import org.commonlib5.crypto.KeyCalculator;
+import org.commonlib5.utils.Classificatore;
 import org.commonlib5.utils.CommonFileUtils;
 import org.sirio6.CoreConst;
 import org.sirio6.ErrorMessageException;
@@ -73,6 +76,7 @@ abstract public class AbstractCoreSecurity extends BaseService
 
   protected final KeyCalculator kCalc = new KeyCalculator();
   protected final Map<String, String> userMappingLdap = new HashMap<>();
+  protected final Classificatore<String, String> missingPermission = new Classificatore<>();
 
   protected boolean enableStrictPassword = true, enableWeakPassword = false;
   protected int ttlpasswordDays = 180, minLenPassword = 8;
@@ -317,7 +321,10 @@ abstract public class AbstractCoreSecurity extends BaseService
       }
     }
 
-    log.info("Negato permesso " + permessi + " all'utente " + getUserID(session));
+    String userName = getUser(session).getName();
+    missingPermission.aggiungi(userName, "ANY " + permessi);
+
+    log.info("Permessi mancanti: utente=" + userName + " gruppo=GLOBAL permessi=ANY " + permessi);
     return false;
   }
 
@@ -389,6 +396,8 @@ abstract public class AbstractCoreSecurity extends BaseService
     if(acl.hasRole(ADMIN_ROLE))
       return true;
 
+    String userName = getUser(session).getName();
+
     if(permessiNocase)
     {
       PermissionSet allPerms = acl.getPermissions();
@@ -399,7 +408,8 @@ abstract public class AbstractCoreSecurity extends BaseService
         if(p.length() > 0 && !testPermissionNocase(allPerms, p))
         {
           // salva il risultato nella cache dei permessi utente
-          log.info("Negato permesso " + p + " all'utente " + getUserID(session));
+          log.info("Permessi mancanti: utente=" + userName + " gruppo=GLOBAL permessi=ALL " + permessi + " permesso=" + p);
+          missingPermission.aggiungi(userName, "ALL " + permessi);
           return false;
         }
       }
@@ -413,7 +423,8 @@ abstract public class AbstractCoreSecurity extends BaseService
         if(p.length() > 0 && !acl.hasPermission(p))
         {
           // salva il risultato nella cache dei permessi utente
-          log.info("Negato permesso " + p + " all'utente " + getUserID(session));
+          log.info("Permessi mancanti: utente=" + userName + " gruppo=GLOBAL permessi=ALL " + permessi + " permesso=" + p);
+          missingPermission.aggiungi(userName, "ALL " + permessi);
           return false;
         }
       }
@@ -861,5 +872,17 @@ abstract public class AbstractCoreSecurity extends BaseService
       len = genPasswordLength;
 
     return RandomStringUtils.random(limitPasswordLen.fit(len), charactersPasswordSimple);
+  }
+
+  @Override
+  public Map<String, List<String>> getMissingPermission()
+  {
+    return Collections.unmodifiableMap(missingPermission);
+  }
+
+  @Override
+  public void clearMissingPermission()
+  {
+    missingPermission.clear();
   }
 }

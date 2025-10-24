@@ -27,6 +27,7 @@ import org.rigel5.glue.table.PeerAppMaintFormTable;
 import org.rigel5.table.html.wrapper.HtmlWrapperBase;
 import org.rigel5.table.peer.html.*;
 import org.sirio6.CoreConst;
+import org.sirio6.beans.CoreBaseBean;
 import org.sirio6.rigel.RigelUtils;
 import org.sirio6.services.modellixml.MDL;
 import org.sirio6.services.security.SEC;
@@ -109,7 +110,8 @@ abstract public class FormBase extends RigelEditBaseScreen
     HashMap<String, String> extraParams = new HashMap<>();
     extraParams.put("jlc", type);
     extraParams.put("jvm", ClassOper.getClassName(getClass()) + ".vm");
-    params.forEach((k, v) -> extraParams.put(k.toString(), v.toString()));
+    //byNIK: provoca un gran casino
+    //params.forEach((k, v) -> extraParams.put(k.toString(), v.toString()));
 
     String html = getHtmlEdit(data, context, pwl, params, session, forceNew, extraParams);
     String scTest = getScriptTest(data, context, pwl, params, session, forceNew);
@@ -225,5 +227,19 @@ abstract public class FormBase extends RigelEditBaseScreen
      throws Exception
   {
     return SEC.checkAnyPermission(data, "cancella_dati_generale");
+  }
+
+  /**
+   * Solo per impedire la ridefinizione del metodo.
+   * @param data
+   * @param context
+   * @param bean
+   * @throws Exception
+   */
+  @Override
+  final protected void doBuildTemplate2(CoreRunData data, Context context, CoreBaseBean bean)
+     throws Exception
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

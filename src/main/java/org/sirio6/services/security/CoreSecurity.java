@@ -17,6 +17,8 @@
  */
 package org.sirio6.services.security;
 
+import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.fulcrum.security.model.turbine.TurbineAccessControlList;
@@ -255,4 +257,17 @@ public interface CoreSecurity extends Service
    * @return password generata secondo le regole a setup.
    */
   public String generaPassword(int len);
+
+  /**
+   * Ritorna permessi non posseduti dagli utenti.
+   * Durante la verifica permessi vengono memorizzati
+   * i permessi non posseduti dagli utenti.
+   * @return mappa utente/lista permessi non posseduti
+   */
+  public Map<String, List<String>> getMissingPermission();
+
+  /**
+   * Pulische cache dei permessi non posseduti dagli utenti.
+   */
+  public void clearMissingPermission();
 }

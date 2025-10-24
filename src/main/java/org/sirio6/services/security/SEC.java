@@ -20,6 +20,7 @@ package org.sirio6.services.security;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.mutable.MutableInt;
@@ -632,5 +633,24 @@ public class SEC
   {
     Group r = getTurbineSecurity().getGroupInstance(groupName);
     return getTurbineSecurity().addGroup(r);
+  }
+
+  /**
+   * Ritorna permessi non posseduti dagli utenti.
+   * Durante la verifica permessi vengono memorizzati
+   * i permessi non posseduti dagli utenti.
+   * @return mappa utente/lista permessi non posseduti
+   */
+  public static Map<String, List<String>> getMissingPermission()
+  {
+    return getSirioSecurity().getMissingPermission();
+  }
+
+  /**
+   * Pulische cache dei permessi non posseduti dagli utenti.
+   */
+  public static void clearMissingPermission()
+  {
+    getSirioSecurity().clearMissingPermission();
   }
 }

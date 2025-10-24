@@ -26,6 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.commonlib5.utils.ClassOper;
 import org.commonlib5.utils.Pair;
 import org.sirio6.services.CoreServiceException;
@@ -40,6 +42,8 @@ import org.sirio6.utils.SU;
  */
 public abstract class CoreAbstractPluginFactory<T extends CoreBasePlugin>
 {
+  private static final Log log = LogFactory.getLog(CoreAbstractPluginFactory.class);
+
   protected String basePath = null;
   protected String[] vPaths = null;
   protected Configuration cfg = null;
@@ -85,6 +89,7 @@ public abstract class CoreAbstractPluginFactory<T extends CoreBasePlugin>
     }
 
     Collections.sort(arPlugins);
+    log.debug(INT.I("trovati %d plugin per %s", arPlugins.size(), pluginCfgRadix));
   }
 
   /**
@@ -115,6 +120,25 @@ public abstract class CoreAbstractPluginFactory<T extends CoreBasePlugin>
     T handler = createPlugin(cl);
     preparePlugin(pluginName, handler, cname.second);
     return handler;
+  }
+
+  /**
+   * Carica plugin.
+   * A differenza della gemella questa funzione non solleva eccezione.
+   * @param pluginName nome del plugin
+   * @return istanza del plugin o null per qualsiasi motivo non riesca a istanziarlo
+   */
+  public T getPluginQuiet(String pluginName)
+  {
+    try
+    {
+      return getPlugin(pluginName);
+    }
+    catch(Exception e)
+    {
+      log.warn(INT.I("Errore non fatale recupero plugin %s: %s", pluginName, e.getMessage()));
+      return null;
+    }
   }
 
   /**

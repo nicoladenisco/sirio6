@@ -19,6 +19,7 @@ package org.sirio6.utils;
 
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.torque.ConstraintViolationException;
 import org.apache.torque.TorqueException;
 import org.rigel5.SetupHolder;
 import org.sirio6.ErrorMessageException;
@@ -67,6 +68,7 @@ public class CoreFatalErrorManager
     mapHandler.put(ConcurrentDatabaseModificationException.class, (data, t) -> reportConcurrentDatabaseError(data, (ConcurrentDatabaseModificationException) t));
     mapHandler.put(UnmodificableRecordException.class, (data, t) -> reportUnmodificableRecordError(data, (UnmodificableRecordException) t));
     mapHandler.put(CounterTimeoutException.class, (data, t) -> reportCounterTimeoutException(data, (CounterTimeoutException) t));
+    mapHandler.put(ConstraintViolationException.class, (data, t) -> reportTorqueException(data, (TorqueException) t));
   }
 
   /**

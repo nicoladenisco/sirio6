@@ -37,6 +37,7 @@ import org.sirio6.services.formatter.DataFormatter;
 import org.sirio6.services.formatter.NumFormatter;
 import org.sirio6.services.formatter.ValutaFormatter;
 import org.sirio6.services.modellixml.modelliXML;
+import org.sirio6.services.security.CoreSecurity;
 import org.sirio6.services.security.SEC;
 
 /**
@@ -724,5 +725,10 @@ public class CoreRunData extends DefaultTurbineRunData
   public String abbreviate(String s, int maxLen)
   {
     return StringUtils.abbreviate(okStr(s), maxLen);
+  }
+
+  public String getMissingPermission()
+  {
+    return SU.okStr(getSession().getAttribute(CoreSecurity.LAST_PERM_KEY));
   }
 }

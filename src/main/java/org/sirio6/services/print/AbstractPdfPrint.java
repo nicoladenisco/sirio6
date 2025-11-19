@@ -28,6 +28,7 @@ import org.sirio6.services.print.datamaker.DatamakerGeneratorFactory;
 import org.sirio6.services.print.parametri.ParametroBuilderFactory;
 import org.sirio6.services.print.plugin.PdfGenPlugin;
 import org.sirio6.services.print.plugin.PdfGeneratorFactory;
+import org.sirio6.utils.SU;
 
 /**
  * Implementazione standard del servizio
@@ -142,7 +143,7 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
   protected File makePdfInternal(JobInfo job, int idUser, String pluginName, String dataMaker, PrintContext ctx)
      throws Exception
   {
-    if(dataMaker != null)
+    if(dataMaker != null && !SU.isEqu(dataMaker, "NESSUNO"))
     {
       // usa il datamaker per preparare i dati per il rendering
       Object data = DatamakerGeneratorFactory.getInstance().functionPlugin(dataMaker, (dm) -> dm.prepareData(ctx));

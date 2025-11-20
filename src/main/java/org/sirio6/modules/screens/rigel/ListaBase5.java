@@ -175,7 +175,7 @@ abstract public class ListaBase5 extends RigelEditBaseScreen
     context.put("header", header);
     context.put("titolo", titolo);
     context.put("document", MDL.getDocument());
-    context.put("prstampe", data.getContextPath() + "/pdf/fop/jsrefxml");
+    context.put("prstampe", data.getContextPath() + "/pdf/fop/jsrefxml.jsp");
     context.put("numrows", lso.getPtm().getRowCount());
 
     if(SU.isOkStr(lso.getCustomScript()))

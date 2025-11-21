@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
 package org.sirio6;
 
 import java.util.List;
-import org.sirio6.utils.SU;
+import org.commonlib5.utils.StringJoin;
 
 /**
  * Questa eccezione viene sollevata per abortire una operazione
@@ -37,12 +37,17 @@ public class ErrorMessageException extends Exception
 
   public ErrorMessageException(List<String> lsMsg)
   {
-    super(SU.join(lsMsg.iterator(), "<br>", null));
+    super(mergeMessage(lsMsg));
   }
 
   public static void throwErrorMessageException(List<String> lsMsg)
      throws ErrorMessageException
   {
-    throw new ErrorMessageException(SU.join(lsMsg.iterator(), "<br>", null));
+    throw new ErrorMessageException(mergeMessage(lsMsg));
+  }
+
+  private static String mergeMessage(List<String> lsMsg)
+  {
+    return StringJoin.build("<br>").add(lsMsg).join();
   }
 }

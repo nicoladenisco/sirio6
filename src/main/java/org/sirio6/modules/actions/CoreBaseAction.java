@@ -301,9 +301,11 @@ public class CoreBaseAction extends VelocitySecureAction
     if(verificaPaginaRitorno(data, jlc, jvm))
       return true;
 
-    // se non può fare meglio torna alla homepage
-    data.getTemplateInfo().setScreenTemplate(data.getHomeScreen());
-    return true;
+    // byNIK: la condizione di non ritorno è gestita localmente (dipende dalla action)
+    //    // se non può fare meglio torna alla homepage
+    //    data.getTemplateInfo().setScreenTemplate(data.getHomeScreen());
+    //    return true;
+    return false;
   }
 
   protected boolean verificaPaginaRitorno(CoreRunData data, String jlc, String jvm)

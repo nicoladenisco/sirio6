@@ -27,6 +27,8 @@ import org.apache.turbine.Turbine;
 import org.apache.turbine.services.TurbineServices;
 import org.apache.turbine.services.pull.PullService;
 import org.apache.turbine.services.pull.tools.UITool;
+import org.apache.velocity.context.Context;
+import org.json.JSONObject;
 import static org.sirio6.CoreConst.APP_PREFIX;
 import org.sirio6.CsrfProtectionException;
 import org.sirio6.services.modellixml.modelliXML;
@@ -271,6 +273,15 @@ public class CoreBaseBean implements HttpSessionBindingListener
     this.jlc = jlc;
   }
 
+  /**
+   * Verifica automatica per token CSRF.
+   * Cerca il parametro predefinito CSRF_TOKEN_FIELD_NAME e verifica
+   * che contenga un token valido.
+   * @param data
+   * @param obbligatorio
+   * @throws Exception errore generico
+   * @throws CsrfProtectionException il token non è presente o non valido
+   */
   protected void checkTokenCSRF(CoreRunData data, boolean obbligatorio)
      throws Exception
   {
@@ -295,5 +306,22 @@ public class CoreBaseBean implements HttpSessionBindingListener
       case 2:
         throw new CsrfProtectionException("Invalid token in request.");
     }
+  }
+
+  /**
+   * Predispone il context per un ritono json.
+   * Usata in un doCmd_... usato per produrre json (action.jsp).
+   * Popolando il valore tornato questo viene automaticamente ritornato
+   * automaticamente come json da rigel.runActionJson...
+   * @param args i parametri passati al metodo doCmd_...
+   * @return un oggetto json pronto a ricevere la risposta
+   */
+  public JSONObject preparaRispostaJson(Object... args)
+  {
+    // costruisce JSON con la risposta
+    JSONObject dati = new JSONObject();
+    Context context = (Context) args[0];
+    context.put(ActionJspBean.FILTERED_CONTEXT_DATA_KEY, dati);
+    return dati;
   }
 }

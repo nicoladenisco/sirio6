@@ -438,7 +438,20 @@ public class SirioGenericContext extends HashMap<String, Object>
 
   public List getAsList(String key)
   {
-    return (List) get(key);
+    Object content = get(key);
+    if(content == null)
+      return Collections.EMPTY_LIST;
+
+    if(content instanceof Object[])
+      return Arrays.asList((Object[]) content);
+
+    if(content instanceof List)
+      return (List) content;
+
+    if(content instanceof Collection)
+      return new ArrayList((Collection) content);
+
+    throw new RuntimeException("Impossibile convertire " + content.getClass().getName() + " in java.util.List.");
   }
 
   public String getAsStringByList(String key)

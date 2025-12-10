@@ -18,6 +18,7 @@
 package org.sirio6.services.cache;
 
 import java.io.File;
+import java.nio.file.Files;
 import org.apache.fulcrum.mimetype.MimeTypeService;
 import org.apache.turbine.services.TurbineServices;
 import org.commonlib5.utils.CommonFileUtils;
@@ -179,6 +180,52 @@ public class FileCacheItem extends CoreCachedObject
      throws Exception
   {
     return addFileToCache(toStore, mimeType, fileName, copy, EXPIRES);
+  }
+
+  public static String addFileToCacheWithSymlink(File toStore, String mimeType, String fileName)
+     throws Exception
+  {
+    return addFileToCacheWithSymlink(toStore, mimeType, fileName, EXPIRES);
+  }
+
+  public static String addFileToCacheWithSymlink(File toStore, String mimeType, String fileName, long expires)
+     throws Exception
+  {
+    synchronized(semaforo)
+    {
+      // produce un ticket e verifica che non esista già nella cache
+      String ticket = null;
+      do
+      {
+        ticket = "TI" + System.currentTimeMillis();
+      }
+      while(CACHE.getObjectQuiet(CACHE_FILE_SECTION, ticket) != null);
+
+      // crea file temporaneo in area cache
+      File dest = CACHE.getWorkCacheFile(ticket);
+      dest.delete();
+
+      // crea un link simbolico nella directory cache: quando verrà cancellato il file originale non sarà toccato
+      Files.createSymbolicLink(dest.toPath(), toStore.toPath());
+
+      // se non specificato tenta di determinare un tipo mime per il file
+      if(mimeType == null)
+      {
+        if(ms == null)
+          ms = (MimeTypeService) TurbineServices.getInstance().getService(MimeTypeService.ROLE);
+
+        mimeType = ms.getContentType(toStore);
+      }
+
+      // per default il nome è lo stesso del file che stiamo memorizzando ma può essere diverso
+      if(fileName == null)
+        fileName = toStore.getName();
+
+      // aggiunge file alla cache
+      FileCacheItem item = new FileCacheItem(dest, mimeType, fileName, expires);
+      CACHE.addObject(CACHE_FILE_SECTION, ticket, item);
+      return ticket;
+    }
   }
 
   /**

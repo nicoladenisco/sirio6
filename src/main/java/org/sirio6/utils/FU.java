@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -120,6 +120,58 @@ public class FU
   }
 
   /**
+   * Invia del testo come risposta.
+   * Invia testo con "Content-Disposition", "inline;", ovvero il browser
+   * se può cerca di renderizzarlo direttamente nella pagina.
+   * @param request
+   * @param response
+   * @param text
+   * @param encoding
+   * @param tipoMime
+   * @param saveFileName
+   * @param enableGzip
+   * @throws Exception
+   */
+  public static void sendTextResponse(
+     HttpServletRequest request, HttpServletResponse response,
+     String text, String encoding,
+     String tipoMime, String saveFileName, boolean enableGzip)
+     throws Exception
+  {
+    byte[] tosend = text.getBytes(encoding);
+    sendBinaryResponse(request, response, tosend, tipoMime, saveFileName, enableGzip);
+  }
+
+  /**
+   * Invia un pacchetto di bytes come risposta.
+   * Invia byte con "Content-Disposition", "inline;", ovvero il browser
+   * se può cerca di renderizzarlo direttamente nella pagina.
+   * @param request
+   * @param response
+   * @param tosend
+   * @param tipoMime
+   * @param saveFileName
+   * @param enableGzip
+   * @throws Exception
+   */
+  public static void sendBinaryResponse(
+     HttpServletRequest request, HttpServletResponse response,
+     byte[] tosend,
+     String tipoMime, String saveFileName, boolean enableGzip)
+     throws Exception
+  {
+    response.setContentType(tipoMime);
+    response.setContentLength(tosend.length);
+    if(saveFileName != null)
+      response.setHeader("Content-Disposition", "inline; filename=" + saveFileName);
+    response.setHeader("Cache-Control", "no-cache");
+    response.setDateHeader("Expires", 0);
+    response.setHeader("Pragma", "No-cache");
+
+    response.getOutputStream().write(tosend);
+  }
+
+  /**
    * Invio file come risposta servlet.
    * Invia un file con "Content-Disposition", "inline;", ovvero il browser
    * se può cerca di renderizzarlo direttamente nella pagina.
@@ -206,10 +258,40 @@ public class FU
     copyFileOnStream(fPdf, output);
   }
 
+  /**
+   * Invia un pacchetto di bytes come risposta.
+   * Simile a sendBinaryResponse() ma con "Content-Disposition", "attachment;"
+   * in modo da sollecitare il browser a chiedere il salvataggio del
+   * file piuttosto che cercare di aprirlo all'interno della finestra.
+   * @param request
+   * @param response
+   * @param tosend
+   * @param tipoMime
+   * @param saveFileName
+   * @param enableGzip
+   * @throws Exception
+   */
+  public static void sendBinary(
+     HttpServletRequest request, HttpServletResponse response,
+     byte[] tosend,
+     String tipoMime, String saveFileName, boolean enableGzip)
+     throws Exception
+  {
+    response.setContentType(tipoMime);
+    response.setContentLength(tosend.length);
+    if(saveFileName != null)
+      response.setHeader("Content-Disposition", "inline; filename=" + saveFileName);
+    response.setHeader("Cache-Control", "no-cache");
+    response.setDateHeader("Expires", 0);
+    response.setHeader("Pragma", "No-cache");
+
+    response.getOutputStream().write(tosend);
+  }
+
   public static void copyFileOnStream(File fPdf, OutputStream output)
      throws Exception
   {
-    try (FileInputStream fis = new FileInputStream(fPdf))
+    try(FileInputStream fis = new FileInputStream(fPdf))
     {
       CommonFileUtils.copyStream(fis, output);
       safeFlush(output);

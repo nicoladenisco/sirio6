@@ -69,8 +69,13 @@ public class LogsViewerServlet extends HttpServlet
          .getAttribute(LogsMenuGenerator.MENU_LOGS_SESSION_KEY);
 
       String sInfo = request.getPathInfo();
-      if(sInfo == null || sInfo.length() < 5)
-        throw new Exception(INT.I("Richiesta non valida."));
+      if(sInfo == null || sInfo.length() < 5 || arBeans == null)
+      {
+        FU.sendTextResponse(request, response,
+           "Nessuna log da visualizzare.",
+           "UTF-8", CoreConst.MIME_TXT + ";charset=utf-8", null, false);
+        return;
+      }
 
       String ssInfo = sInfo.substring(1);
       MenuItemBean b = arBeans.stream()

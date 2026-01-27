@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,6 @@ package org.sirio6.utils.httphandler;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
-import org.sirio6.utils.SU;
-import org.sirio6.utils.TR;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,6 +27,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import org.apache.turbine.util.ServerData;
+import org.sirio6.utils.SU;
 
 /**
  * Implementazione di HttpServletRequest per l'uso
@@ -42,7 +41,7 @@ public class RequestWrapper extends HttpServletRequestWrapper
   private final Map<String, String[]> postData;
   private final ServletInputStream is;
   private final Map<String, Object> attributes = new HashMap<>();
-  private ServerData sd = new ServerData(TR.getDefaultServerData());
+  private ServerData sd;
   private int contentLength = 0;
 
   public RequestWrapper(HttpExchange ex, Map<String, String[]> postData, ServletInputStream is)
@@ -59,6 +58,7 @@ public class RequestWrapper extends HttpServletRequestWrapper
     this.is = is;
 
     HttpContext ctx = ex.getHttpContext();
+    sd = new ServerData(request);
     sd.setScriptName(ctx.getPath());
     sd.setContextPath("");
   }
@@ -72,13 +72,13 @@ public class RequestWrapper extends HttpServletRequestWrapper
   @Override
   public Enumeration<String> getHeaders(String name)
   {
-    return new Vector<String>(ex.getRequestHeaders().get(name)).elements();
+    return new Vector<>(ex.getRequestHeaders().get(name)).elements();
   }
 
   @Override
   public Enumeration<String> getHeaderNames()
   {
-    return new Vector<String>(ex.getRequestHeaders().keySet()).elements();
+    return new Vector<>(ex.getRequestHeaders().keySet()).elements();
   }
 
   @Override
@@ -96,7 +96,7 @@ public class RequestWrapper extends HttpServletRequestWrapper
   @Override
   public Enumeration<String> getAttributeNames()
   {
-    return new Vector<String>(attributes.keySet()).elements();
+    return new Vector<>(attributes.keySet()).elements();
   }
 
   @Override
@@ -145,7 +145,7 @@ public class RequestWrapper extends HttpServletRequestWrapper
   @Override
   public Enumeration<String> getParameterNames()
   {
-    return new Vector<String>(postData.keySet()).elements();
+    return new Vector<>(postData.keySet()).elements();
   }
 
   @Override

@@ -288,25 +288,19 @@ public class JasperPlugin extends BasePdfPlugin
 
     String pgm = jasPgm.getAbsolutePath();
     String[] cmd = (String[]) ArrayUtils.add(args, 0, pgm);
+    StringBuilder sb = new StringBuilder(128);
+    sb.append("\n");
+    sb.append("Lancio ").append(Arrays.toString(cmd));
 
-    log.info("Lancio " + SU.joinCommand(cmd));
+    log.info("Lancio " + Arrays.toString(cmd));
     ExecHelper eh = ExecHelper.exec(cmd);
     int exitValue = eh.getStatus();
-    StringBuilder sb = new StringBuilder(128);
     eh.getReportError(sb);
 
     if(exitValue != 0 || !reportPDF.canRead() || reportPDF.length() == 0)
     {
       log.error(sb.toString());
-
-      // byNIK: mistero misterioso; non logga i messaggi di questa classe; scrivo un file con l'errore
-      dirTmp.mkdirs();
-      File report = File.createTempFile("ERROR", ".txt", dirTmp);
-      CommonFileUtils.writeFileTxt(report, sb.toString(), "UTF-8");
-
       die(INT.I("Rendering jasper del PDF non completato. Vedi log per errori."));
     }
-
-    log.debug(sb.toString());
   }
 }

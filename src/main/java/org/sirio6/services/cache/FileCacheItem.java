@@ -32,9 +32,9 @@ import org.sirio6.CoreConst;
 public class FileCacheItem extends CoreCachedObject
 {
   /** sezione della cache che conterrà i files */
-  private static final String CACHE_FILE_SECTION = "filesCache";
+  public static final String CACHE_FILE_SECTION = "filesCache";
   /** tempo di permanenza nella cache (5 minuti) */
-  private static final long EXPIRES = 5 * CoreConst.ONE_MINUTE_MILLIS;
+  public static final long EXPIRES = 5 * CoreConst.ONE_MINUTE_MILLIS;
   /** semaforo per la sincronizzazione dell'accesso alla cache */
   private static final Object semaforo = new Object();
   /** tipo mime del file memorizzato */

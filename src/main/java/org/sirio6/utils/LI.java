@@ -276,6 +276,11 @@ public class LI extends HtmlUtils
     return "<i class=\"fa fa-" + name + "\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
   }
 
+  public static String getImgAwesome(String type, String name, String title)
+  {
+    return "<i class=\"fa-" + type + " fa-" + name + "\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
+  }
+
   public static String getImgAwesomeFas(String name, String title)
   {
     return "<i class=\"fas fa-" + name + "\" aria-hidden=\"true\" title=\"" + title + "\"></i>";

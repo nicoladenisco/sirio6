@@ -58,6 +58,11 @@ public class IconTool extends I18nTool
     return LI.getImgAwesome(name, i18n(title));
   }
 
+  public String getImgAwesome(String type, String name, String title)
+  {
+    return LI.getImgAwesome(type, name, i18n(title));
+  }
+
   public String getImgAwesomeFas(String name, String title)
   {
     return LI.getImgAwesomeFas(name, i18n(title));

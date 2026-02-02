@@ -76,6 +76,16 @@ public class TableRelationCache5<T extends Persistent, O extends Persistent> ext
     }
   }
 
+  public TableMapHelper getTargetTableMapHelper()
+  {
+    return targetTableMapHelper;
+  }
+
+  public String getTargetTableName()
+  {
+    return targetTableName;
+  }
+
   /**
    * Caricatore dei dati da detail.
    * Carica in memoria tutti gli oggetti collegati all'array passato come parametro.

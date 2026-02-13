@@ -26,6 +26,8 @@
 package org.sirio6.utils.velocity;
 
 import java.io.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.turbine.Turbine;
 import org.apache.turbine.pipeline.PipelineData;
 import org.apache.turbine.services.TurbineServices;
@@ -51,6 +53,8 @@ import org.apache.velocity.runtime.parser.node.SimpleNode;
  */
 public class VelocityParser
 {
+  private static Log log = LogFactory.getLog(VelocityParser.class);
+
   protected final Context ctx;
 
   /**
@@ -83,8 +87,16 @@ public class VelocityParser
   public void parseFile(String fileModello, Writer writer)
      throws Exception
   {
-    Template t = Velocity.getTemplate(fileModello);
-    mergeTemplate(t, writer);
+    try
+    {
+      Template t = Velocity.getTemplate(fileModello);
+      mergeTemplate(t, writer);
+    }
+    catch(Exception ex)
+    {
+      log.error("Errore elaborando il file " + fileModello, ex);
+      throw ex;
+    }
   }
 
   protected void mergeTemplate(Template t, Writer writer)

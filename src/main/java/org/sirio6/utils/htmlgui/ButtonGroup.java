@@ -28,11 +28,21 @@ import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
  */
 public class ButtonGroup extends HtmlguiElement
 {
+  public boolean outline;
   public final List<Button> lsButtons = new ArrayList<>();
 
   public ButtonGroup addButton(Button b)
   {
+    b.parent = this;
+    b.size = size;
+    b.Outline(outline);
     lsButtons.add(b);
+    return this;
+  }
+
+  public ButtonGroup Outline(boolean outline)
+  {
+    this.outline = outline;
     return this;
   }
 
@@ -40,6 +50,11 @@ public class ButtonGroup extends HtmlguiElement
   public Button find(String caption)
   {
     return lsButtons.stream().filter((b) -> caption.equals(b.caption)).findFirst().orElse(null);
+  }
+
+  public Button last()
+  {
+    return lsButtons.isEmpty() ? null : lsButtons.get(lsButtons.size() - 1);
   }
 
   @Override

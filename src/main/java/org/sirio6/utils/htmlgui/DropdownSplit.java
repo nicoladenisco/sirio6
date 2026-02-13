@@ -19,6 +19,9 @@ package org.sirio6.utils.htmlgui;
 
 import org.rigel5.RigelI18nInterface;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapColor;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapComponent;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapSize;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapStyle;
 import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
 
 /**
@@ -51,10 +54,10 @@ public class DropdownSplit extends Dropdown
   public void toHtml(String indent, StringBuilder sb, RigelI18nInterface i18n)
   {
     /*
-    <!-- Example split danger button -->
-    <div class="btn-group">
+    == NORMALE ==
+    <div class="btn-group" role="group">
       <button type="button" class="btn btn-danger">Danger</button>
-      <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+      <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
         <span class="visually-hidden">Toggle Dropdown</span>
       </button>
       <ul class="dropdown-menu">
@@ -65,14 +68,40 @@ public class DropdownSplit extends Dropdown
         <li><a class="dropdown-item" href="#">Separated link</a></li>
       </ul>
      </div>
+
+     == SMALL ==
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-success" onclick="applicaFormule(0)">$I.I("Applica formule")</button>
+      <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+        <span class="caret"></span>
+        <span class="sr-only">$I.I("Applica formule")</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" onclick="applicaFormule(0)">$I.I("Calcolo di base")</a></li>
+        <li><a class="dropdown-item" href="#" onclick="applicaFormule(1)">$I.I("Forza immessi da operatore")</a></li>
+        <li><a class="dropdown-item" href="#" onclick="applicaFormule(2)">$I.I("Forza già calcolati")</a></li>
+        <li><a class="dropdown-item" href="#" onclick="applicaFormule(3)">$I.I("Forza già validati")</a></li>
+        <li><a class="dropdown-item" href="#" onclick="applicaFormule(4)">$I.I("Forza tutto")</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#" onclick="risultatoFormule()">$I.I("Risultato ultima elaborazione")</a></li>
+      </ul>
+    </div>
      */
 
     CssClassBuilder cb = new CssClassBuilder();
     cb.add("btn");
-    cb.add("btn-" + color.value());
+    cb.add(BootstrapStyle.of(BootstrapComponent.BUTTON, color, size, outline));
     cb.addAll(lsMoreClasses);
 
-    sb.append(indent).append("<div class=\"btn-group\">\n");
+    String cbclass = "btn-group";
+    if(!size.equals(BootstrapSize.NORMAL))
+    {
+      cbclass += " btn-group-" + size.value();
+      cb.add("btn-" + size.value());
+    }
+
+    sb.append(indent).append("<div class=\"").append(cbclass).append("\" role=\"group\">\n");
+
     sb.append(indent).append("<button ").append(onc()).append(" type=\"button\" class=\"").append(cb.build()).append("\">")
        .append(formatCaption(i18n)).append("</button>\n");
     sb.append(indent).append("<button type=\"button\" class=\"").append(cb.build())

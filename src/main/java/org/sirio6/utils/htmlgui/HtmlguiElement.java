@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.rigel5.DefaultRigelI18nImplementation;
 import org.rigel5.RigelI18nInterface;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapSize;
 
 /**
  * Interfaccia di tutti gli elementi gui.
@@ -32,6 +33,13 @@ abstract public class HtmlguiElement
   public static final String NOI18N = "NOI18N:";
 
   public final List<String> lsMoreClasses = new ArrayList<>();
+  public BootstrapSize size = BootstrapSize.NORMAL;
+
+  public HtmlguiElement Size(BootstrapSize size)
+  {
+    this.size = size;
+    return this;
+  }
 
   abstract public Button find(String caption);
 
@@ -56,7 +64,7 @@ abstract public class HtmlguiElement
       return "";
 
     if(caption.startsWith(NOI18N))
-      return caption;
+      return caption.substring(NOI18N.length(), caption.length());
 
     return caption.isEmpty() ? "" : i18n.msg(caption);
   }

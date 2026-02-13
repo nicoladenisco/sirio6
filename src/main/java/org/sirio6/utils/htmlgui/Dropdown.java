@@ -22,6 +22,8 @@ import java.util.List;
 import org.rigel5.RigelI18nInterface;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapColor;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapComponent;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapSize;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapStyle;
 import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
 
 /**
@@ -61,28 +63,50 @@ public class Dropdown extends Button
     return this;
   }
 
+  public int size()
+  {
+    return lsItem.size();
+  }
+
   @Override
   public void toHtml(String indent, StringBuilder sb, RigelI18nInterface i18n)
   {
     /*
-    <div class="dropdown">
-      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Dropdown button
+    == NORMALE ==
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        Dropdown
       </button>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
+        <li><a class="dropdown-item" href="#">Dropdown link</a></li>
+        <li><a class="dropdown-item" href="#">Dropdown link</a></li>
+      </ul>
+    </div>
+
+    == SMALL ==
+    <div class="btn-group btn-group-sm" role="group">
+      <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Small button
+      </button>
+      <ul class="dropdown-menu">
+        ...
       </ul>
     </div>
      */
 
     CssClassBuilder cb = new CssClassBuilder();
     cb.add("btn");
-    cb.add("btn-" + color.value());
+    cb.add(BootstrapStyle.of(BootstrapComponent.BUTTON, color, size, outline));
     cb.addAll(lsMoreClasses);
 
-    sb.append(indent).append("<div class=\"").append(component.prefix()).append("\">\n");
+    String cbclass = "btn-group";
+    if(!size.equals(BootstrapSize.NORMAL))
+    {
+      cbclass += " btn-group-" + size.value();
+      cb.add("btn-" + size.value());
+    }
+
+    sb.append(indent).append("<div class=\"").append(cbclass).append("\" role=\"group\">\n");
 
     // il dropdown ignora il valore di onclick
     sb.append(indent).append("  <button class=\"btn ").append(cb.build())

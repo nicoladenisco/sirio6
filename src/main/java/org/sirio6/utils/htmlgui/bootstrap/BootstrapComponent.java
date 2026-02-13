@@ -2,7 +2,7 @@ package org.sirio6.utils.htmlgui.bootstrap;
 
 public enum BootstrapComponent
 {
-  BUTTON("btn"), BUTTON_OUTLINE("btn-outline"), ALERT("alert"),
+  BUTTON("btn"), ALERT("alert"),
   TEXT("text"), BADGE("badge"), LIST_GROUP_ITEM("list-group-item"),
   BG("bg"), DROPDOWN("dropdown");
 

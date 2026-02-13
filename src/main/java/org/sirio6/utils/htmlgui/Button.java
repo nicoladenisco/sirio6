@@ -21,6 +21,8 @@ import org.rigel5.RigelI18nInterface;
 import org.sirio6.utils.SU;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapColor;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapComponent;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapSize;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapStyle;
 import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
 
 /**
@@ -32,6 +34,8 @@ public class Button extends HtmlguiElement
   public BootstrapComponent component = BootstrapComponent.BUTTON;
   public BootstrapColor color = BootstrapColor.SECONDARY;
   public String caption = "undefined", onclick = null, link = null;
+  public ButtonGroup parent;
+  public boolean outline;
 
   public Button()
   {
@@ -79,9 +83,15 @@ public class Button extends HtmlguiElement
     return this;
   }
 
-  public Button setOutline(boolean v)
+  @Override
+  public Button Size(BootstrapSize size)
   {
-    component = v ? BootstrapComponent.BUTTON_OUTLINE : BootstrapComponent.BUTTON;
+    return (Button) super.Size(size);
+  }
+
+  public Button Outline(boolean outline)
+  {
+    this.outline = outline;
     return this;
   }
 
@@ -101,7 +111,7 @@ public class Button extends HtmlguiElement
   {
     CssClassBuilder cb = new CssClassBuilder();
     cb.add("btn");
-    cb.add(component.prefix() + "-" + color.value());
+    cb.add(BootstrapStyle.of(component, color, size, outline));
     cb.addAll(lsMoreClasses);
 
     sb.append(indent);

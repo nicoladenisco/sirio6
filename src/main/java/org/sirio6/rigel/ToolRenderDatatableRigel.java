@@ -20,6 +20,7 @@ package org.sirio6.rigel;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -144,7 +145,7 @@ public class ToolRenderDatatableRigel
 
     StringWriter writer = new StringWriter(512);
     // renderizzazione Velocity con il modello caricato da risorsa
-    try (InputStream is = ClassUtils.getResourceAsStream(getClass(), "/ToolDatatable.vm"))
+    try(InputStream is = ClassUtils.getResourceAsStream(getClass(), "/ToolDatatable.vm"))
     {
       InputStreamReader reader = new InputStreamReader(is, "UTF-8");
 
@@ -191,12 +192,38 @@ public class ToolRenderDatatableRigel
     if(footer)
       ctx.put("visFooter", true);
 
+    String func = data.getParameters().getString("func");
+
+    if(func != null && wxml.getFoInfo() != null && !wxml.getFoInfo().isEmpty())
+    {
+      StringBuilder jsFunc = new StringBuilder(128);
+      jsFunc.append(func).append("(");
+
+      int c = 0;
+      for(Iterator<Pair<String, String>> it = wxml.getFoInfo().iterator(); it.hasNext();)
+      {
+        Pair<String, String> p = it.next();
+        String nomeCampo = p.second;
+        int col = stm.findColumn(nomeCampo);
+        if(col != -1)
+        {
+          if(c++ > 0)
+            jsFunc.append(",");
+          jsFunc.append("data[").append(col).append("]");
+        }
+      }
+
+      jsFunc.append(");");
+      ctx.put("func", jsFunc.toString());
+      return;
+    }
+
     Element eTabella = wxml.getEleXml();
     Element fsrv = eTabella.getChild("foreign-server");
     if(fsrv != null)
     {
       StringBuilder jsFunc = new StringBuilder(128);
-      String func = SU.okStr(fsrv.getAttributeValue("func"), "imposta");
+      func = SU.okStr(fsrv.getAttributeValue("func"), func);
       jsFunc.append(func).append("(");
 
       int c = 0;

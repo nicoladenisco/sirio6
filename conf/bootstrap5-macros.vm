@@ -1,9 +1,9 @@
-#* ------------------------------------------------------------------
-#
-# Macro per semplificare l'uso di Bootstrap 5
-# 2025-10-20
-#
-*# ------------------------------------------------------------------
+## ------------------------------------------------------------------
+##
+## Macro per semplificare l'uso di Bootstrap 5
+## 2025-10-20
+##
+## ------------------------------------------------------------------
 
 #macro (PROLOG $modulo)
 <!-- INIZIO $modulo -->
@@ -23,9 +23,9 @@
   <div class="btn-group me-2" role="group">
     <button type="button" class="btn btn-sm btn-primary" onclick="ricarica();">$I.I($caption)</button>
   </div>
-#end
+  #end
 
-#macro (END_MENU)
+  #macro (END_MENU)
 </div>
 <!-- fine menu -->
 #end
@@ -33,7 +33,7 @@
 ## -- i submenu vengono visualizzati come dropdown --
 #macro (BEGIN_SUBMENU $titolo $style)
 <div class="btn-group">
-  <button type="button" class="btn btn-sm dropdown-toggle $style" data-bs-toggle="dropdown" aria-expanded="false">
+  <button type="button" class="btn btn-sm dropdown-toggle $style" data-bs-toggle="dropdown" >
     $I.I($titolo)
   </button>
   <ul class="dropdown-menu">
@@ -49,6 +49,13 @@
 #end  
 #macro (itemSubmenuScript $body $lnkScript)
 <li><a class="dropdown-item" href="#" onClick="$lnkScript">$I.I($body)</a></li>
+#end
+
+#macro (itemSubmenuNoi18n $body $lnk)
+<li><a class="dropdown-item" href="$lnk">$body</a></li>
+#end  
+#macro (itemSubmenuScriptNoi18n $body $lnkScript)
+<li><a class="dropdown-item" href="#" onClick="$lnkScript">$body</a></li>
 #end
 
 #macro (itemSubmenuDivider)
@@ -86,49 +93,50 @@
 ##
 ## -- Dialog generica ----------------------------------------------------------------
 ## una dialog con o senza footer; nel footer posso inserire più bottoni o altir gadget
+## $dimensione puo essere: ""=default, modal-xl, modal-lg, modal-sm
+## $style è 'primary', 'warning', 'info', ecc.
 ##
 
-#macro (BEGIN_DIALOG $nomeDialog $titolo $dimensione)
-<!-- INIZIO dialog $nomeDialog -->
-<div class="modal fade" id="$nomeDialog" tabindex="-1" aria-labelledby="${nomeDialog}Label" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
+#macro (BEGIN_DIALOG $id $titolo $style $dimensione)
+<!-- INIZIO dialog $id -->
+<div class="modal fade" id="$id" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog $dimensione">
     <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header bg-$style text-white">
         <p class="modal-title fs-5" id="${nomeDialog}Label">$titolo</p>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" ></button>
       </div>
       <div class="modal-body">
-#end
+        #end
 
-#macro (BEGIN_DIALOG_FOOTER $nomeDialog)
+        #macro (BEGIN_DIALOG_FOOTER)
       </div>
       <div class="modal-footer">
-#end
+        #end
 
-#macro (DIALOG_FOOTER_BUTTON_CLOSE $nomeDialog $caption)
+        #macro (DIALOG_FOOTER_BUTTON_CLOSE $id $caption)
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$caption</button>
-#end
+        #end
 
-#macro (DIALOG_FOOTER_BUTTON $nomeDialog $caption $funzione $stile)
+        #macro (DIALOG_FOOTER_BUTTON $id $caption $funzione $stile)
         <button type="button" class="btn $stile" onclick="$funzione">$caption</button>
-#end
+        #end
 
-#macro (END_DIALOG_FOOTER $nomeDialog)
+        #macro (END_DIALOG_FOOTER)
       </div>
-#end
+      #end
 
-<!--
-<div class="modal-dialog modal-xl">...</div>
-<div class="modal-dialog modal-lg">...</div>
-<div class="modal-dialog modal-sm">...</div>
--->
+      <!--
+      <div class="modal-dialog modal-xl">...</div>
+      <div class="modal-dialog modal-lg">...</div>
+      <div class="modal-dialog modal-sm">...</div>
+      -->
 
-#macro (END_DIALOG $nomeDialog)
+      #macro (END_DIALOG)
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<!-- FINE dialog $nomeDialog -->
+<!-- FINE dialog -->
 #end
 
 ##
@@ -139,23 +147,23 @@
 
 #macro (BEGIN_DIALOG_SIMPLE $id $titolo $dimensione)
 <!-- Dialog $titolo ($id) -->
-<div class="modal fade" id="$id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="titolo_$id" aria-hidden="true">
+<div class="modal fade" id="$id" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="titolo_$id" >
   <div class="modal-dialog $dimensione">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h1 class="modal-title fs-5" id="titolo_$id">$titolo</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" ></button>
       </div>
       <div id="$id-body" class="modal-body">
-#end
+        #end
 
-<!--
-<div class="modal-dialog modal-xl">...</div>
-<div class="modal-dialog modal-lg">...</div>
-<div class="modal-dialog modal-sm">...</div>
--->
+        <!--
+        <div class="modal-dialog modal-xl">...</div>
+        <div class="modal-dialog modal-lg">...</div>
+        <div class="modal-dialog modal-sm">...</div>
+        -->
 
-#macro (END_DIALOG_SIMPLE $capSalva $capChiudi $scriptConferma)
+        #macro (END_DIALOG_SIMPLE $capSalva $capChiudi $scriptConferma)
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$capChiudi</button>
@@ -180,9 +188,9 @@
   <div id="$id-body" class="card-body">
     <h5 class="card-title">$titoloEsteso</h5>
     <p class="card-text">$commento</p>
-#end
+    #end
 
-#macro (END_CARD)
+    #macro (END_CARD)
   </div>
 </div>
 #end
@@ -199,9 +207,22 @@
     $titolo
   </div>
   <div class="card-body">
+    #end
+
+    #macro (END_CARD_SIMPLE)
+  </div>
+</div>
 #end
 
-#macro (END_CARD_SIMPLE)
+#macro (BEGIN_PANEL $style $titolo)
+<div class="card border-$style mb-3">
+  <div class="card-header text-bg-$style">
+    $titolo
+  </div>
+  <div class="card-body">
+    #end
+
+    #macro (END_PANEL)
   </div>
 </div>
 #end
@@ -408,5 +429,218 @@
     #menuCellScript ("Abbandona" "abbandona()" $ui.menuFieldTextStyle)
     #end
   </div>
+</div>
+#end
+
+##
+## -- Gestione interfaccia a tab -------------------------------------------
+## I tab si compongono di due parti:
+## 1) la tab bar che materialmente contiene i tab
+## 2) una serie di pannelli che vengono agganciati da ogni tab presente nella barra
+##
+## la tab bar viene creata con BEGIN_TAB_BAR, TAB_BAR_ITEM, TAB_BAR_ITEM_ACTIVE, END_TAB_BAR
+## uno solo degli item può essere TAB_BAR_ITEM_ACTIVE
+##
+## i pannelli vengono creati con 
+## BEGIN_TAB_CONTENT(idunivocogenerale)
+## BEGIN_TAB_CONTENT_PANEL_ACTIVE(lostessoidusatoin_TAB_BAR_ITEM_ACTIVE)
+## ...
+## END_TAB_CONTENT_PANEL_ACTIVE
+## BEGIN_TAB_CONTENT_PANEL(lostessoidusatoin_TAB_BAR_ITEM)
+## ...
+## END_TAB_CONTENT_PANEL
+## END_TAB_CONTENT
+##
+
+#macro (BEGIN_TAB_BAR $id)
+<ul class="nav nav-tabs" id="$id" role="tablist">
+  #end
+
+  #macro (TAB_BAR_ITEM $id $caption)
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="$id" data-bs-toggle="tab" data-bs-target="#$id-pane" type="button" role="tab">$caption</button>
+  </li>
+  #end
+
+  #macro (TAB_BAR_ITEM_ACTIVE $id $caption)
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="$id" data-bs-toggle="tab" data-bs-target="#$id-pane" type="button" role="tab">$caption</button>
+  </li>
+  #end
+
+  #macro (END_TAB_BAR)
+</ul>
+#end
+
+#macro (BEGIN_TAB_CONTENT $id)
+<div class="tab-content" id="$id">
+  #end
+
+  #macro (BEGIN_TAB_CONTENT_PANEL $id)
+  <div class="tab-pane fade show tab-inner-vis-panel" id="$id-pane" role="tabpanel" tabindex="0">
+    #end
+
+    #macro (END_TAB_CONTENT_PANEL)
+  </div>
+  #end
+
+  #macro (BEGIN_TAB_CONTENT_PANEL_ACTIVE $id)
+  <div class="tab-pane fade show active tab-inner-vis-panel" id="$id-pane" role="tabpanel" tabindex="0">
+    #end
+
+    #macro (END_TAB_CONTENT_PANEL_ACTIVE)
+  </div>
+  #end
+
+  #macro (END_TAB_CONTENT)
+</div>
+#end
+
+
+##
+## -- Aiuto per i form -------------------------------------------------------------
+## per generare più facilmente controlli
+##
+
+#macro (FORM_INPUT $id $tipo $caption $valore $placeholder $help)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  #if($help == "")
+  <input type="$tipo" class="form-control" id="$id" name="$id" placeholder="$placeholder" value="$valore">
+  #else
+  <input type="$tipo" class="form-control" id="$id" name="$id" aria-describedby="$id-help" placeholder="$placeholder" value="$valore">
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_INPUT $id $tipo $caption $valore $placeholder $help)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  #if($help == "")
+  <input type="$tipo" class="form-control" id="$id" name="$id" placeholder="$placeholder" value="$valore">
+  #else
+  <input type="$tipo" class="form-control" id="$id" name="$id" aria-describedby="$id-help" placeholder="$placeholder" value="$valore">
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_TEXTAREA $id $tipo $caption $valore $placeholder $help)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  #if($help == "")
+  <textarea class="form-control" id="$id" rows="4" name="$id" placeholder="$placeholder">$valore</textarea>
+  #else
+  <textarea class="form-control" id="$id" rows="4" name="$id" aria-describedby="$id-help" placeholder="$placeholder">$valore</textarea>
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_INPUT_AUTOCOMPLETE $id $tipo $caption $valore $placeholder $help $lista)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  <input type="$tipo" class="form-control" id="$id" name="$id"
+         aria-describedby="$id-help" placeholder="$placeholder" list="$id-datalistOptions" value="$valore">
+  <datalist id="$id-datalistOptions">
+    #foreach($v in $lista)
+    <option value="$v"/>
+    #end
+  </datalist>
+  #if($help != "")
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_INPUT_AUTOCOMPLETE_HTML $id $tipo $caption $valore $placeholder $help $listaHtml)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  <input type="$tipo" class="form-control" id="$id" name="$id"
+         aria-describedby="$id-help" placeholder="$placeholder" list="$id-datalistOptions" value="$valore">
+  <datalist id="$id-datalistOptions">
+    $listaHtml
+  </datalist>
+  #if($help != "")
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_SELECT $id $caption $valore $help $lista)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  <select class="form-select" id="$id" name="$id">
+    #foreach($v in $lista)
+    #if($valore == $v.first)
+    <option value="$v.first" selected>$v.second</option>
+    #else
+    <option value="$v.first">$v.second</option>
+    #end
+    #end
+  </select>
+  #if($help != "")
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_SELECT_HTML $id $caption $help $listaHtml)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  <select class="form-select" id="$id" name="$id">
+    $listaHtml
+  </select>
+  #if($help != "")
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_CHECKBOX $id $caption $value)
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="$value" id="$id" name="$id">
+  <label class="form-check-label" for="$id">
+    $caption
+  </label>
+</div>
+#end
+
+#macro (FORM_RADIO $id $caption $value)
+<div class="form-check">
+  <input class="form-check-input" type="radio" value="$value" id="$id" name="$id">
+  <label class="form-check-label" for="$id">
+    $caption
+  </label>
+</div>
+#end
+
+#macro (FORM_SWITCH $id $caption $value)
+<div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" role="switch" value="$value" id="$id" name="$id">
+  <label class="form-check-label" for="$id">$caption</label>
+</div>
+#end
+
+#macro (ZZZ_FORM_INPUT_COMBINED $id $tipo $prehtml $caption $valore $placeholder $help)
+<div class="mb-3">
+  <label for="$id" class="form-label">$caption</label>
+  <span class="input-group-text" id="$id-addon1">$prehtml</span>
+  #if($help == "")
+  <input type="$tipo" class="form-control" id="$id" name="$id" placeholder="$placeholder" value="$valore">
+  #else
+  <input type="$tipo" class="form-control" id="$id" name="$id" aria-describedby="$id-help" placeholder="$placeholder" value="$valore">
+  <div id="$id-help" class="form-text">$help</div>
+  #end
+</div>
+#end
+
+#macro (FORM_INPUT_COMBINED $id $tipo $prehtml $caption $valore $placeholder)
+<div class="input-group mb-3">
+  <span class="input-group-text" id="$id-basic-addon1">$prehtml</span>
+  <input type="text" class="form-control" 
+         placeholder="$placeholder" 
+         aria-label="$id-label" aria-describedby="$id-basic-addon1">
 </div>
 #end

@@ -90,7 +90,7 @@ public class DropdownSplit extends Dropdown
 
     CssClassBuilder cb = new CssClassBuilder();
     cb.add("btn");
-    cb.add(BootstrapStyle.of(BootstrapComponent.BUTTON, color, size, outline));
+    cb.add(BootstrapStyle.of(BootstrapComponent.BUTTON, color, size, getOutline()));
     cb.addAll(lsMoreClasses);
 
     String cbclass = "btn-group";

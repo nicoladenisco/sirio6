@@ -18,8 +18,10 @@
 package org.sirio6.rigel;
 
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.commonlib5.utils.ArrayMap;
 import org.rigel5.RigelI18nInterface;
 import org.rigel5.exceptions.InjectionDetectedException;
 import org.rigel5.table.BuilderRicercaGenerica;
@@ -86,6 +88,44 @@ public class ToolMascheraRicercaGenericaDatatable implements MascheraRicercaGene
   {
     search = SU.okStrNull(search);
 
+    if(search != null)
+    {
+      Map<String, String> searchMap = SU.string2Map(search, ",", true);
+      if(searchMap.isEmpty())
+      {
+        // per default usa la stringa ricerca nel primo campo ricerca semplice
+        buildForSimple(mapOrder, search);
+      }
+      else
+      {
+        // supporta la sintassi 'COD=aaa, DES=a.+b'
+        // ovvero campo (anche sottoparte iniziale) imposta valore regular expression
+        buildForComplex(mapOrder, searchMap);
+      }
+    }
+    else
+    {
+      // pulisce ricerca e imposta ordinamento
+      clear(mapOrder);
+    }
+
+    return brg.buildCriteria();
+  }
+
+  protected void clear(Map<Integer, Integer> mapOrder)
+  {
+    for(int i = 0; i < rtm.getColumnCount(); i++)
+    {
+      RigelColumnDescriptor cd = rtm.getColumn(i);
+
+      cd.setFiltroTipo(0);
+      cd.setFiltroValore(null);
+      cd.setFiltroSort(mapOrder.getOrDefault(i, 0));
+    }
+  }
+
+  protected void buildForSimple(Map<Integer, Integer> mapOrder, String search)
+  {
     for(int i = 0; i < rtm.getColumnCount(); i++)
     {
       RigelColumnDescriptor cd = rtm.getColumn(i);
@@ -102,10 +142,51 @@ public class ToolMascheraRicercaGenericaDatatable implements MascheraRicercaGene
         // usa regular expression per default
         cd.setFiltroTipo(IDX_CRITERIA_LIKE);
         cd.setFiltroValore("ri:" + search);
+
+        // solo il primo campo marcato ricerca semplice può ricevere il filtro
+        search = null;
       }
     }
+  }
 
-    return brg.buildCriteria();
+  protected void buildForComplex(Map<Integer, Integer> mapOrder, Map<String, String> searchMap)
+  {
+    Map<String, RigelColumnDescriptor> nomiMap = new ArrayMap<>();
+
+    // pulisce ricerca e imposta ordinamento
+    for(int i = 0; i < rtm.getColumnCount(); i++)
+    {
+      RigelColumnDescriptor cd = rtm.getColumn(i);
+
+      cd.setFiltroTipo(0);
+      cd.setFiltroValore(null);
+      cd.setFiltroSort(mapOrder.getOrDefault(i, 0));
+
+      if(!cd.isEscludiRicerca())
+        nomiMap.put(cd.getCaption().toUpperCase(), cd);
+    }
+
+    Set<String> nomi = nomiMap.keySet();
+
+    // carica filtri di ricerca
+    for(Map.Entry<String, String> entry : searchMap.entrySet())
+    {
+      String campo = entry.getKey().toUpperCase();
+      String valore = entry.getValue();
+
+      String nomeColonna = nomi.stream()
+         .filter((s) -> s.startsWith(campo))
+         .findFirst().orElse(null);
+
+      if(nomeColonna == null)
+        continue;
+
+      RigelColumnDescriptor cd = nomiMap.get(nomeColonna);
+
+      // usa regular expression per default
+      cd.setFiltroTipo(IDX_CRITERIA_LIKE);
+      cd.setFiltroValore("ri:" + valore);
+    }
   }
 
   public Object buildCriteriaSafe(String search, Map<Integer, Integer> mapOrder)

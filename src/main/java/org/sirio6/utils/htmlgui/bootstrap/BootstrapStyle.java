@@ -6,14 +6,15 @@ public final class BootstrapStyle
   private final BootstrapColor color;
   private final BootstrapVersion version;
   private final BootstrapSize size;
-  private boolean outline;
+  private final BootstrapOutline outline;
 
-  private BootstrapStyle(BootstrapComponent c, BootstrapColor col, BootstrapSize size, BootstrapVersion v)
+  private BootstrapStyle(BootstrapComponent c, BootstrapColor col, BootstrapSize size, BootstrapOutline outline, BootstrapVersion v)
   {
     this.component = c;
     this.color = col;
     this.size = size;
     this.version = v;
+    this.outline = outline;
   }
 
   public static BootstrapStyle of(BootstrapComponent c, BootstrapColor col)
@@ -23,29 +24,28 @@ public final class BootstrapStyle
 
   public static BootstrapStyle of(BootstrapComponent c, BootstrapColor col, BootstrapVersion v)
   {
-    return new BootstrapStyle(c, col, BootstrapSize.NORMAL, v);
+    return new BootstrapStyle(c, col, BootstrapSize.NORMAL, BootstrapOutline.DEFAULT, v);
   }
 
   public static BootstrapStyle of(BootstrapComponent c, BootstrapColor col, BootstrapSize size, BootstrapVersion v)
   {
-    return new BootstrapStyle(c, col, size, v);
+    return new BootstrapStyle(c, col, size, BootstrapOutline.DEFAULT, v);
   }
 
   public static BootstrapStyle of(BootstrapComponent c, BootstrapColor col, BootstrapSize size)
   {
-    return new BootstrapStyle(c, col, size, BootstrapVersion.V5);
+    return new BootstrapStyle(c, col, size, BootstrapOutline.DEFAULT, BootstrapVersion.V5);
   }
 
-  public static BootstrapStyle of(BootstrapComponent c, BootstrapColor col, BootstrapSize size, boolean outline)
+  public static BootstrapStyle of(BootstrapComponent c, BootstrapColor col, BootstrapSize size, BootstrapOutline outline)
   {
-    BootstrapStyle b = new BootstrapStyle(c, col, size, BootstrapVersion.V5);
-    b.outline = outline;
+    BootstrapStyle b = new BootstrapStyle(c, col, size, outline, BootstrapVersion.V5);
     return b;
   }
 
   public String cssClass()
   {
-    String ol = outline ? "-outline" : "";
+    String ol = outline.isOutline() ? "-outline" : "";
 
     if(size.equals(BootstrapSize.NORMAL))
       return component.prefix() + ol + "-" + color.value();

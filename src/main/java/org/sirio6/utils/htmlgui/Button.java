@@ -21,6 +21,7 @@ import org.rigel5.RigelI18nInterface;
 import org.sirio6.utils.SU;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapColor;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapComponent;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapOutline;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapSize;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapStyle;
 import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
@@ -35,7 +36,6 @@ public class Button extends HtmlguiElement
   public BootstrapColor color = BootstrapColor.SECONDARY;
   public String caption = "undefined", onclick = null, link = null;
   public ButtonGroup parent;
-  public boolean outline;
 
   public Button()
   {
@@ -89,10 +89,18 @@ public class Button extends HtmlguiElement
     return (Button) super.Size(size);
   }
 
-  public Button Outline(boolean outline)
+  @Override
+  public Button Outline(BootstrapOutline outline)
   {
-    this.outline = outline;
-    return this;
+    return (Button) super.Outline(outline);
+  }
+
+  public BootstrapOutline getOutline()
+  {
+    if(BootstrapOutline.DEFAULT.equals(outline))
+      return parent.outline;
+
+    return outline;
   }
 
   protected String formatCaption(RigelI18nInterface i18n)
@@ -111,7 +119,7 @@ public class Button extends HtmlguiElement
   {
     CssClassBuilder cb = new CssClassBuilder();
     cb.add("btn");
-    cb.add(BootstrapStyle.of(component, color, size, outline));
+    cb.add(BootstrapStyle.of(component, color, size, getOutline()));
     cb.addAll(lsMoreClasses);
 
     sb.append(indent);

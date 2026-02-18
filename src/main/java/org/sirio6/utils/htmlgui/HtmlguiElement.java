@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.rigel5.DefaultRigelI18nImplementation;
 import org.rigel5.RigelI18nInterface;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapOutline;
 import org.sirio6.utils.htmlgui.bootstrap.BootstrapSize;
 
 /**
@@ -34,10 +35,17 @@ abstract public class HtmlguiElement
 
   public final List<String> lsMoreClasses = new ArrayList<>();
   public BootstrapSize size = BootstrapSize.NORMAL;
+  public BootstrapOutline outline = BootstrapOutline.DEFAULT;
 
   public HtmlguiElement Size(BootstrapSize size)
   {
     this.size = size;
+    return this;
+  }
+
+  public HtmlguiElement Outline(BootstrapOutline outline)
+  {
+    this.outline = outline;
     return this;
   }
 

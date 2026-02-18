@@ -20,6 +20,7 @@ package org.sirio6.utils.htmlgui;
 import java.util.ArrayList;
 import java.util.List;
 import org.rigel5.RigelI18nInterface;
+import org.sirio6.utils.htmlgui.bootstrap.BootstrapOutline;
 import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
 
 /**
@@ -28,19 +29,20 @@ import org.sirio6.utils.htmlgui.bootstrap.CssClassBuilder;
  */
 public class ButtonGroup extends HtmlguiElement
 {
-  public boolean outline;
   public final List<Button> lsButtons = new ArrayList<>();
 
   public ButtonGroup addButton(Button b)
   {
     b.parent = this;
     b.size = size;
-    b.Outline(outline);
+    if(BootstrapOutline.DEFAULT.equals(b.outline))
+      b.Outline(outline);
     lsButtons.add(b);
     return this;
   }
 
-  public ButtonGroup Outline(boolean outline)
+  @Override
+  public ButtonGroup Outline(BootstrapOutline outline)
   {
     this.outline = outline;
     return this;

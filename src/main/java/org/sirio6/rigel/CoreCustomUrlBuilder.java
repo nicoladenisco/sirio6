@@ -33,8 +33,8 @@ import org.sirio6.utils.LI;
  */
 public class CoreCustomUrlBuilder implements RigelCustomUrlBuilder
 {
-  private final String ctxPath, ctxPathTempl;
-  private String baseMainForm, baseMainList, basePopupForm, basePopupList;
+  protected final String ctxPath, ctxPathTempl;
+  protected String baseMainForm, baseMainList, basePopupForm, basePopupList;
 
   public CoreCustomUrlBuilder()
   {

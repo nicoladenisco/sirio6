@@ -164,6 +164,8 @@ public class ToolRenderDatatableRigel
     ctx.put("wrapper", wxml);
     ctx.put("unique", unique);
     ctx.put("counter", new AtomicInteger(1));
+    ctx.put("titolo", data.i18n(wxml.getTitolo()));
+    ctx.put("header", data.i18n(wxml.getHeader()));
 
     String tclasses = data.getParameters().get("tclasses");
     String tagTabelleList = TR.getString("tag.tabelle.list", "TABLE WIDTH=\"100%\" class=\"table\""); // NOI18N
@@ -223,7 +225,7 @@ public class ToolRenderDatatableRigel
     if(fsrv != null)
     {
       StringBuilder jsFunc = new StringBuilder(128);
-      func = SU.okStr(fsrv.getAttributeValue("func"), func);
+      func = SU.okStrAny(fsrv.getAttributeValue("func"), func, "imposta");
       jsFunc.append(func).append("(");
 
       int c = 0;

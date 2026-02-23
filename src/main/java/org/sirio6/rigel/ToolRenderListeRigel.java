@@ -184,22 +184,27 @@ public class ToolRenderListeRigel extends ListaBase5
   public synchronized String renderHtml(RunData data, Context ctx)
      throws Exception
   {
-    boolean suppressEmpty = false;
+    boolean suppressEmpty = false, suppressSimpleSearch = false;
     String suppressEmptyMessage = "";
     counter = (int) ctx.get("count");
+    final ParameterParser pp = data.getParameters();
 
     // recupera parametri del tool e li passa in RunData
     Map<String, String> mp = (Map<String, String>) ctx.get("paramsMap");
     if(mp != null)
     {
-      suppressEmpty = SU.checkTrueFalse(mp.get("suppressEmpty"));
+      suppressEmpty = SU.checkTrueFalse(mp.get("suppressEmpty"), suppressEmpty);
       suppressEmptyMessage = SU.okStr(mp.get("suppressEmptyMessage"), suppressEmptyMessage);
+      suppressSimpleSearch = SU.checkTrueFalse(mp.get("suppressSimpleSearch"), suppressSimpleSearch);
+
+      if(suppressSimpleSearch)
+        ctx.put("suppressSimpleSearch", true);
 
       for(Map.Entry<String, String> entry : mp.entrySet())
       {
         String key = entry.getKey();
         String value = entry.getValue();
-        data.getParameters().setString(key, value);
+        pp.setString(key, value);
       }
     }
 

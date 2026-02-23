@@ -113,9 +113,15 @@ public class SU extends StringOper
 
       // se contiene un solo valore lo passa come tale, altrimenti passa l'array dei valori
       if(value.length == 1)
+      {
         htParam.put(name, value[0]);
+        htParam.put(name.toLowerCase(), value[0]);
+      }
       else
+      {
         htParam.put(name, value);
+        htParam.put(name.toLowerCase(), value);
+      }
     }
 
     // carica i parametri fissi

@@ -69,7 +69,7 @@ public class FileCacheServlet extends HttpServlet
       Collection<Part> parts = params.getParts();
       for(Part part : parts)
       {
-        String nome = SU.okStr(part.getName(), UUID.randomUUID().toString());
+        String nome = SU.okStr(part.getSubmittedFileName(), UUID.randomUUID().toString());
         String tipoMime = SU.okStr(part.getContentType(), CoreConst.MIME_BINARY);
 
         File tmpFile = File.createTempFile("upload", ".tmp");

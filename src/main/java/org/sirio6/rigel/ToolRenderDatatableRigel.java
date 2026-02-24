@@ -64,7 +64,7 @@ import org.sirio6.utils.velocity.VelocityParser;
  */
 public class ToolRenderDatatableRigel
 {
-  private static Log log = LogFactory.getLog(ToolRenderDatatableRigel.class);
+  private static final Log log = LogFactory.getLog(ToolRenderDatatableRigel.class);
 
   protected final ToolRigelUIManagerDatatable uim = new ToolRigelUIManagerDatatable();
   protected final ToolCustomUrlBuilder urb = new ToolCustomUrlBuilder();
@@ -167,6 +167,10 @@ public class ToolRenderDatatableRigel
     ctx.put("titolo", data.i18n(wxml.getTitolo()));
     ctx.put("header", data.i18n(wxml.getHeader()));
 
+    Map params = SU.getParMap(data);
+    if(wxml.haveParametri())
+      wxml.rebindQuery(params);
+
     String tclasses = data.getParameters().get("tclasses");
     String tagTabelleList = TR.getString("tag.tabelle.list", "TABLE WIDTH=\"100%\" class=\"table\""); // NOI18N
     String tableStatement = "";
@@ -253,8 +257,8 @@ public class ToolRenderDatatableRigel
     RigelI18nInterface i18n = new RigelHtmlI18n(data);
     ParameterParser pp = data.getParameters();
     int rStart = pp.getInt("start");
-    int rLimit = data.getParameters().getInt("length");
-    String search = data.getParameters().getString("search[value]");
+    int rLimit = pp.getInt("length");
+    String search = pp.getString("search[value]");
 
     // recupera parametri del tool e li passa in RunData
     Map<String, String> mp = (Map<String, String>) ctx.get("paramsMap");

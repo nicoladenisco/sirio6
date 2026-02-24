@@ -27,14 +27,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fulcrum.parser.ParameterParser;
-import org.apache.turbine.services.TurbineServices;
-import org.apache.turbine.services.rundata.RunDataService;
-import org.apache.turbine.services.velocity.VelocityService;
 import org.commonlib5.utils.SimpleTimer;
 import org.sirio6.rigel.ToolRenderDatatableRigel;
 import org.sirio6.rigel.ToolRenderFormRigel;
 import org.sirio6.rigel.ToolRenderListeRigel;
 import org.sirio6.utils.CoreRunData;
+import org.sirio6.utils.CoreRunDataHelper;
 import org.sirio6.utils.SU;
 
 /**
@@ -50,23 +48,6 @@ public class ToolDirectHtml extends HttpServlet
   private final ToolRenderListeRigel renderListe = new ToolRenderListeRigel();
   private final ToolRenderFormRigel renderForm = new ToolRenderFormRigel();
   private final ToolRenderDatatableRigel renderDatatable = new ToolRenderDatatableRigel();
-  private RunDataService rundataService = null;
-  private VelocityService velocityService = null;
-
-  @Override
-  public void init()
-     throws ServletException
-  {
-    super.init();
-
-    if((rundataService = (RunDataService) TurbineServices.getInstance()
-       .getService(RunDataService.SERVICE_NAME)) == null)
-      throw new ServletException("No RunData Service configured!");
-
-    if((velocityService = (VelocityService) TurbineServices.getInstance()
-       .getService(VelocityService.SERVICE_NAME)) == null)
-      throw new ServletException("No Velocity Service configured!");
-  }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -92,25 +73,17 @@ public class ToolDirectHtml extends HttpServlet
   protected void processRequest(HttpServletRequest request, HttpServletResponse response)
      throws ServletException, IOException
   {
-    // Placeholder for the RunData object.
-    CoreRunData data = null;
-
     response.setContentType("text/html;charset=UTF-8");
     PrintWriter out = response.getWriter();
     SimpleTimer st = new SimpleTimer();
-    try
+
+    try(CoreRunDataHelper helper = new CoreRunDataHelper(request, response, getServletConfig()))
     {
+      CoreRunData data = helper.getCoreRunData();
+
       // estrae nome della richiesta
       String sRequest = request.getPathInfo().substring(1);
-
-      // Get general RunData here...
-      // Perform turbine specific initialization below.
-      data = (CoreRunData) rundataService.getRunData(request, response, getServletConfig());
       ParameterParser pp = data.getParameterParser();
-      pp.setRequest(request);
-
-      // Pull user from session.
-      data.populate();
 
       int pos = sRequest.indexOf('/');
       if(pos != -1)
@@ -157,9 +130,6 @@ public class ToolDirectHtml extends HttpServlet
     }
     finally
     {
-      // Return the used RunData to the factory for recycling.
-      rundataService.putRunData(data);
-
       out.close();
     }
   }

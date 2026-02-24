@@ -86,6 +86,9 @@ public class CoreRunDataHelper implements Closeable
       // Pull user information from session.
       data.populate();
 
+      // carica parametri dalla richiesta
+      data.getParameterParser().setRequest(req);
+
       return data;
     }
     catch(TurbineException ex)

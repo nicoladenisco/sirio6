@@ -134,7 +134,8 @@ public class CoreFatalErrorManager
     {
       StringBuilder sb = new StringBuilder();
       sb.append(SetupHolder.getQueryBuilder().formatNonFatalError(ex, new RigelHtmlI18n(pdata)))
-         .append("<br><span class=\"txt-white-regular-09\">")
+         .append("<br>")
+         .append("<span style='font-size: 9px;'")
          .append(pdata.i18n("Messaggio originale: %s", ex.getLocalizedMessage()))
          .append("</span>");
       return sb.toString();

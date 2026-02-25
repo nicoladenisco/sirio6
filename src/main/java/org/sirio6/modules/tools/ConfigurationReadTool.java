@@ -25,6 +25,7 @@ import org.apache.turbine.services.pull.ApplicationTool;
 import org.apache.turbine.util.RunData;
 import org.apache.turbine.util.uri.TemplateURI;
 import org.commonlib5.utils.StringOper;
+import org.sirio6.utils.LI;
 
 /**
  * Tool per l'accesso ai dati di configurazione
@@ -78,6 +79,12 @@ public class ConfigurationReadTool implements ApplicationTool
   public String getHomeLink(RunData data)
   {
     return getCfgLink(data, "template.homepage", "Index.vm");
+  }
+
+  public String getCfgLink(String key)
+  {
+    String vm = cfg.getString(key, "Index.vm");
+    return LI.getLinkUrl(vm);
   }
 
   public String getCfgLink(RunData data, String key)

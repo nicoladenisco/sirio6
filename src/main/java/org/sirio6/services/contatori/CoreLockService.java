@@ -88,7 +88,7 @@ public class CoreLockService extends AbstractCoreBaseService
   {
     LockResourceBlock block = mapResources.get(tipo);
     if(block == null)
-      throw new IllegalArgumentException("Unknow '" + tipo + "' resource.");
+      throw new ResourceArgumentException("Unknow '" + tipo + "' resource.");
 
     LockResourceItem item = block.lockMap.get(idRisorsa);
     if(item == null)
@@ -173,7 +173,7 @@ public class CoreLockService extends AbstractCoreBaseService
     if(item != null)
     {
       if(!item.idUtenti.contains(idUtente))
-        throw new IllegalArgumentException("User " + idUtente + " not own the resource " + tipo + "/" + idRisorsa);
+        throw new ResourceArgumentException("User " + idUtente + " not own the resource " + tipo + "/" + idRisorsa);
 
       item.sem.release();
       item.idUtenti.remove(idUtente);
@@ -207,7 +207,7 @@ public class CoreLockService extends AbstractCoreBaseService
         }
       }
 
-      throw new IllegalArgumentException("Users " + idUtenti + " not owns the resource " + tipo + "/" + idRisorsa);
+      throw new ResourceArgumentException("Users " + idUtenti + " not owns the resource " + tipo + "/" + idRisorsa);
     }
   }
 

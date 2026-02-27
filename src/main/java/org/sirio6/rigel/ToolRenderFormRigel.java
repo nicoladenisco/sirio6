@@ -47,6 +47,8 @@ public class ToolRenderFormRigel extends FormBase
   protected String unique = null, funcNameEdit, funcNameSubmit, funcNameSplit, formName, bodyName;
   protected int counter;
 
+  public static final String COUNTER_KEY = "countToolRenderFormRigel";
+
   @Override
   public boolean isPopup()
   {
@@ -181,7 +183,7 @@ public class ToolRenderFormRigel extends FormBase
   {
     boolean suppressEmpty = false;
     String suppressEmptyMessage = "";
-    counter = (int) ctx.get("count");
+    counter = (int) ctx.get(COUNTER_KEY);
 
     // recupera parametri del tool e li passa in RunData
     Map<String, String> mp = (Map<String, String>) ctx.get("paramsMap");
@@ -211,7 +213,7 @@ public class ToolRenderFormRigel extends FormBase
 
     StringWriter writer = new StringWriter(512);
     // renderizzazione Velocity con il modello caricato da risorsa
-    try (InputStream is = ClassUtils.getResourceAsStream(getClass(), "/" + modello))
+    try(InputStream is = ClassUtils.getResourceAsStream(getClass(), "/" + modello))
     {
       InputStreamReader reader = new InputStreamReader(is, "UTF-8");
 

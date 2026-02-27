@@ -118,9 +118,10 @@ public class RigelListeTool
     ParameterParser pp = data.getParameters();
     pp.setString("type", lista);
     Context ctx = velocity.getContext(data);
-    ctx.put("count", counter.getAndIncrement());
+    ctx.put(ToolRenderListeRigel.COUNTER_KEY, counter.getAndIncrement());
 
     // aggiunge i parametri specificati in params
+    ctx.remove("paramsMap");
     if(params != null)
     {
       Map<String, String> mp = SU.string2Map(params, ",", true);
@@ -132,6 +133,8 @@ public class RigelListeTool
 
   /**
    * Elabora HTML per una datable agganciata ad una lista rigel.
+   * Se dovessero esserci più istanze della stessa lista nella pagina
+   * occorre differenziarle con un parametro dt=1, dt=2, ecc.
    * @param data dati di richiesta
    * @param lista lista rigel richiesta
    * @param params parametri nella forma 'chiave=valore, chiave=valore'
@@ -151,19 +154,22 @@ public class RigelListeTool
     pp.setString("type", lista);
     Context ctx = velocity.getContext(data);
 
-    // per la datatable questa è 0; se proprio devo inserire nella stessa pagina
-    // più liste uguali devo differenziarle con count=1, count=2 in params
-    ctx.put("count", 0);
+    ctx.put(ToolRenderDatatableRigel.COUNTER_KEY, 0);
 
     // aggiunge i parametri specificati in params
+    ctx.remove("paramsMap");
     if(params != null)
     {
       Map<String, String> mp = SU.string2Map(params, ",", true);
       if(!mp.isEmpty())
         ctx.put("paramsMap", mp);
+
+      int dt = SU.parse(mp.getOrDefault("dt", "0"), 0);
+      ctx.put(ToolRenderDatatableRigel.COUNTER_KEY, dt);
     }
 
     // aggiunge il filtro
+    ctx.remove("freeFilter");
     if(filter != null)
       ctx.put("freeFilter", filter);
 

@@ -58,6 +58,8 @@ public class ToolRenderListeRigel extends ListaBase5
   protected String unique = null, funcNameEdit, funcNameSubmit, funcNameSplit, formName, bodyName;
   protected int counter;
 
+  public static final String COUNTER_KEY = "countToolRenderListeRigel";
+
   @Override
   public boolean isPopup()
   {
@@ -163,14 +165,16 @@ public class ToolRenderListeRigel extends ListaBase5
 
   protected String cutHtml(String html)
   {
-    // da tutto l'html estrae solo la parte racchiusa da <form></form>
+    // da tutto l'html estrae solo la parte racchiusa da _START_CUT_/_END_CUT_
     // il resto non si può toccare
 
     int pos1, pos2;
     if((pos1 = html.indexOf(HTML_START_CUT)) != -1)
+    {
+      pos1 += HTML_START_CUT.length();
       if((pos2 = html.indexOf(HTML_END_CUT, pos1)) != -1)
         return html.substring(pos1, pos2);
-
+    }
     return html;
   }
 
@@ -186,7 +190,7 @@ public class ToolRenderListeRigel extends ListaBase5
   {
     boolean suppressEmpty = false, suppressSimpleSearch = false;
     String suppressEmptyMessage = "";
-    counter = (int) ctx.get("count");
+    counter = (int) ctx.get(COUNTER_KEY);
     final ParameterParser pp = data.getParameters();
 
     // recupera parametri del tool e li passa in RunData

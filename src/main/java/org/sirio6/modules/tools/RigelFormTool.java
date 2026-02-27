@@ -85,9 +85,10 @@ public class RigelFormTool
   {
     data.getParameters().setString("type", form);
     Context ctx = velocity.getContext(data);
-    ctx.put("count", counter.getAndIncrement());
+    ctx.put(ToolRenderFormRigel.COUNTER_KEY, counter.getAndIncrement());
 
     // aggiunge i parametri specificati in params
+    ctx.remove("paramsMap");
     if(params != null)
     {
       Map<String, String> mp = SU.string2Map(params, ",", true);
@@ -135,9 +136,10 @@ public class RigelFormTool
   {
     data.getParameters().setString("type", form);
     Context ctx = velocity.getContext(data);
-    ctx.put("count", counter.getAndIncrement());
+    ctx.put(ToolRenderFormRigel.COUNTER_KEY, counter.getAndIncrement());
 
     // aggiunge i parametri specificati in params
+    ctx.remove("paramsMap");
     if(params != null)
     {
       Map<String, String> mp = SU.string2Map(params, ",", true);

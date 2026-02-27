@@ -80,6 +80,13 @@ public class NavStackAction extends CoreBaseAction
     bean.return2(data);
   }
 
+  public void doCmd_abbandona(CoreRunData data, Map params, Object... args)
+     throws Exception
+  {
+    NavigationStackBean bean = (NavigationStackBean) args[0];
+    bean.return2(data);
+  }
+
   public void doCmd_clear(CoreRunData data, Map params, Object... args)
      throws Exception
   {

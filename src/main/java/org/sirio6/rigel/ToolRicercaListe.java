@@ -115,7 +115,12 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
     int simpleSearchColumn = 0;
     int simpleSearchWeight = 0;
     int numSiSeColumn = 0;
-    String clearForm = "";
+    // submitTool(unique, url)
+    String funCerca = "onclick=\"rigel.submitTool('" + unique + "', '" + url + "')\"";
+    // pulisciRicercaTool(unique, url)
+    String funPulisci = "onclick=\"rigel.pulisciRicercaTool('" + unique + "', '" + url + "')\"";
+    // testInvioToolSimpleSearch(unique, url, e)
+    String funTest = "onkeypress=\"return rigel.testInvioToolSimpleSearch('" + unique + "', '" + url + "', event);\"";
 
     RigelHtmlPageComponent html = new RigelHtmlPageComponent(PageComponentType.HTML, "simplesearch");
     html.append("<div class=\"rigel_simple_search\">\r\n")
@@ -145,8 +150,6 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
       int idx = cd.getFiltroTipo();
       if(idx == 0)
         defval = "";
-
-      clearForm += "document." + formName + ".VL" + fieldName + ".value='';\r\n";
 
       if(cd.isComboRicerca())
       {
@@ -178,7 +181,7 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
                .append("<input type=\"hidden\" name=\"OP").append(fieldName).append("\" value=\"")
                .append(BuilderRicercaGenerica.IDX_CRITERIA_EQUAL)
                .append("\"><input type=\"text\" name=\"VL").append(fieldName).append("\" value=\"")
-               .append(defval == null ? "" : defval).append("\" size=\"").append(sizeFld).append("\">");
+               .append(defval == null ? "" : defval).append("\" size=\"").append(sizeFld).append("\"> ").append(funTest).append(">");
 
             // aggiunge calendario per i campi data
             String nomeCampoInizio = "VL" + fieldName;
@@ -201,7 +204,7 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
           html
              .append("<input type=\"hidden\" name=\"OP").append(fieldName).append("\" value=\"").append(opIdx)
              .append("\"><input type=\"text\" name=\"VL").append(fieldName).append("\" value=\"")
-             .append(defval == null ? "" : defval).append("\" size=\"").append(sizeFld).append("\">");
+             .append(defval == null ? "" : defval).append("\" size=\"").append(sizeFld).append("\" ").append(funTest).append(">");
         }
 
         html.append("&nbsp;&nbsp;\r\n");
@@ -224,10 +227,10 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
        .append("<!-- MORE SIMPLE SEARCH -->\r\n")
        .append("<input type=\"button\" name=\"SimpleSearch\" value=\"")
        .append(i18n.getCaptionButtonCerca())
-       .append("\" onclick=\"rigel.submitTool('").append(unique).append("', '").append(url).append("');\"/>\r\n")
+       .append("\" ").append(funCerca).append("/>\r\n")
        .append("<input type=\"button\" name=\"publisciSimpleSearch\" value=\"")
        .append(i18n.getCaptionButtonPulisci())
-       .append("\" onclick=\"rigel.pulisciRicercaTool('").append(unique).append("', '").append(url).append("');\"/>\r\n")
+       .append("\" ").append(funPulisci).append("/>\r\n")
        .append(haveFilter ? " [" + i18n.msg("Filtro attivo") + "]" : "")
        .append("<!-- END FORM SIMPLE SEARCH -->\r\n")
        .append("</div>\r\n");

@@ -70,6 +70,8 @@ public class ToolRenderDatatableRigel
   protected final ToolCustomUrlBuilder urb = new ToolCustomUrlBuilder();
   protected static final Pattern pTableClass = Pattern.compile("class=[\'|\"](.+?)[\'|\"]");
 
+  public static final String COUNTER_KEY = "countToolRenderDatatableRigel";
+
   /**
    * Produce JSON per il Tool delle liste.
    * Questa funzione viene chiamata dalla servlet ajax ToolDirectHtml.
@@ -117,9 +119,9 @@ public class ToolRenderDatatableRigel
   public synchronized String renderHtml(RunData data, Context ctx)
      throws Exception
   {
-    int counter = (int) ctx.get("count");
+    int counter = (int) ctx.get(COUNTER_KEY);
     String type = data.getParameters().getString("type");
-    String unique = "LISTA_" + SU.purge(type) + "_" + counter;
+    String unique = "DATATABLE_" + SU.purge(type) + "_" + counter;
     boolean footer = false;
 
     // recupera parametri del tool e li passa in RunData

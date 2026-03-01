@@ -169,6 +169,7 @@ abstract public class ListaBase5 extends RigelEditBaseScreen
 
     // inserisce nel context i componeti pagina generati
     int filtro = StringOper.parse(param.get("filtro"), 0);
+    context.put("formName", lso.getPtm().getFormName());
     formatHtmlLista(filtro, page, context);
 
     context.put("urlNuovo", li.urlNuovo);
@@ -238,6 +239,7 @@ abstract public class ListaBase5 extends RigelEditBaseScreen
   public void formatHtmlLista(int filtro, RigelHtmlPage page, Context context)
      throws Exception
   {
+    String formName = (String) context.get("formName");
     StringBuilder sb = new StringBuilder(4096);
 
     // prima emette tutti i commenti
@@ -255,14 +257,23 @@ abstract public class ListaBase5 extends RigelEditBaseScreen
 
       // html principale
       StringBuilder sbBody = new StringBuilder(4096);
-      sbBody.append("<div class=\"rigel_body\">");
+      String idBody = "id_rigel_body_" + formName;
+      sbBody.append("<div class=\"rigel_body\" id=\"").append(idBody).append("\">");
       page.buildPart(sbBody, PageComponentType.HTML, "body", "", "");
       sbBody.append("</div>");
       sb.append(sbBody);
       context.put("bodyhtml", sbBody.toString());
+      context.put("idbody", idBody);
 
       // html navigazione
-      page.buildPart(sb, PageComponentType.HTML, "nav", "", "");
+      StringBuilder sbNav = new StringBuilder(512);
+      String idNav = "id_rigel_nav_" + formName;
+      sbNav.append("<div class=\"rigel_nav\" id=\"").append(idNav).append("\">");
+      page.buildPart(sbNav, PageComponentType.HTML, "nav", "", "");
+      sbNav.append("</div>");
+      sb.append(sbNav);
+      context.put("navhtml", sbNav.toString());
+      context.put("idnav", idNav);
     }
 
     context.put("phtml", sb.toString());

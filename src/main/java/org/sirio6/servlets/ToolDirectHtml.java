@@ -31,6 +31,7 @@ import org.commonlib5.utils.SimpleTimer;
 import org.sirio6.rigel.ToolRenderDatatableRigel;
 import org.sirio6.rigel.ToolRenderFormRigel;
 import org.sirio6.rigel.ToolRenderListeRigel;
+import org.sirio6.rigel.ToolRenderMaint5;
 import org.sirio6.utils.CoreRunData;
 import org.sirio6.utils.CoreRunDataHelper;
 import org.sirio6.utils.SU;
@@ -48,6 +49,7 @@ public class ToolDirectHtml extends HttpServlet
   private final ToolRenderListeRigel renderListe = new ToolRenderListeRigel();
   private final ToolRenderFormRigel renderForm = new ToolRenderFormRigel();
   private final ToolRenderDatatableRigel renderDatatable = new ToolRenderDatatableRigel();
+  private final ToolRenderMaint5 renderMaint5 = new ToolRenderMaint5();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -116,6 +118,9 @@ public class ToolDirectHtml extends HttpServlet
         case "datatable":
           runDatatable(data, out);
           break;
+        case "maint":
+          runMaint(data, out);
+          break;
         default:
           throw new ServletException(data.i18n("Richiesta non elaborabile: %s", sRequest));
       }
@@ -151,7 +156,16 @@ public class ToolDirectHtml extends HttpServlet
   private void runDatatable(CoreRunData data, PrintWriter out)
      throws Exception
   {
-    String html = renderDatatable.renderJson(data);
-    out.print(html);
+    data.getResponse().setContentType("application/json;charset=UTF-8");
+    String json = renderDatatable.renderJson(data);
+    out.print(json);
+  }
+
+  private void runMaint(CoreRunData data, PrintWriter out)
+     throws Exception
+  {
+    data.getResponse().setContentType("application/json;charset=UTF-8");
+    String json = renderMaint5.renderJson(data);
+    out.print(json);
   }
 }

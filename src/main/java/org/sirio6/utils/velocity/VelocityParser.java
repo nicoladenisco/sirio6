@@ -41,6 +41,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.runtime.parser.node.SimpleNode;
+import org.apache.velocity.util.ClassUtils;
 
 /**
  * Parsing di un file (tipo vm) secondo la sintassi
@@ -203,6 +204,24 @@ public class VelocityParser
   {
     Template template = createTemplateFromReader(reader, templateName);
     mergeTemplate(template, writer);
+  }
+
+  /**
+   * Parsing di un file risorsa.
+   * @param writer output dell'elaborazione
+   * @param templateName nome completo dalla radice del file risorsa
+   * @throws Exception
+   */
+  public void parseResource(Writer writer, String templateName)
+     throws Exception
+  {
+    try(InputStream is = ClassUtils.getResourceAsStream(getClass(), templateName))
+    {
+      InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+
+      VelocityParser vp = new VelocityParser(ctx);
+      vp.parseReader(reader, writer, "ToolDatatable.vm");
+    }
   }
 
   public static Context createNewContext()

@@ -1,0 +1,38 @@
+<SPAN class="txt-green-bold-18-nul">${t.descrizione}</SPAN><br>
+
+<DIV id="rigel_body">
+  <DIV class="rigel_htable">
+    <TABLE class="table table-striped table-condensed eviline">
+      <THEAD>
+      <TH valign="middle">ID</TH>
+      <TH valign="middle">&nbsp;</TH>
+      <TH valign="middle">Nome file</TH>
+      <TH valign="middle">Tipo mime</TH>
+      <TH valign="middle">TTL</TH>
+      </THEAD>
+      <TBODY>
+
+        #foreach($info in $infos)
+        #set($tik = $info.get("tik"))
+        <tr>
+          <td valign="middle">${tik}</td>
+          #if($info.contain("fn") == false)
+          <td valign="middle">&nbsp;</td>
+          <td valign="middle" colspan="3">Questo file non è più disponibile.</td>
+          #else
+          #set($fn = $info.get("fn"))
+          #set($fm = $info.get("fm"))
+          #set($nsec = $info.get("nsec"))
+          #set($link1 = $info.get("link1"))
+          <td valign="middle"><a class="icon-clickable" href="${link1}"><i class="fas fa-download"></i></a></td>
+          <td valign="middle">${fn}</td>
+          <td valign="middle">${fm}</td>
+          <td valign="middle">Disponibile per altri ${nsec} secondi.</td>
+          #end
+        </tr>
+        #end
+
+      </TBODY>
+    </TABLE>
+  </DIV>
+</DIV>

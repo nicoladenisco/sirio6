@@ -18,7 +18,7 @@
 package org.sirio6.modules.actions;
 
 import java.util.Map;
-import org.apache.velocity.context.Context;
+import org.sirio6.beans.TaskListBean;
 import org.sirio6.rigel.RigelHtmlI18n;
 import org.sirio6.services.security.SEC;
 import org.sirio6.services.taskman.TaskManager;
@@ -31,21 +31,14 @@ import org.sirio6.utils.SU;
  *
  * @author Nicola De Nisco
  */
-public class TaskManage extends CoreBaseAction
+public class TaskManage extends CoreBaseActionDoPerform
 {
   public static final long WAIT_MILLIS = 3000;
   public TaskManager tm = (TaskManager) getService(TaskManager.SERVICE_NAME);
 
-  @Override
-  public void doPerform2(CoreRunData data, Context context)
-     throws Exception
+  public TaskManage()
   {
-    super.doPerform2(data, context);
-
-    String command = SU.okStrNull(data.getParameters().getString("command"));
-
-    if(command != null)
-      doCommand(command, data, SU.getParMap(data), context);
+    setBeanClass(TaskListBean.class);
   }
 
   @Override

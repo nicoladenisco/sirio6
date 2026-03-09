@@ -39,13 +39,14 @@ import org.jdom2.Element;
 import org.json.JSONObject;
 import org.rigel5.RigelI18nInterface;
 import org.rigel5.db.sql.FiltroData;
+import org.rigel5.glue.WrapperCacheBase;
 import org.rigel5.table.FiltroListe;
 import org.rigel5.table.RigelColumnDescriptor;
 import org.rigel5.table.RigelTableModel;
 import org.rigel5.table.html.hTable;
 import org.rigel5.table.sql.SqlBuilderRicercaGenerica;
-import org.rigel5.table.sql.xml.SqlTableModel;
-import org.rigel5.table.sql.xml.SqlWrapperListaXml;
+import org.rigel5.table.sql.html.SqlTableModel;
+import org.rigel5.table.sql.html.SqlWrapperListaHtml;
 import org.sirio6.services.localization.INT;
 import org.sirio6.services.modellixml.MDL;
 import org.sirio6.utils.CoreRunData;
@@ -161,17 +162,17 @@ public class ToolRenderDatatableRigel
   private void buildCtx(CoreRunData data, String type, String unique, boolean footer, Context ctx)
      throws Exception
   {
-    SqlWrapperListaXml wxml = MDL.getListaXmlSql(type);
-    wxml.init();
-    ctx.put("wrapper", wxml);
+    final WrapperCacheBase wrapperCache = MDL.getWrapperCache(data);
+    SqlWrapperListaHtml wrapper = (SqlWrapperListaHtml) wrapperCache.getListaCache(type);
+    ctx.put("wrapper", wrapper);
     ctx.put("unique", unique);
     ctx.put("counter", new AtomicInteger(1));
-    ctx.put("titolo", data.i18n(wxml.getTitolo()));
-    ctx.put("header", data.i18n(wxml.getHeader()));
+    ctx.put("titolo", data.i18n(wrapper.getTitolo()));
+    ctx.put("header", data.i18n(wrapper.getHeader()));
 
     Map params = SU.getParMap(data);
-    if(wxml.haveParametri())
-      wxml.rebindQuery(params);
+    if(wrapper.haveParametri())
+      wrapper.rebindQuery(params);
 
     String tclasses = data.getParameters().get("tclasses");
     String tagTabelleList = TR.getString("tag.tabelle.list", "TABLE WIDTH=\"100%\" class=\"table\""); // NOI18N
@@ -194,7 +195,7 @@ public class ToolRenderDatatableRigel
       ctx.put("tableStatement", tableStatement);
     }
 
-    SqlTableModel stm = (SqlTableModel) wxml.getPtm();
+    SqlTableModel stm = (SqlTableModel) wrapper.getPtm();
     String commonHeader = doHeaderHtml(stm);
     ctx.put("commonHeader", commonHeader);
     if(footer)
@@ -202,13 +203,13 @@ public class ToolRenderDatatableRigel
 
     String func = data.getParameters().getString("func");
 
-    if(func != null && wxml.getFoInfo() != null && !wxml.getFoInfo().isEmpty())
+    if(func != null && wrapper.getFoInfo() != null && !wrapper.getFoInfo().isEmpty())
     {
       StringBuilder jsFunc = new StringBuilder(128);
       jsFunc.append(func).append("(");
 
       int c = 0;
-      for(Iterator<Pair<String, String>> it = wxml.getFoInfo().iterator(); it.hasNext();)
+      for(Iterator<Pair<String, String>> it = wrapper.getFoInfo().iterator(); it.hasNext();)
       {
         Pair<String, String> p = it.next();
         String nomeCampo = p.second;
@@ -226,7 +227,7 @@ public class ToolRenderDatatableRigel
       return;
     }
 
-    Element eTabella = wxml.getEleXml();
+    Element eTabella = wrapper.getEleXml();
     Element fsrv = eTabella.getChild("foreign-server");
     if(fsrv != null)
     {
@@ -277,8 +278,9 @@ public class ToolRenderDatatableRigel
     // recupera filtro libero impostato
     String freeFilter = (String) ctx.get("freeFilter");
 
-    SqlWrapperListaXml wxml = (SqlWrapperListaXml) ctx.get("wrapper");
-    SqlTableModel stm = (SqlTableModel) wxml.getPtm();
+    final WrapperCacheBase wrapperCache = MDL.getWrapperCache(data);
+    SqlWrapperListaHtml wrapper = (SqlWrapperListaHtml) ctx.get("wrapper");
+    SqlTableModel stm = (SqlTableModel) wrapper.getPtm();
 
     int count = 1;
     ArrayMap<Integer, Integer> mapOrder = new ArrayMap<>();
@@ -322,8 +324,8 @@ public class ToolRenderDatatableRigel
     ToolJsonDatatable table = (ToolJsonDatatable) ctx.get("ToolJsonDatatable");
     if(table == null)
     {
-      String[] basePath = MDL.getWrapperCache(data).getBasePath();
-      if((table = getTableCustom(wxml.getEleXml(), basePath)) == null)
+      String[] basePath = wrapperCache.getBasePath();
+      if((table = getTableCustom(wrapper.getEleXml(), basePath)) == null)
         table = new ToolJsonDatatable();
       ctx.put("ToolJsonDatatable", table);
     }

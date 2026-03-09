@@ -1,0 +1,24 @@
+<!-- INIZIO ToolFormNoformReadonly.vm -->
+
+<div id="$bodyName">
+  <!-- __START_CUT__ -->
+
+  <!-- html principale -->
+  <div class="rigel_body" style="padding: 2px;">
+    $htpageForm.getHtml("body")
+  </div>
+
+  #if($dettHtml)
+  <!-- inizio dettaglio -->
+
+  <div id="rigel_body_detail_$unique">
+    $htpageLista.getHtml("body")
+  </div>
+
+  <!-- fine dettaglio -->
+  #end
+
+  <!-- __END_CUT__ -->
+</div>
+
+<!-- FINE ToolFormNoformReadonly.vm -->

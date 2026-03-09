@@ -96,6 +96,19 @@ public class ToolRenderFormRigel extends FormBase
     RigelTableModel rtm = pwl.getPtm();
     rtm.setFormName(formName);
 
+    // se esite un parametro readonly=true disattiva modifica nel form
+    if(SU.checkTrueFalse(params.get("readonly"), false))
+    {
+      pwl.setEditEnabled(false);
+      pwl.setSaveEnabled(false);
+      pwl.setNewEnabled(false);
+
+      for(int i = 0; i < rtm.getColumnCount(); i++)
+      {
+        rtm.getColumn(i).setEditable(false);
+      }
+    }
+
     super.makeContextHtml(forceNew, duplica, nuovoDetail, params, data, context, pwl, type, baseUri);
   }
 
@@ -159,6 +172,10 @@ public class ToolRenderFormRigel extends FormBase
 
   /**
    * Produce HTML per il Tool delle liste.
+   * Questa versione non introduce il tag [form][/form] che deve
+   * essere definito nel punto di inserimento del tool.
+   * Questo consente di fondere uno o più componenti con altri controlli
+   * in form complessi.
    * @param data dati di chiamata
    * @param ctx context di chiamata
    * @param formName nome del form ospite
@@ -173,9 +190,38 @@ public class ToolRenderFormRigel extends FormBase
       throw new Exception("Errore interno: parametro type non definito; rivedere flusso.");
 
     unique = "FORM_" + SU.purge(type) + "_" + counter;
-    this.formName = formName;
+    if(SU.isOkStr(formName))
+      this.formName = formName;
+    else
+      this.formName = "fo_" + unique;
 
     return renderHtml(data, ctx, "ToolFormNoform.vm");
+  }
+
+  /**
+   * Produce HTML per il Tool delle liste.
+   * Questa versione non introduce il tag [form][/form].
+   * Restituisce html in sola lettura per visualizzazione.
+   * @param data dati di chiamata
+   * @param ctx context di chiamata
+   * @param formName nome del form ospite
+   * @return HTML della lista
+   * @throws Exception
+   */
+  public String renderHtmlNoFormReadonly(RunData data, Context ctx, String formName)
+     throws Exception
+  {
+    String type = data.getParameters().getString("type");
+    if(type == null)
+      throw new Exception("Errore interno: parametro type non definito; rivedere flusso.");
+
+    unique = "FORM_" + SU.purge(type) + "_" + counter;
+    if(SU.isOkStr(formName))
+      this.formName = formName;
+    else
+      this.formName = "fo_" + unique;
+
+    return renderHtml(data, ctx, "ToolFormNoformReadonly.vm");
   }
 
   private synchronized String renderHtml(RunData data, Context ctx, String modello)

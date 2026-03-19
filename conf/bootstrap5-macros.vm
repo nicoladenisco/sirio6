@@ -92,7 +92,7 @@
 
 ##
 ## -- Dialog generica ----------------------------------------------------------------
-## una dialog con o senza footer; nel footer posso inserire più bottoni o altir gadget
+## una dialog con o senza footer; nel footer posso inserire più bottoni o altri gadget
 ## $dimensione puo essere: ""=default, modal-xl, modal-lg, modal-sm
 ## $style è 'primary', 'warning', 'info', ecc.
 ##
@@ -103,10 +103,10 @@
   <div class="modal-dialog $dimensione">
     <div class="modal-content">
       <div class="modal-header bg-$style text-white">
-        <p class="modal-title fs-5" id="${nomeDialog}Label">$titolo</p>
+        <p class="modal-title fs-5" id="$id-titolo">$titolo</p>
         <button type="button" class="btn-close" data-bs-dismiss="modal" ></button>
       </div>
-      <div class="modal-body">
+      <div id="$id-body" class="modal-body">
         #end
 
         #macro (BEGIN_DIALOG_FOOTER)
@@ -118,13 +118,9 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$caption</button>
         #end
 
-        #macro (DIALOG_FOOTER_BUTTON $id $caption $funzione $stile)
+        #macro (DIALOG_FOOTER_BUTTON $caption $stile $funzione)
         <button type="button" class="btn $stile" onclick="$funzione">$caption</button>
         #end
-
-        #macro (END_DIALOG_FOOTER)
-      </div>
-      #end
 
       <!--
       <div class="modal-dialog modal-xl">...</div>
@@ -133,6 +129,7 @@
       -->
 
       #macro (END_DIALOG)
+      </div> <!-- .modal-body oppure modal-footer -->
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
@@ -151,7 +148,7 @@
   <div class="modal-dialog $dimensione">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h1 class="modal-title fs-5" id="titolo_$id">$titolo</h1>
+        <p class="modal-title fs-5" id="$id-titolo">$titolo</p>
         <button type="button" class="btn-close" data-bs-dismiss="modal" ></button>
       </div>
       <div id="$id-body" class="modal-body">
@@ -172,6 +169,7 @@
     </div>
   </div>
 </div>
+<!-- FINE dialog -->
 #end
 
 ##

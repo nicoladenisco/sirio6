@@ -131,18 +131,26 @@ public class ListaEditSave extends RigelEditBaseAction
       ((PeerTablePagerEditApp) peh).aggiornaDati(data.getSession(),
          params, nuovoDetail, saveDB, validateMap, null);
 
-      if(saveDB)
+      // oggetti modificati
+      List objects = ((PeerTableModel) eh.getPtm()).getVBuf();
+      if(objects != null)
       {
-        // invalida le cache di Rigel interessate dalla tabella modificata
-        RigelCacheManager cm = SetupHolder.getCacheManager();
-        cm.purgeTabella(eh.getNomeTabella());
+        // per recupero da classi derivate
+        context.put("objs", objects);
 
-        PeerTableModel ptm = (PeerTableModel) eh.getPtm();
-        BusContext bc = new BusContext(params);
-        bc.setI18n(new RigelHtmlI18n(data));
-        bc.put("objsInEdit", ptm.getVBuf());
+        if(saveDB && !objects.isEmpty())
+        {
+          // invalida le cache di Rigel interessate dalla tabella modificata
+          RigelCacheManager cm = SetupHolder.getCacheManager();
+          cm.purgeTabella(eh.getNomeTabella());
 
-        BUS.sendMessageAsync(BusMessages.GENERIC_OBJECTS_SAVED, this, bc);
+          // notifica al bus il salvataggio degli oggetti rigel
+          PeerTableModel ptm = (PeerTableModel) eh.getPtm();
+          BusContext bc = new BusContext(params);
+          bc.setI18n(new RigelHtmlI18n(data));
+          bc.put("objsInEdit", objects);
+          BUS.sendMessageAsync(BusMessages.GENERIC_OBJECTS_SAVED, this, bc);
+        }
       }
     }
   }

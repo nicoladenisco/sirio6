@@ -199,14 +199,15 @@ public class FormSave extends RigelEditBaseAction
       RigelCacheManager cm = SetupHolder.getCacheManager();
       cm.purgeTabella(pwl.getNomeTabella());
 
+      // notifica al bus il salvataggio oggetto rigel
       BusContext bc = new BusContext(params);
       bc.setI18n(i18n);
       bc.put("obj", objInEdit);
       bc.put("isNewObject", isNewObject);
-
       BUS.sendMessageAsync(BusMessages.GENERIC_OBJECT_SAVED, this, bc);
     }
 
+    // per recupero da classi derivate
     context.put("obj", objInEdit);
   }
 
@@ -305,6 +306,7 @@ public class FormSave extends RigelEditBaseAction
     List objectsDetail = ((PeerTableModel) eh.getPtm()).getVBuf();
     if(objectsDetail != null)
     {
+      // per recupero da classi derivate
       context.put("objDet", objectsDetail);
 
       if(saveDB && !objectsDetail.isEmpty())
@@ -313,11 +315,11 @@ public class FormSave extends RigelEditBaseAction
         RigelCacheManager cm = SetupHolder.getCacheManager();
         cm.purgeTabella(eh.getNomeTabella());
 
+        // notifica al bus il salvataggio degli oggetti rigel
         BusContext bc = new BusContext(params);
         bc.setI18n(i18n);
         bc.put("obj", objInEdit);
         bc.put("details", objectsDetail);
-
         BUS.sendMessageAsync(BusMessages.GENERIC_OBJECTS_SAVED, this, bc);
       }
     }

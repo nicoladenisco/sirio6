@@ -39,12 +39,13 @@ import org.sirio6.services.modellixml.MDL;
  */
 public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
 {
-  protected String unique, url;
+  protected String unique, url, nomeFormNeutro;
 
   public ToolRicercaListe(BuilderRicercaGenerica brg, RigelTableModel rtm,
-     RigelI18nInterface i18n, String unique, String url)
+     RigelI18nInterface i18n, String unique, String nomeFormNeutro, String url)
   {
     this.unique = unique;
+    this.nomeFormNeutro = nomeFormNeutro;
     this.url = url;
     init(brg, rtm, i18n);
   }
@@ -70,22 +71,25 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
   public void buildHtmlRicerca(String nomeForm, RigelHtmlPage page)
      throws Exception
   {
-    this.formName = nomeForm;
+    this.formName = nomeForm + "_full";
     RigelHtmlPageComponent html = new RigelHtmlPageComponent(PageComponentType.HTML, "search");
 
+    // ricercaTool2(uniqueBody, uniqueForm, url)
+    String onclickfun = "rigel.ricercaTool2('" + unique + "', '" + unique + "_full', url)";
+
     html.append("<div class=\"rigel_simple_search\">\r\n")
-       .append("<!-- BEGIN SIMPLE SEARCH -->\r\n")
+       .append("<!-- BEGIN FULL SEARCH -->\r\n")
        .append("&nbsp;<a href=\"#\" onclick=\"rigel.hideRicTool('").append(unique).append("');\">")
        .append(MDL.getImgCollapse()).append("</a>&nbsp;&nbsp;&nbsp;\r\n");
 
-    html.append("<!-- MORE SIMPLE SEARCH -->\r\n")
+    html.append("<!-- MORE FULL SEARCH -->\r\n")
        .append("<input type=\"button\" name=\"SimpleSearch\" value=\"")
-       .append(i18n.getCaptionButtonCerca()).append("\" onclick=\"rigel.ricercaTool('")
-       .append(unique).append("', '").append(url).append("');\"/>\r\n")
+       .append(i18n.getCaptionButtonCerca())
+       .append("\" onclick=\"").append(onclickfun).append("\"/>\r\n")
        .append("<input type=\"button\" name=\"publisciSimpleSearch\" value=\"")
        .append(i18n.getCaptionButtonPulisci()).append("\" onclick=\"rigel.pulisciRicercaTool('")
        .append(unique).append("', '").append(url).append("');\"/>\r\n")
-       .append("<!-- END FORM SIMPLE SEARCH -->\r\n")
+       .append("<!-- END FORM FULL SEARCH -->\r\n")
        .append("</div>\r\n");
 
     html.append("<div id=\"rigel_search_param_" + formName + "\" class=\"rigel_search_param\">\r\n")
@@ -109,14 +113,14 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
   public void buildHtmlRicercaSemplice(String nomeForm, int sizeFld, boolean haveFilter, RigelHtmlPage page)
      throws Exception
   {
-    this.formName = nomeForm;
+    this.formName = nomeForm + "_simple";
     boolean valid = false;
     String firstControl = null;
     int simpleSearchColumn = 0;
     int simpleSearchWeight = 0;
     int numSiSeColumn = 0;
-    // submitTool(unique, url)
-    String funCerca = "onclick=\"rigel.submitTool('" + unique + "', '" + url + "')\"";
+    // submitTool2(uniqueBody, uniqueForm, url)
+    String funCerca = "onclick=\"rigel.submitTool2('" + unique + "','" + unique + "_simple', '" + url + "')\"";
     // pulisciRicercaTool(unique, url)
     String funPulisci = "onclick=\"rigel.pulisciRicercaTool('" + unique + "', '" + url + "')\"";
     // testInvioToolSimpleSearch(unique, url, e)
@@ -236,5 +240,59 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
        .append("</div>\r\n");
 
     page.add(html);
+  }
+
+  @Override
+  protected String campoRicerca(String nome, String val, String funcMove, String scriptData)
+  {
+    StringBuilder htmlCampo = new StringBuilder();
+    htmlCampo.append("<td>");
+    htmlCampo.append("<input type=\"text\" size=\"20\"")
+       .append(" id=\"id_").append(nome).append("\"")
+       .append(" name=\"").append(nome).append("\"")
+       .append(" value=\"").append(val).append("\"")
+       .append(" ").append(funcMove);
+
+    if(scriptData == null)
+    {
+      if(nome.startsWith("VL"))
+      {
+        // aggiunge impostazione automatica a compreso nel filtro
+        // cambiaTipoRicercaToolInput(unique, uniqueForm, fieldName, tipo, valore)
+        String fieldName = nome.substring(2);
+        String impostaCompreso = "rigel.cambiaTipoRicercaToolInput("
+           + "'" + unique + "', '" + unique + "_full', "
+           + "'" + fieldName + "', 'VL', '" + BuilderRicercaGenerica.IDX_CRITERIA_LIKE + "')";
+        htmlCampo.append("onchange=\"").append(impostaCompreso).append("\"");
+      }
+      else if(nome.startsWith("VF"))
+      {
+        // aggiunge impostazione automatica a compreso nel filtro
+        // cambiaTipoRicercaToolInput(unique, uniqueForm, fieldName, tipo, valore)
+        String fieldName = nome.substring(2);
+        String impostaCompreso = "rigel.cambiaTipoRicercaToolInput("
+           + "'" + unique + "', '" + unique + "_full', "
+           + "'" + fieldName + "', 'VF', '" + BuilderRicercaGenerica.IDX_CRITERIA_BETWEEN + "')";
+        htmlCampo.append("onchange=\"").append(impostaCompreso).append("\"");
+      }
+    }
+
+    htmlCampo.append(" >");
+
+    if(scriptData != null)
+    {
+      // aggiunge icona per calendario
+      htmlCampo.append("&nbsp;<a href='#' onclick=\"").append(scriptData).append("\">")
+         .append(SetupHolder.getImgEditData()).append("</a>");
+    }
+
+    htmlCampo.append(" </td>\r\n");
+    return htmlCampo.toString();
+  }
+
+  @Override
+  protected String getFieldName(RigelColumnDescriptor cd)
+  {
+    return "_" + nomeFormNeutro + "_" + StringOper.CvtASCIIstring(cd.getName());
   }
 }

@@ -1,37 +1,41 @@
 <!-- INIZIO ToolLista.vm -->
 
-<form name="$formName" id="$formName" method="post" action="javascript:rigel.submitTool('$unique', '$baseUri')">
-  <div id="$bodyName">
-    <!-- __START_CUT__ -->
+<div id="$bodyName">
+  <!-- __START_CUT__ -->
 
-    <div id="data_${unique}" style="display: inline" class="table-responsive manina">
+  <div id="data_${unique}" style="display: inline" class="table-responsive manina">
 
-      #if($suppressSimpleSearch)
-      <!-- html ricerca semplice soppresso -->
-      #else
-      <!-- html ricerca semplice -->
+    #if($suppressSimpleSearch)
+    <!-- html ricerca semplice soppresso -->
+    #else
+    <!-- html ricerca semplice -->
+    <form name="${formName}_simple" id="${formName}_simple" method="post"
+          action="javascript:rigel.submitTool2('$unique', '${unique}_simple', '$baseUri')">
       $htpage.getHtml("simplesearch")
-      #end
+    </form>
+    #end
 
-      <!-- html principale -->
-      <div class="rigel_body" style="padding: 2px;">
-        $htpage.getHtml("body")
-      </div>
-
-      <!-- html navigazione -->
-      $htpage.getHtml("nav")
-
+    <!-- html principale -->
+    <div class="rigel_body" style="padding: 2px;">
+      $htpage.getHtml("body")
     </div>
 
-    <div id="search_${unique}" style="display: none">
+    <!-- html navigazione -->
+    $htpage.getHtml("nav")
 
-      <!-- html ricerca avanzata -->
-      $htpage.getHtml("search")
-
-    </div>
-
-    <!-- __END_CUT__ -->
   </div>
-</form>
+
+  <div id="search_${unique}" style="display: none">
+
+    <!-- html ricerca avanzata -->
+    <form name="${formName}_full" id="${formName}_full" method="post"
+          action="javascript:rigel.submitTool2('$unique', '${unique}_full', '$baseUri')">
+      $htpage.getHtml("search")
+    </form>
+
+  </div>
+
+  <!-- __END_CUT__ -->
+</div>
 
 <!-- FINE ToolLista.vm -->

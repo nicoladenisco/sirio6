@@ -32,7 +32,6 @@ import org.rigel5.table.html.RigelHtmlPage;
 import org.rigel5.table.html.wrapper.HtmlWrapperBase;
 import org.rigel5.table.peer.PeerBuilderRicercaGenerica;
 import org.rigel5.table.peer.html.PeerTableModel;
-import org.rigel5.table.sql.SqlBuilderRicercaGenerica;
 import org.rigel5.table.sql.html.SqlTableModel;
 import static org.sirio6.CoreConst.HTML_END_CUT;
 import static org.sirio6.CoreConst.HTML_START_CUT;
@@ -75,7 +74,6 @@ public class ToolRenderListeRigel extends ListaBase5
   @Override
   protected String makeSelfUrl(RunData data, String type)
   {
-    unique = "LISTA_" + SU.purge(type) + "_" + counter;
     return data.getContextPath() + "/rigeltool/lista/type/" + type + "/unique/" + unique;
   }
 
@@ -125,14 +123,14 @@ public class ToolRenderListeRigel extends ListaBase5
     {
       SqlTableModel tm = (SqlTableModel) lso.getPtm();
       String nometab = tm.getQuery().getVista();
-      flt.setMascheraRicerca(new ToolRicercaListe(new SqlBuilderRicercaGenerica(tm, nometab),
-         tm, act.getI18n(), unique, baseurl));
+      flt.setMascheraRicerca(new ToolRicercaListe(new ToolBuilderRicercaGenerica(tm, nometab, unique, baseurl),
+         tm, act.getI18n(), unique, formName, baseurl));
     }
     else if(lso.getPtm() instanceof PeerTableModel)
     {
       PeerTableModel tm = (PeerTableModel) lso.getPtm();
       flt.setMascheraRicerca(new ToolRicercaListe(new PeerBuilderRicercaGenerica(tm, tm.getTableMap()),
-         tm, act.getI18n(), unique, baseurl));
+         tm, act.getI18n(), unique, formName, baseurl));
     }
 
     super.makeContextHtml(lso, li, data, context, baseUri);
@@ -190,8 +188,9 @@ public class ToolRenderListeRigel extends ListaBase5
   {
     boolean suppressEmpty = false, suppressSimpleSearch = false;
     String suppressEmptyMessage = "";
-    counter = (int) ctx.get(COUNTER_KEY);
     final ParameterParser pp = data.getParameters();
+    counter = (int) ctx.get(COUNTER_KEY);
+    unique = "LISTA_" + SU.purge(pp.getString("type")) + "_" + counter;
 
     // recupera parametri del tool e li passa in RunData
     Map<String, String> mp = (Map<String, String>) ctx.get("paramsMap");

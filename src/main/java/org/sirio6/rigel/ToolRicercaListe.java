@@ -75,7 +75,9 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
     RigelHtmlPageComponent html = new RigelHtmlPageComponent(PageComponentType.HTML, "search");
 
     // ricercaTool2(uniqueBody, uniqueForm, url)
-    String onclickfun = "rigel.ricercaTool2('" + unique + "', '" + unique + "_full', url)";
+    String cercafun = "rigel.ricercaTool2('" + unique + "', '" + unique + "_full', '" + url + "')";
+    // pulisciRicercaTool(unique, url)
+    String puliscifun = "rigel.pulisciRicercaTool('" + unique + "', '" + url + "')";
 
     html.append("<div class=\"rigel_simple_search\">\r\n")
        .append("<!-- BEGIN FULL SEARCH -->\r\n")
@@ -85,10 +87,10 @@ public class ToolRicercaListe extends HtmlMascheraRicercaGenericaNoscript
     html.append("<!-- MORE FULL SEARCH -->\r\n")
        .append("<input type=\"button\" name=\"SimpleSearch\" value=\"")
        .append(i18n.getCaptionButtonCerca())
-       .append("\" onclick=\"").append(onclickfun).append("\"/>\r\n")
+       .append("\" onclick=\"").append(cercafun).append("\"/>\r\n")
        .append("<input type=\"button\" name=\"publisciSimpleSearch\" value=\"")
-       .append(i18n.getCaptionButtonPulisci()).append("\" onclick=\"rigel.pulisciRicercaTool('")
-       .append(unique).append("', '").append(url).append("');\"/>\r\n")
+       .append(i18n.getCaptionButtonPulisci())
+       .append("\" onclick=\"").append(puliscifun).append("\"/>\r\n")
        .append("<!-- END FORM FULL SEARCH -->\r\n")
        .append("</div>\r\n");
 

@@ -59,6 +59,7 @@ public class CoreRunData extends DefaultTurbineRunData
   private final ValutaFormatter vf;
   private final NumFormatter nf;
   private final modelliXML modXML;
+  private Locale userLocale;
 
   public CoreRunData()
   {
@@ -651,23 +652,28 @@ public class CoreRunData extends DefaultTurbineRunData
     if(lsrv == null)
       lsrv = getService(LocalizationService.SERVICE_NAME);
 
-    Locale userLocale = (Locale) getSession().getAttribute("userLocale");
-
     if(userLocale == null)
     {
       userLocale = lsrv.getLocale(getRequest());
-      getSession().setAttribute("userLocale", userLocale);
     }
 
     return userLocale;
   }
 
+  @Override
+  public void populate()
+  {
+    super.populate();
+
+    // forza un aggiornamento Locale in base alla richiesta
+    // dato che gli oggetti CoreRunData sono salvati in un pool
+    userLocale = null;
+  }
+
   public String i18n(String key)
   {
-    if(lsrv == null)
-      lsrv = getService(LocalizationService.SERVICE_NAME);
-
-    return lsrv.getString(null, getUserLocale(), key);
+    final Locale ul = getUserLocale();
+    return lsrv.getString(null, ul, key);
   }
 
   public String i18n(String key, Object... params)

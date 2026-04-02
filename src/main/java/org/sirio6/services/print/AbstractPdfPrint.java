@@ -104,6 +104,7 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
 
     JobInfo info = new JobInfo();
     info.idUser = idUser;
+    info.jobCode = "JOB" + System.currentTimeMillis();
     info.filePdf = makePdfInternal(info, idUser, ri.getPlugin(), ri.getDataMaker(), context);
     info.percCompleted = 100;
     return info;

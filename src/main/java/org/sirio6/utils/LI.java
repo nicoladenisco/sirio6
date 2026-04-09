@@ -238,32 +238,64 @@ public class LI extends HtmlUtils
 
   public static String getImgIcon(String icon, String text)
   {
-    // sintassi per icone Bootstrap 3
-    if(icon.startsWith("glyphicon:"))
-      return getImgGlyphicon(SU.okStr(icon.substring(10)), text);
+    String[] si = icon.split("\\:");
 
-    // vecchia sintassi font awesome 4
-    if(icon.startsWith("awesome:"))
-      return getImgAwesome(SU.okStr(icon.substring(8)), text);
-    // vecchia sintassi font awesome 4
-    if(icon.startsWith("awesome-spin:"))
-      return getImgAwesomeSpin(SU.okStr(icon.substring(13)), text);
+    if(si.length <= 1)
+      return LI.getIconHtml(icon, text);
 
-    // nuova sintassi solid/regular font awesome 5
-    if(icon.startsWith("fas:"))
-      return getImgAwesomeFas(SU.okStr(icon.substring(4)), text);
-    if(icon.startsWith("far:"))
-      return getImgAwesomeFar(SU.okStr(icon.substring(4)), text);
-    if(icon.startsWith("fab:"))
-      return getImgAwesomeFab(SU.okStr(icon.substring(4)), text);
-    if(icon.startsWith("fas-spin:"))
-      return getImgAwesomeFasSpin(SU.okStr(icon.substring(9)), text);
-    if(icon.startsWith("far-spin:"))
-      return getImgAwesomeFarSpin(SU.okStr(icon.substring(9)), text);
-    if(icon.startsWith("fab-spin:"))
-      return getImgAwesomeFabSpin(SU.okStr(icon.substring(9)), text);
+    switch(si[0])
+    {
+      // sintassi per icone Bootstrap 3
+      case "glyphicon":
+        return getImgGlyphicon(si[1], text);
+
+      // vecchia sintassi font awesome 4
+      case "awesome":
+        return getImgAwesome(si[1], text);
+      case "awesome-spin":
+        return getImgAwesomeSpin(si[1], text);
+
+      // sintassi solid/regular font awesome 5
+      case "fas":
+        return getImgAwesomeFas(si[1], text);
+      case "far":
+        return getImgAwesomeFar(si[1], text);
+      case "fab":
+        return getImgAwesomeFab(si[1], text);
+      case "fas-spin":
+        return getImgAwesomeFasSpin(si[1], text);
+      case "far-spin":
+        return getImgAwesomeFarSpin(si[1], text);
+      case "fab-spin":
+        return getImgAwesomeFabSpin(si[1], text);
+
+      // sintassi awesome 6
+      case "solid":
+      case "regular":
+      case "brands":
+      case "duotone":
+      case "sharp":
+      case "sharp-duotone":
+        return getImgAwesomeFas6(si[0], si[1], text);
+
+      case "solid-spin":
+      case "regular-spin":
+      case "brands-spin":
+      case "duotone-spin":
+      case "sharp-spin":
+      case "sharp-duotone-spin":
+        return getImgAwesomeFas6Spin(nospin(si[0]), si[1], text);
+    }
 
     return LI.getIconHtml(icon, text);
+  }
+
+  private static String nospin(String s)
+  {
+    int pos = s.indexOf("-spin");
+    if(pos != -1)
+      return s.substring(0, pos);
+    return s;
   }
 
   public static String getImgGlyphicon(String name, String title)
@@ -314,5 +346,15 @@ public class LI extends HtmlUtils
   public static String getImgAwesomeFabSpin(String name, String title)
   {
     return "<i class=\"fab fa-" + name + " fa-spin\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
+  }
+
+  public static String getImgAwesomeFas6(String style, String name, String title)
+  {
+    return "<i class=\"fa-" + style + " fa-" + name + "\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
+  }
+
+  public static String getImgAwesomeFas6Spin(String style, String name, String title)
+  {
+    return "<i class=\"fa-" + style + " fa-" + name + " fa-spin\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
   }
 }

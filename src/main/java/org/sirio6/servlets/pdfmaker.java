@@ -261,8 +261,8 @@ public class pdfmaker extends HttpServlet
       }
     }
 
-    // verifica per job in elaborazione: ritorna immediatamente
-    if(job == null || job.filePdf == null)
+    // verifica per job in elaborazione oppure stampa diretta: ritorna immediatamente
+    if(job == null || job.filePdf == null || job.printer != null)
       return;
 
     pgmlog.info("Pdfmaker: OK " + job.filePdf.getAbsolutePath());
@@ -358,16 +358,18 @@ public class pdfmaker extends HttpServlet
     if(info == null)
       throw new Exception(INT.I("Generazione del print job non riuscita."));
 
-    if(info.filePdf == null)
-    {
-      // elaborazione asincrona del job attivata
-      if(info.error == null)
-        throw new AsyncPdfRunningException(info);
-      else
-        throw new AsyncPdfRunningException(info, info.error);
-    }
+    return checkJobCompleted(info);
 
-    return info;
+//    if(info.filePdf == null)
+//    {
+//      // elaborazione asincrona del job attivata
+//      if(info.error == null)
+//        throw new AsyncPdfRunningException(info);
+//      else
+//        throw new AsyncPdfRunningException(info, info.error);
+//    }
+//
+//    return info;
   }
 
   /**

@@ -117,6 +117,11 @@ public class AsyncPdfJob
     info.printer = SU.okStrNull(printerName);
   }
 
+  public String getPrinter()
+  {
+    return info.printer;
+  }
+
   public void join(long timeout)
      throws InterruptedException
   {

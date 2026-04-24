@@ -45,7 +45,7 @@ import org.sirio6.utils.SU;
 abstract public class AbstractAsyncPdfPrint extends AbstractPdfPrint
 {
   /** Logging */
-  private static Log log = LogFactory.getLog(AbstractAsyncPdfPrint.class);
+  private static final Log log = LogFactory.getLog(AbstractAsyncPdfPrint.class);
   //
   // costanti
   public static final String CACHE_CLASS = "PDFJOBS";
@@ -101,8 +101,12 @@ abstract public class AbstractAsyncPdfPrint extends AbstractPdfPrint
     context.put(PrintContext.REPORT_NAME_KEY, ri.getNome());
 
     job.init(this, idUser, ri.getPlugin(), context);
+    job.setPrinter(getOverridePrinter(idUser, context));
     job.start();
-    job.join(tWaitSeconds * 1000);
+
+    // se è una stampa diretta torna subito senza attendere
+    if(job.getPrinter() == null)
+      job.join(tWaitSeconds * 1000);
 
     if(job.isRunning())
       addJobInCache(job);
@@ -138,8 +142,12 @@ abstract public class AbstractAsyncPdfPrint extends AbstractPdfPrint
     context.put(PrintContext.REPORT_NAME_KEY, reportName);
 
     job.init(this, idUser, pluginName, context);
+    job.setPrinter(getOverridePrinter(idUser, context));
     job.start();
-    job.join(tWaitSeconds * 1000);
+
+    // se è una stampa diretta torna subito senza attendere
+    if(job.getPrinter() == null)
+      job.join(tWaitSeconds * 1000);
 
     if(job.isRunning())
       addJobInCache(job);

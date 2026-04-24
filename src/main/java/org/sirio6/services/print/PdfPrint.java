@@ -128,4 +128,14 @@ public interface PdfPrint extends CoreServiceExtension
    */
   public List<JobInfo> getJobs()
      throws Exception;
+
+  /**
+   * Determina eventuale override della stampante per stampa diretta.
+   * @param idUser utente che richiede la stampa
+   * @param context parametri accessori
+   * @return override stampante oppure null per flusso standard
+   * @throws Exception
+   */
+  public String getOverridePrinter(int idUser, PrintContext context)
+     throws Exception;
 }

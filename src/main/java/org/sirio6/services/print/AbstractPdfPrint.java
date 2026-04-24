@@ -197,4 +197,11 @@ abstract public class AbstractPdfPrint extends AbstractCoreBaseService
 
   abstract protected AbstractReportParametersInfo createReportInfo(String codiceStampa, PrintContext context)
      throws Exception;
+
+  @Override
+  public String getOverridePrinter(int idUser, PrintContext context)
+     throws Exception
+  {
+    return null;
+  }
 }

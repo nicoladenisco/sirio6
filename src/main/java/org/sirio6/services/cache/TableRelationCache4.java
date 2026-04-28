@@ -43,7 +43,9 @@ import org.rigel5.db.torque.TableMapHelper;
  * @author Nicola De Nisco
  * @param <T> Tipo di oggetti recuperati
  * @param <O> Tipo di oggetti origine
+ * @deprecated Usa TableRelationCache4s più sicura per costruttore modificato
  */
+@Deprecated
 public class TableRelationCache4<T extends Persistent, O extends Persistent> extends ArrayList<T>
    implements TableRelationLink<T, O>
 {

@@ -42,7 +42,9 @@ import org.sirio6.utils.SU;
  *
  * @author Nicola De Nisco
  * @param <T>
+ * @deprecated Usa TableCacheSec per costruttore più sicuro
  */
+@Deprecated
 public class TableCache<T extends ColumnAccessByName> implements Iterable<T>
 {
   private final Class cls;

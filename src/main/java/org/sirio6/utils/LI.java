@@ -276,6 +276,8 @@ public class LI extends HtmlUtils
       case "duotone":
       case "sharp":
       case "sharp-duotone":
+        if(si.length >= 3)
+          return getImgAwesomeFas6Effect(si[0], si[1], si[2], text);
         return getImgAwesomeFas6(si[0], si[1], text);
 
       case "solid-spin":
@@ -356,5 +358,10 @@ public class LI extends HtmlUtils
   public static String getImgAwesomeFas6Spin(String style, String name, String title)
   {
     return "<i class=\"fa-" + style + " fa-" + name + " fa-spin\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
+  }
+
+  public static String getImgAwesomeFas6Effect(String style, String name, String effect, String title)
+  {
+    return "<i class=\"fa-" + style + " fa-" + name + " fa-" + effect + "\" aria-hidden=\"true\" title=\"" + title + "\"></i>";
   }
 }

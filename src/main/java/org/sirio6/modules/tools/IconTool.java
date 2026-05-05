@@ -209,6 +209,11 @@ public class IconTool extends I18nTool
     return LI.getImgAwesome(type, name, i18n(title));
   }
 
+  public String getImgAwesome6Effect(String type, String name, String effect, String title)
+  {
+    return LI.getImgAwesomeFas6Effect(type, name, effect, i18n(title));
+  }
+
   public String getLinkAwesome6(String type, String name, String title, String link)
   {
     return "<a href='" + link + "'>" + getImgAwesome6(type, name, title) + "</a>";
@@ -217,5 +222,15 @@ public class IconTool extends I18nTool
   public String getLinkScriptAwesome6(String type, String name, String title, String javascript)
   {
     return "<a href='#' onclick='" + javascript + "'>" + getImgAwesome6(type, name, title) + "</a>";
+  }
+
+  public String getLinkIcon(String name, String title, String link)
+  {
+    return "<a href='" + link + "'>" + getImgIcon(name, title) + "</a>";
+  }
+
+  public String getLinkScriptIcon(String name, String title, String javascript)
+  {
+    return "<a href='#' onclick='" + javascript + "'>" + getImgIcon(name, title) + "</a>";
   }
 }

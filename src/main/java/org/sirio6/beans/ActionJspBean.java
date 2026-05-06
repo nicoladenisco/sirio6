@@ -162,6 +162,7 @@ public class ActionJspBean
      ServletConfig config, Writer out)
      throws Exception
   {
+    String results;
     CoreRunData data = (CoreRunData) rd.getRunData(request, response, config);
 
     try
@@ -174,14 +175,14 @@ public class ActionJspBean
 
       // usa il servizio di turbine per creare e renderizzare lo screen
       data.getTemplateInfo().setScreenTemplate(nomeScreen + ".vm");
-      String results = ScreenLoader.getInstance().eval(data, nomeScreen);
-      out.write(results);
+      results = ScreenLoader.getInstance().eval(data, nomeScreen);
     }
     finally
     {
       rd.putRunData(data);
     }
 
+    out.write(results);
     out.flush();
   }
 }

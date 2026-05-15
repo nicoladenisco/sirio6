@@ -43,7 +43,7 @@ public class CoreGoogleLocalizationService extends CoreLocalizationService
 
   protected GoogleTranslate gt;
   protected String credFilePath;
-  protected FixedSizeMap<String, String> cacheMsg = new FixedSizeMap<>(1024);
+  protected final FixedSizeMap<String, String> cacheMsg = new FixedSizeMap<>(1024);
   protected boolean initialized;
 
   @Override
@@ -91,7 +91,7 @@ public class CoreGoogleLocalizationService extends CoreLocalizationService
     }
     catch(Exception ex)
     {
-      log.error("", ex);
+      log.error("subTranslation failed", ex);
       return null;
     }
   }

@@ -47,7 +47,7 @@ public class CoreMessageBus extends BaseService
   /** Coda messaggi asincroni. */
   protected LinkedBlockingQueue<QueueInfo> queue = new LinkedBlockingQueue<>();
   /** Soglia per il warning velocità di risposta. */
-  protected int delayWarning = 50;
+  protected int delayWarning = 150;
   /** Ritardo di default per i messaggi asincroni. */
   protected long delayDefaultAsyncMillis = 300;
   /** Timer per il segnale IDLE a 10 minuti. */
@@ -85,20 +85,31 @@ public class CoreMessageBus extends BaseService
     {
       String nome = entry.getKey();
       MessageBusListener listener = entry.getValue();
+      final String nomeListener = listener.getClass().getName();
 
       try
       {
         st.reset();
 
+        if(log.isDebugEnabled())
+          log.debug("BUS: inizio elaborazione " + msgID + " su " + nomeListener);
+
         if((val = listener.message(msgID, originator, context)) != 0)
+        {
+          if(log.isDebugEnabled())
+            log.debug("BUS: interrotta elaborazione " + msgID + " su " + nomeListener);
           return val;
+        }
+
+        if(log.isDebugEnabled())
+          log.debug("BUS: fine elaborazione " + msgID + " su " + nomeListener);
 
         if(st.getElapsed() > delayWarning)
-          log.warn(INT.I("%s [%s] ha elaborato in %d millisecondi", nome, listener.getClass().getName(), st.getElapsed()));
+          log.warn(INT.I("%s [%s] ha elaborato in %d millisecondi", nome, nomeListener, st.getElapsed()));
       }
       catch(Throwable ex)
       {
-        log.error(INT.I("Errore BUS messaggio %d in %s ", msgID, listener.getClass().getName()), ex);
+        log.error(INT.I("Errore BUS messaggio %d in %s ", msgID, nomeListener), ex);
       }
     }
 

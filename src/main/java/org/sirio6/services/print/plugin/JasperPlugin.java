@@ -62,8 +62,8 @@ public class JasperPlugin extends BasePdfPlugin
   protected String defaultDriver, defaultUri, defaultUser, defaultPass;
   protected boolean forcedefault = false;
 
-  protected int maxConcurrent = 5;
-  private Semaphore hl7Semaphore;
+  protected int maxConcurrent = 3;
+  private Semaphore renderSemaphore;
 
   @Override
   public void configure(String pluginName, Configuration cfg)
@@ -83,7 +83,7 @@ public class JasperPlugin extends BasePdfPlugin
       die(INT.I("Directory processore Jasper non dichiarata a setup (vedi aaa-generic..): stampa non disponibile."));
 
     maxConcurrent = cfg.getInt("handler.maxConcurrent", maxConcurrent);
-    hl7Semaphore = new Semaphore(maxConcurrent, true);
+    renderSemaphore = new Semaphore(maxConcurrent, true);
     log.info("HL7 handler concurrency limit: " + maxConcurrent);
   }
 
@@ -271,6 +271,21 @@ public class JasperPlugin extends BasePdfPlugin
   }
 
   protected void runExternalJasperRender(String args[], File reportPDF)
+     throws Exception
+  {
+    renderSemaphore.acquire();
+
+    try
+    {
+      runExternalJasperRenderWorker(args, reportPDF);
+    }
+    finally
+    {
+      renderSemaphore.release();
+    }
+  }
+
+  protected void runExternalJasperRenderWorker(String args[], File reportPDF)
      throws Exception
   {
     print.ASSERT(jasperAppLocation != null, "jasperAppLocation != NULL");

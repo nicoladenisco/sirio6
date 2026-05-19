@@ -1,0 +1,308 @@
+/*
+ * Copyright (C) 2020 Nicola De Nisco
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.sirio6.services.bus;
+
+import java.sql.Connection;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.turbine.services.BaseService;
+import org.commonlib5.utils.SimpleTimer;
+import org.sirio6.services.localization.INT;
+
+/**
+ * Implementazione del message bus.
+ * @author Nicola De Nisco
+ */
+public class CoreMessageBus2 extends BaseService
+   implements MessageBus
+{
+  /** Logging */
+  private static final Log log = LogFactory.getLog(CoreMessageBus2.class);
+  /** Mappa degli ascoltatori. */
+  protected ConcurrentSkipListMap<String, MessageBusListener> busMap = new ConcurrentSkipListMap<>();
+  /** Mappa degli ascoltatori SQL. */
+  protected ConcurrentSkipListMap<String, MessageBusListenerTransaction> busMapTrs = new ConcurrentSkipListMap<>();
+  /** Thread per la spedizione asincrona. */
+  protected Thread tAsync;
+  /** Coda messaggi asincroni. */
+  protected LinkedBlockingQueue<QueueInfo> queue = new LinkedBlockingQueue<>();
+  /** Soglia per il warning velocità di risposta. */
+  protected int delayWarning = 150;
+  /** Ritardo di default per i messaggi asincroni. */
+  protected long delayDefaultAsyncMillis = 150;
+  /** Timer per il segnale IDLE a 10 minuti. */
+  private final SimpleTimer idle10Timer = new SimpleTimer();
+  /** Timer per il segnale IDLE a 30 minuti. */
+  private final SimpleTimer idle30Timer = new SimpleTimer();
+  /** Timer per il segnale IDLE a 60 minuti. */
+  private final SimpleTimer idle60Timer = new SimpleTimer();
+
+  @Override
+  public void init()
+  {
+    Configuration cfg = getConfiguration();
+    delayWarning = cfg.getInt("delayWarningMillis", delayWarning);
+    delayDefaultAsyncMillis = cfg.getLong("delayDefaultAsyncMillis", delayDefaultAsyncMillis);
+
+    tAsync = new Thread(() -> runAsync());
+    tAsync.setName("busasync");
+    tAsync.setDaemon(true);
+    tAsync.start();
+
+    // servizio inizializzato correttamentea
+    setInit(true);
+  }
+
+  @Override
+  public int sendMessageSync(int msgID, Object originator, BusContext context)
+  {
+    if(busMap.isEmpty())
+      return 0;
+
+    int val = 0;
+    SimpleTimer st = new SimpleTimer();
+    for(Map.Entry<String, MessageBusListener> entry : busMap.entrySet())
+    {
+      String nome = entry.getKey();
+      MessageBusListener listener = entry.getValue();
+      final String nomeListener = listener.getClass().getName();
+
+      try
+      {
+        st.reset();
+
+        if(log.isDebugEnabled())
+          log.debug("BUS: inizio elaborazione " + msgID + " su " + nomeListener);
+
+        if((val = listener.message(msgID, originator, context)) != 0)
+        {
+          if(log.isDebugEnabled())
+            log.debug("BUS: interrotta elaborazione " + msgID + " su " + nomeListener);
+          return val;
+        }
+
+        if(log.isDebugEnabled())
+          log.debug("BUS: fine elaborazione " + msgID + " su " + nomeListener);
+
+        if(st.getElapsed() > delayWarning)
+          log.warn(INT.I("%s [%s] ha elaborato in %d millisecondi", nome, nomeListener, st.getElapsed()));
+      }
+      catch(Throwable ex)
+      {
+        log.error(INT.I("Errore BUS messaggio %d in %s ", msgID, nomeListener), ex);
+      }
+    }
+
+    // eventuale azione di post action
+    if(context != null && !context.postListener.isEmpty())
+      context.postListener.forEach((l) -> l.actionPerformed(msgID, originator, context));
+
+    return 0;
+  }
+
+  @Override
+  public int sendMessageTransaction(int msgID, Object originator, Connection con, BusContext context)
+     throws Exception
+  {
+    if(busMapTrs.isEmpty())
+      return 0;
+
+    int val = 0;
+    SimpleTimer st = new SimpleTimer();
+    for(Map.Entry<String, MessageBusListenerTransaction> entry : busMapTrs.entrySet())
+    {
+      String nome = entry.getKey();
+      MessageBusListenerTransaction listener = entry.getValue();
+      st.reset();
+
+      if((val = listener.message(msgID, originator, con, context)) != 0)
+        return val;
+
+      if(st.getElapsed() > delayWarning)
+        log.warn(INT.I("%s [%s] ha elaborato in  %d  millisecondi", nome, listener.getClass().getName(), st.getElapsed()));
+    }
+
+    return 0;
+  }
+
+  @Override
+  public void sendMessageAsync(int msgID, Object originator, BusContext context)
+  {
+    if(busMap.isEmpty())
+      return;
+
+    QueueInfo qi = new QueueInfo();
+    qi.msgID = msgID;
+    qi.delay = delayDefaultAsyncMillis;
+    qi.originator = originator;
+    qi.context = context;
+    qi.originTime = System.currentTimeMillis();
+
+    sendMessageAsync(qi);
+  }
+
+  @Override
+  public void sendMessageAsyncDelay(int msgID, int delay, Object originator, BusContext context)
+  {
+    if(busMap.isEmpty())
+      return;
+
+    QueueInfo qi = new QueueInfo();
+    qi.msgID = msgID;
+    qi.delay = delay;
+    qi.originator = originator;
+    qi.context = context;
+    qi.originTime = System.currentTimeMillis();
+
+    sendMessageAsync(qi);
+  }
+
+  @Override
+  public void sendMessagePackAsync(Collection<QueueInfo> clQueue)
+  {
+    for(QueueInfo qi : clQueue)
+    {
+      if(qi.delay == 0)
+        qi.delay = delayDefaultAsyncMillis;
+
+      if(qi.originTime == 0)
+        qi.originTime = System.currentTimeMillis();
+
+      sendMessageAsync(qi);
+    }
+  }
+
+  @Override
+  public void sendMessageAsync(QueueInfo qi)
+  {
+    try
+    {
+      if(busMap.isEmpty())
+        return;
+
+      queue.put(qi);
+    }
+    catch(InterruptedException ex)
+    {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  /**
+   * Funzione di servizio del thread di spedizione differita.
+   * Estrae dalla coda eventi l'evento da inviare sul bus e
+   * lo invia ai destinatari.
+   */
+  protected void runAsync()
+  {
+    while(true)
+    {
+      try
+      {
+        QueueInfo qi;
+        List<QueueInfo> delayed = new ArrayList<>();
+
+        while((qi = queue.poll(3, TimeUnit.SECONDS)) != null)
+        {
+          // in caso di evento ritardato lo scarta per reinserirlo successivamente nella coda
+          // ATTENZIONE: questo può portare a un cambio di sequenza nel dispach degli eventi
+          if(qi.delay > 0)
+          {
+            long elapsed;
+            if((elapsed = (System.currentTimeMillis() - qi.originTime)) < qi.delay)
+            {
+              delayed.add(qi);
+
+              qi = null;
+              Thread.sleep(10);
+            }
+          }
+
+          if(qi != null)
+            sendMessageSync(qi.msgID, qi.originator, qi.context);
+        }
+
+        idle();
+
+        if(!delayed.isEmpty())
+        {
+          // frena un po il thread del bus per non renderlo troppo aggressivo
+          Thread.sleep(100);
+          queue.addAll(delayed);
+        }
+      }
+      catch(Throwable t)
+      {
+        log.error(INT.I("Errore di BUS:"), t);
+      }
+    }
+  }
+
+  @Override
+  public void registerEventListner(String name, MessageBusListener listener)
+  {
+    busMap.put(name, listener);
+  }
+
+  @Override
+  public void removeEventListner(String name)
+  {
+    busMap.remove(name);
+  }
+
+  @Override
+  public void registerEventListnerTrs(String name, MessageBusListenerTransaction listener)
+  {
+    busMapTrs.put(name, listener);
+  }
+
+  @Override
+  public void removeEventListnerTrs(String name)
+  {
+    busMapTrs.remove(name);
+  }
+
+  protected void idle()
+  {
+    if(idle10Timer.isElapsed(10, TimeUnit.MINUTES))
+    {
+      log.debug("Emetto segnale IDLE 10 minuti.");
+      sendMessageSync(BusMessages.IDLE_10_MINUTES, this, null);
+      idle10Timer.reset();
+    }
+
+    if(idle30Timer.isElapsed(30, TimeUnit.MINUTES))
+    {
+      log.debug("Emetto segnale IDLE 30 minuti.");
+      sendMessageSync(BusMessages.IDLE_30_MINUTES, this, null);
+      idle30Timer.reset();
+    }
+
+    if(idle60Timer.isElapsed(60, TimeUnit.MINUTES))
+    {
+      log.debug("Emetto segnale IDLE 60 minuti.");
+      sendMessageSync(BusMessages.IDLE_60_MINUTES, this, null);
+      idle60Timer.reset();
+    }
+  }
+}

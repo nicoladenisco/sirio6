@@ -21,13 +21,10 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.torque.Torque;
-import org.commonlib5.exec.ExecHelper;
 import org.commonlib5.utils.CommonFileUtils;
-import org.commonlib5.utils.OsIdent;
 import org.commonlib5.utils.PropertyManager;
 import org.sirio6.services.CoreServiceException;
 import org.sirio6.services.localization.INT;
@@ -47,12 +44,12 @@ import org.sirio6.utils.TR;
  *
  * @author Nicola De Nisco
  */
-public class JasperPlugin extends BasePdfPlugin
+public class JasperServerPlugin extends BasePdfPlugin
 {
   public static final String PLG_NAME_CON = "jasper";
   public static final String PLG_NAME_NOCON = "jaspernc";
   /** Logging */
-  private static final Log log = LogFactory.getLog(JasperPlugin.class);
+  private static final Log log = LogFactory.getLog(JasperServerPlugin.class);
   //
   // flag per attivare o meno le connessioni con il database
   protected boolean useDB = true;
@@ -189,7 +186,7 @@ public class JasperPlugin extends BasePdfPlugin
         reportFile.getAbsolutePath(), tmpParams.getAbsolutePath(),
         reportPDF.getAbsolutePath()
       };
-      runExternalJasperRender(cmdArray, reportPDF);
+      runServerJasperRender(cmdArray, reportPDF);
     }
     else
     {
@@ -202,7 +199,7 @@ public class JasperPlugin extends BasePdfPlugin
           reportPDF.getAbsolutePath(), defaultDriver, defaultUri, defaultUser, defaultPass
         };
 
-        runExternalJasperRender(cmdArray, reportPDF);
+        runServerJasperRender(cmdArray, reportPDF);
         return;
       }
 
@@ -241,7 +238,7 @@ public class JasperPlugin extends BasePdfPlugin
       reportPDF.getAbsolutePath(), ji.getDbDriver(), ji.getDbUri(), ji.getDbUser(), ji.getDbPass()
     };
 
-    runExternalJasperRender(cmdArray, reportPDF);
+    runServerJasperRender(cmdArray, reportPDF);
   }
 
   /**
@@ -267,48 +264,12 @@ public class JasperPlugin extends BasePdfPlugin
       reportPDF.getAbsolutePath(), dbDriver, dbUri, dbUser, dbPass
     };
 
-    runExternalJasperRender(cmdArray, reportPDF);
+    runServerJasperRender(cmdArray, reportPDF);
   }
 
-  protected void runExternalJasperRender(String args[], File reportPDF)
+  protected void runServerJasperRender(String args[], File reportPDF)
      throws Exception
   {
-    print.ASSERT(jasperAppLocation != null, "jasperAppLocation != NULL");
-
-    File jasDir = new File(jasperAppLocation);
-    if(!jasDir.exists() || !jasDir.isDirectory())
-      die(INT.I("jasperApp non installato in %s ", jasDir.getAbsolutePath()));
-
-    String jas = null;
-    switch(OsIdent.checkOStype())
-    {
-      case OsIdent.OS_WINDOWS:
-        jas = "jas.bat";
-        break;
-      default:
-        jas = "jas";
-        break;
-    }
-
-    File jasPgm = new File(jasDir, jas);
-    if(!jasPgm.exists())
-      die(INT.I("Programma di lancio jasper-reports non trovato: rivedere installazione."));
-
-    String pgm = jasPgm.getAbsolutePath();
-    String[] cmd = (String[]) ArrayUtils.add(args, 0, pgm);
-    StringBuilder sb = new StringBuilder(128);
-    sb.append("\n");
-    sb.append("Lancio ").append(Arrays.toString(cmd));
-
-    log.info("Lancio " + Arrays.toString(cmd));
-    ExecHelper eh = ExecHelper.exec(cmd);
-    int exitValue = eh.getStatus();
-    eh.getReportError(sb);
-
-    if(exitValue != 0 || !reportPDF.canRead() || reportPDF.length() == 0)
-    {
-      log.error(sb.toString());
-      die(INT.I("Rendering jasper del PDF non completato. Vedi log per errori."));
-    }
+    // TODO: capire come
   }
 }

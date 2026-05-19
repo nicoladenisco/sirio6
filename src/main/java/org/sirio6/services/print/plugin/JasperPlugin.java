@@ -82,7 +82,7 @@ public class JasperPlugin extends BasePdfPlugin
     if((jasperAppLocation = TR.getString("path.app.jas")) == null)
       die(INT.I("Directory processore Jasper non dichiarata a setup (vedi aaa-generic..): stampa non disponibile."));
 
-    maxConcurrent = cfg.getInt("handler.maxConcurrent", maxConcurrent);
+    maxConcurrent = cfg.getInt("maxConcurrent", maxConcurrent);
     renderSemaphore = new Semaphore(maxConcurrent, true);
     log.info("HL7 handler concurrency limit: " + maxConcurrent);
   }
@@ -274,6 +274,7 @@ public class JasperPlugin extends BasePdfPlugin
      throws Exception
   {
     renderSemaphore.acquire();
+    log.error("STARTED dopo semaforo");
 
     try
     {
@@ -281,6 +282,7 @@ public class JasperPlugin extends BasePdfPlugin
     }
     finally
     {
+      log.error("FINITO prima di semaforo");
       renderSemaphore.release();
     }
   }

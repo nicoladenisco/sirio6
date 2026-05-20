@@ -274,7 +274,7 @@ public class JasperPlugin extends BasePdfPlugin
      throws Exception
   {
     renderSemaphore.acquire();
-    log.error("STARTED dopo semaforo");
+    log.debug("AVVIO RENDER dopo semaforo liberi=" + renderSemaphore.availablePermits());
 
     try
     {
@@ -282,7 +282,7 @@ public class JasperPlugin extends BasePdfPlugin
     }
     finally
     {
-      log.error("FINITO prima di semaforo");
+      log.debug("FINITO RENDER prima di semaforo");
       renderSemaphore.release();
     }
   }

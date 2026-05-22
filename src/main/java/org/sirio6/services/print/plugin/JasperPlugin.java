@@ -62,8 +62,9 @@ public class JasperPlugin extends BasePdfPlugin
   protected String defaultDriver, defaultUri, defaultUser, defaultPass;
   protected boolean forcedefault = false;
 
-  protected int maxConcurrent = 3;
-  private Semaphore renderSemaphore;
+  protected static int maxConcurrent = 3;
+  private static Semaphore renderSemaphore;
+  private static final Object semcreate = new Object();
 
   @Override
   public void configure(String pluginName, Configuration cfg)
@@ -82,9 +83,18 @@ public class JasperPlugin extends BasePdfPlugin
     if((jasperAppLocation = TR.getString("path.app.jas")) == null)
       die(INT.I("Directory processore Jasper non dichiarata a setup (vedi aaa-generic..): stampa non disponibile."));
 
-    maxConcurrent = cfg.getInt("maxConcurrent", maxConcurrent);
-    renderSemaphore = new Semaphore(maxConcurrent, true);
-    log.info("HL7 handler concurrency limit: " + maxConcurrent);
+    if(renderSemaphore == null)
+    {
+      synchronized(semcreate)
+      {
+        if(renderSemaphore == null)
+        {
+          maxConcurrent = cfg.getInt("maxConcurrent", maxConcurrent);
+          renderSemaphore = new Semaphore(maxConcurrent, true);
+          log.info("Jasper render concurrency limit: " + maxConcurrent);
+        }
+      }
+    }
   }
 
   @Override

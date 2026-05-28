@@ -254,6 +254,10 @@ abstract public class AbstractCoreBaseService extends BaseService implements Cor
          + e.getMessage();
       log.error(s, e);
       ALLARM.fatal("CORE", "Init", s, 0);
+
+      // il layer log4j a volte canna: qui mandiamo direttamente a stderr
+      e.printStackTrace();
+
       return false;
     }
   }

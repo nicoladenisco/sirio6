@@ -35,7 +35,7 @@ public class CachedObjectSaver
   public static final int WRITE_LEVEL_FORCE = -1;
   public static final String WRITE_LEVEL_PERM_STORAGE = "WRITE_LEVEL_PERM_STORAGE";
 
-  private static final HashMap<Class, CoreObjectSaver> htCache = new HashMap<Class, CoreObjectSaver>();
+  private static final HashMap<Class, CoreObjectSaver> htCache = new HashMap<>();
 
   /**
    * Recupera un oggetto saver adatto al salvataggio del Persistent specificato.
@@ -108,6 +108,31 @@ public class CachedObjectSaver
       ps.salva(toSave, idUser, newStatoRec, writeLevel);
     else
       ps.salva(toSave, con, idUser, newStatoRec, writeLevel);
+  }
+
+  /**
+   * Salvataggio diretto.
+   * Non vengono applicati controlli sulla modifica del record.
+   * @param con connessione al database (può essere null)
+   * @param toSave oggetto da salvare
+   * @param idUser itentificativo dell'utente
+   * @param newStatoRec nuovo valore per lo stato rec
+   * @param writeLevel livello di permessi in scrittura (0-9)
+   * @throws Exception
+   */
+  public static void saveDirect(Connection con, Persistent toSave, int idUser, int newStatoRec, int writeLevel)
+     throws Exception
+  {
+    // NON APPLICABILE: la modifica potrebbe riguardare il cambio di statorec; quindi è necessario procedere
+    //if(!toSave.isModified())
+    //  return;
+
+    CoreObjectSaver ps = getObjectSaver(toSave);
+
+    if(con == null)
+      throw new Exception("Necessaria una connessione esplicita; con non puo essere null.");
+    else
+      ps.salvaDiretto(toSave, con, idUser, newStatoRec);
   }
 
   /**

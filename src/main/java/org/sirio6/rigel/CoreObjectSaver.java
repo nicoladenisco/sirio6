@@ -518,6 +518,13 @@ public class CoreObjectSaver implements PeerObjectSaver
     obj.save(dbCon);
   }
 
+  @Override
+  public void salvaDiretto(Persistent obj, Connection dbCon, int userID, int statoRecNew)
+     throws Exception
+  {
+    saveObject(obj, dbCon, userID, statoRecNew);
+  }
+
   /**
    * Pulizia per nuovo oggetto.
    * Se l'oggetto possiede id_azienda, id_user, ult_modif, ecc.

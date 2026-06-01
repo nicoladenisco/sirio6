@@ -259,6 +259,11 @@ public class SU extends StringOper
     return saved.remove(key);
   }
 
+  public static void removeAllParams(HttpSession session)
+  {
+    session.removeAttribute(PERM_PAR_KEY);
+  }
+
   /**
    * Dump dei parametri di richiesta su stdout
    * @param request

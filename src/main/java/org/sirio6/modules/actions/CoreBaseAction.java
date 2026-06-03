@@ -401,6 +401,9 @@ public class CoreBaseAction extends VelocitySecureAction
      throws Exception
   {
     SU.doCommand(this, command, data, params, args);
+    // questo è importante: dopo aver consumato il comando va rimosso dalla cache
+    SU.removeParam(data.getSession(), "command");
+    SU.removeParam(data.getSession(), "action");
   }
 
   public void ASSERT(boolean test, String cause)

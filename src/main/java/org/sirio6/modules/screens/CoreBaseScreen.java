@@ -18,6 +18,7 @@
 package org.sirio6.modules.screens;
 
 import java.util.Map;
+import javax.servlet.http.HttpSession;
 import org.apache.turbine.modules.screens.VelocitySecureScreen;
 import org.apache.turbine.om.security.User;
 import org.apache.turbine.pipeline.PipelineData;
@@ -351,6 +352,11 @@ public class CoreBaseScreen extends VelocitySecureScreen
      throws Exception
   {
     SU.doCommand(this, command, data, params, args);
+
+    // questo è importante: dopo aver consumato il comando va rimosso dalla cache
+    final HttpSession session = data.getSession();
+    SU.removeParam(session, "command");
+    SU.removeParam(session, "action");
   }
 
   public void ASSERT(boolean test, String cause)

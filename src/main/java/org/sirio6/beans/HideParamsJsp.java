@@ -18,6 +18,7 @@
 package org.sirio6.beans;
 
 import java.io.Writer;
+import java.net.URLDecoder;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -96,6 +97,7 @@ public class HideParamsJsp
 
             String nome = uriParts.get(j);
             String valore = uriParts.get(j + 1);
+            valore = URLDecoder.decode(valore, "UTF-8");
             bean.saveParam(nome, valore);
           }
 
@@ -112,6 +114,7 @@ public class HideParamsJsp
       {
         String nome = sqs[0];
         String valore = sqs[1];
+        valore = URLDecoder.decode(valore, "UTF-8");
         bean.saveParam(nome, valore);
       }
     }

@@ -312,6 +312,8 @@ public class pdfmaker extends HttpServlet
     PrintContext context = new PrintContext();
     context.setI18n(new RigelHtmlI18n(request));
     context.putAll(SU.getParMap(request));
+
+    // recupera eventuali parametri di sessione
     SessionParamsBean sb = SessionParamsBean.getFromSession(request.getSession());
     context.putAll(sb.getSavedParams());
     sb.removeAllParams();
@@ -364,17 +366,6 @@ public class pdfmaker extends HttpServlet
       throw new Exception(INT.I("Generazione del print job non riuscita."));
 
     return checkJobCompleted(info);
-
-//    if(info.filePdf == null)
-//    {
-//      // elaborazione asincrona del job attivata
-//      if(info.error == null)
-//        throw new AsyncPdfRunningException(info);
-//      else
-//        throw new AsyncPdfRunningException(info, info.error);
-//    }
-//
-//    return info;
   }
 
   /**

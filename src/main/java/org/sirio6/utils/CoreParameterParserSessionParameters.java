@@ -17,10 +17,9 @@
  */
 package org.sirio6.utils;
 
-import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import static org.sirio6.utils.SU.PERM_PAR_KEY;
+import org.sirio6.beans.SessionParamsBean;
 
 /**
  * Estensione di DefaultParameterParser.
@@ -42,17 +41,14 @@ public class CoreParameterParserSessionParameters extends CoreParameterParser
   public void setRequest(HttpServletRequest request)
   {
     super.setRequest(request);
-
-    HashMap<Object, Object> saved = (HashMap) request.getSession().getAttribute(PERM_PAR_KEY);
-    if(saved == null || saved.isEmpty())
-      return;
+    SessionParamsBean bean = SessionParamsBean.getFromSession(request.getSession());
 
     getLogger().debug("aggiungo parametri salvati da sessione");
 
     // aggiunge i parametri salvati in sessione alla mappa parametri
-    for(Map.Entry<Object, Object> entry : saved.entrySet())
+    for(Map.Entry<String, Object> entry : bean.getSavedParams().entrySet())
     {
-      String name = entry.getKey().toString();
+      String name = entry.getKey();
       Object value = entry.getValue();
 
       if(value == null)

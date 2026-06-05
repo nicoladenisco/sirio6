@@ -25,6 +25,7 @@ import javax.servlet.http.*;
 import org.apache.commons.logging.*;
 import org.apache.turbine.services.TurbineServices;
 import org.apache.velocity.context.Context;
+import org.sirio6.beans.SessionParamsBean;
 import org.sirio6.rigel.RigelHtmlI18n;
 import org.sirio6.services.localization.INT;
 import org.sirio6.services.print.AsyncPdfRunningException;
@@ -311,6 +312,10 @@ public class pdfmaker extends HttpServlet
     PrintContext context = new PrintContext();
     context.setI18n(new RigelHtmlI18n(request));
     context.putAll(SU.getParMap(request));
+    SessionParamsBean sb = SessionParamsBean.getFromSession(request.getSession());
+    context.putAll(sb.getSavedParams());
+    sb.removeAllParams();
+
     int idUser = authRequest(request);
 
     String mappaParametri = null;

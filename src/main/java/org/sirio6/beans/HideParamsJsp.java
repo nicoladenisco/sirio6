@@ -53,6 +53,7 @@ public class HideParamsJsp
      throws Exception
   {
     HttpSession session = request.getSession();
+    SessionParamsBean bean = SessionParamsBean.getFromSession(session);
     JSONObject json = new JSONObject();
 
     String origin = request.getParameter("origin");
@@ -87,7 +88,7 @@ public class HideParamsJsp
 
             String nome = uriParts.get(j);
             String valore = uriParts.get(j + 1);
-            SU.saveParam(session, nome, valore);
+            bean.saveParam(nome, valore);
           }
 
           break;
@@ -103,7 +104,7 @@ public class HideParamsJsp
       {
         String nome = sqs[0];
         String valore = sqs[1];
-        SU.saveParam(session, nome, valore);
+        bean.saveParam(nome, valore);
       }
     }
 

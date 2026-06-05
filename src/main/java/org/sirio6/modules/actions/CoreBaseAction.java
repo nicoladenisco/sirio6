@@ -18,7 +18,6 @@
 package org.sirio6.modules.actions;
 
 import java.util.Map;
-import javax.servlet.http.HttpSession;
 import org.apache.turbine.modules.actions.VelocitySecureAction;
 import org.apache.turbine.pipeline.PipelineData;
 import org.apache.turbine.services.*;
@@ -403,10 +402,11 @@ public class CoreBaseAction extends VelocitySecureAction
   {
     SU.doCommand(this, command, data, params, args);
 
-    // questo è importante: dopo aver consumato il comando va rimosso dalla cache
-    final HttpSession session = data.getSession();
-    SU.removeParam(session, "command");
-    SU.removeParam(session, "action");
+//    // questo è importante: dopo aver consumato il comando va rimosso dalla cache
+//    final HttpSession session = data.getSession();
+//    SU.removeParam(session, "command");
+//    SU.removeParam(session, "action");
+//    SessionParamsBean.removeFromSession(session);
   }
 
   public void ASSERT(boolean test, String cause)

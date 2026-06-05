@@ -170,11 +170,14 @@ public class pdfmaker extends HttpServlet
   protected void doWork(HttpServletRequest request, HttpServletResponse response)
      throws Exception
   {
+    SessionParamsBean spb = SessionParamsBean.getFromSession(request.getSession());
+    Map<String, Object> params = spb.getParMap(request);
+
     // estrae nome della richiesta
     String sRequest = request.getPathInfo().substring(1);
 
     // estrae query string per match della cache
-    String query = request.getQueryString();
+    String query = SU.okStr(spb.getOriginQuery(), request.getQueryString());
 
     // costruisce chiave della cache PDF
     String cacheKey = query == null ? sRequest : sRequest + "?" + query;
@@ -191,7 +194,7 @@ public class pdfmaker extends HttpServlet
      * dallo stesso browser per gli stessi risultati vengono soddisfatti
      * con la cache.
      */
-    boolean force = SU.checkTrueFalse(request.getParameter("force"), false);
+    boolean force = SU.checkTrueFalse(params.get("force"), false);
     Hashtable<String, PdfPrint.JobInfo> htReq = getJobCache(request);
     PdfPrint.JobInfo job = force ? null : htReq.get(cacheKey);
 
@@ -226,7 +229,7 @@ public class pdfmaker extends HttpServlet
     // controlla per job asincrono in esecuzione
     if(job == null && SU.isEqu("job", sRequest))
     {
-      String jobCode = request.getParameter("codice");
+      String jobCode = (String) params.get("codice");
       job = checkJobCompleted(jobCode);
     }
 
@@ -321,7 +324,7 @@ public class pdfmaker extends HttpServlet
     int idUser = authRequest(request);
 
     String mappaParametri = null;
-    if((mappaParametri = request.getParameter("special_map")) == null)
+    if((mappaParametri = context.getAsString("special_map")) == null)
       mappaParametri = PdfPrint.PRINT_PARAM;
 
     // preleva la mappa parametri dalla sessione e la salva in params

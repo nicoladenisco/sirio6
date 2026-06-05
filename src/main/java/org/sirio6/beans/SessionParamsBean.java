@@ -40,6 +40,7 @@ import static org.sirio6.utils.SU.isFilePart;
 public class SessionParamsBean
 {
   private static final Log log = LogFactory.getLog(SessionParamsBean.class);
+  private String origin, originUri, originQuery, originPathInfo;
   public static final String SESSION_PARAMS_BEAN_SESSION_KEY = "SESSION_PARAMS_BEAN_SESSION_KEY";
 
   private final HashMap<String, Object> savedParams = new HashMap<>();
@@ -71,9 +72,15 @@ public class SessionParamsBean
     return savedParams;
   }
 
-  public Map getParMap(HttpServletRequest request)
+  /**
+   * Costruisce mappa fusione della request e dei parametri salvati.
+   * I parametri passati nella request sovrascrivono eventuali parametri omonimi salvati.
+   * @param request richiesta http da analizzare
+   * @return mappa fusione
+   */
+  public Map<String, Object> getParMap(HttpServletRequest request)
   {
-    HashMap htParam = new HashMap();
+    HashMap<String, Object> htParam = new HashMap<>(savedParams);
 
     // estrae i parametri della richiesta (anche i campi di input con nome della form)
     Map<String, String[]> parameterMap = request.getParameterMap();
@@ -99,9 +106,9 @@ public class SessionParamsBean
     }
 
     // carica i parametri fissi
-    htParam.put(SESSION_ID, request.getSession().getId());
-    htParam.put(QUERY_STRING, okStr(request.getQueryString()));
-    htParam.put(PATH_INFO, okStr(request.getPathInfo()));
+    htParam.putIfAbsent(SESSION_ID, request.getSession().getId());
+    htParam.putIfAbsent(QUERY_STRING, okStr(request.getQueryString()));
+    htParam.putIfAbsent(PATH_INFO, okStr(request.getPathInfo()));
 
     return htParam;
   }
@@ -198,5 +205,45 @@ public class SessionParamsBean
   public void removeAllParams()
   {
     savedParams.clear();
+  }
+
+  public String getOrigin()
+  {
+    return origin;
+  }
+
+  public void setOrigin(String origin)
+  {
+    this.origin = origin;
+  }
+
+  public String getOriginUri()
+  {
+    return originUri;
+  }
+
+  public void setOriginUri(String originUri)
+  {
+    this.originUri = originUri;
+  }
+
+  public String getOriginQuery()
+  {
+    return originQuery;
+  }
+
+  public void setOriginQuery(String originQuery)
+  {
+    this.originQuery = originQuery;
+  }
+
+  public String getOriginPathInfo()
+  {
+    return originPathInfo;
+  }
+
+  public void setOriginPathInfo(String originPathInfo)
+  {
+    this.originPathInfo = originPathInfo;
   }
 }

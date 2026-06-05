@@ -33,7 +33,10 @@ import org.sirio6.utils.SU;
  * Edulcora la uri da tutti i parametri e la restituisce.
  * Usata insieme a CoreParameterParserSessionParameters permette chiamate
  * nascondendo i parametri nella url di chiamata.
- *
+ * <br>
+ * Per un corretto funzionamento accertarsi che in turbine-classic-pipeline.xml
+ * sia presente in ultima posizione org.sirio6.pipeline.ClearSessionParametersValve
+ * per la pulizia della cache dopo l'elaborazione della pagina.
  * @author Nicola De Nisco
  */
 public class HideParamsJsp
@@ -61,6 +64,11 @@ public class HideParamsJsp
 
     String uri = pos == -1 ? origin : origin.substring(0, pos);
     String qrs = pos == -1 ? "" : origin.substring(pos + 1);
+
+    bean.setOrigin(origin);
+    bean.setOriginUri(uri);
+    bean.setOriginQuery(qrs);
+    bean.setOriginPathInfo(request.getPathInfo());
 
     List<String> uriParts = SU.string2List(uri, "/");
     List<String> qrsParts = SU.string2List(qrs, "&");

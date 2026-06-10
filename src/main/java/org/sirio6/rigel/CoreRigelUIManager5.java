@@ -78,9 +78,9 @@ public class CoreRigelUIManager5 extends DefaultUIManager
     if(pagCurr > 0)
     {
       sLeft
-         = "<a href=\"" + getJumpUrl(tp, sessione, 0) + "\">" + imgFirst + "</a>"
+         = buildLinkTag(getJumpUrl(tp, sessione, 0), imgFirst)
          + "&nbsp;&nbsp;&nbsp;"
-         + "<a href=\"" + getJumpUrl(tp, sessione, (pagCurr - 1) * numPerPagina) + "\">" + imgPrev + "</a>";
+         + buildLinkTag(getJumpUrl(tp, sessione, (pagCurr - 1) * numPerPagina), imgPrev);
     }
     else
     {
@@ -101,9 +101,9 @@ public class CoreRigelUIManager5 extends DefaultUIManager
     if(pagCurr < (numPagine - 1))
     {
       sRight
-         = "<a href=\"" + getJumpUrl(tp, sessione, (pagCurr + 1) * numPerPagina) + "\">" + imgNext + "</a>"
+         = buildLinkTag(getJumpUrl(tp, sessione, (pagCurr + 1) * numPerPagina), imgNext)
          + "&nbsp;&nbsp;&nbsp;"
-         + "<a href=\"" + getJumpUrl(tp, sessione, (numPagine - 1) * numPerPagina) + "\">" + imgLast + "</a>";
+         + buildLinkTag(getJumpUrl(tp, sessione, (numPagine - 1) * numPerPagina), imgLast);
     }
     else
     {
@@ -136,5 +136,14 @@ public class CoreRigelUIManager5 extends DefaultUIManager
   {
     String uri = tp.getSelfUrl(rec, sessione);
     return "javascript:rigel.jumpNav('" + uri + "')";
+  }
+
+  protected String buildLinkTag(String url, String image)
+     throws Exception
+  {
+    if(url.startsWith("javascript:"))
+      return "<a href=\"#\" onclick=\"" + url.substring(11) + "\">" + image + "</a>";
+
+    return "<a href=\"#\" onclick=\"goLink('" + url + "')\">" + image + "</a>";
   }
 }

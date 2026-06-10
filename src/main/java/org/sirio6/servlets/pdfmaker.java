@@ -322,10 +322,7 @@ public class pdfmaker extends HttpServlet
     sb.removeAllParams();
 
     int idUser = authRequest(request);
-
-    String mappaParametri = null;
-    if((mappaParametri = context.getAsString("special_map")) == null)
-      mappaParametri = PdfPrint.PRINT_PARAM;
+    String mappaParametri = context.getAsString("special_map", PdfPrint.PRINT_PARAM);
 
     // preleva la mappa parametri dalla sessione e la salva in params
     Map parameters = (Map) request.getSession().getAttribute(mappaParametri);

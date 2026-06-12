@@ -19,6 +19,7 @@ package org.sirio6.modules.screens.rigel;
 
 import java.util.*;
 import javax.servlet.http.HttpSession;
+import org.apache.fulcrum.parser.ParameterParser;
 import org.apache.velocity.context.*;
 import org.commonlib5.utils.ClassOper;
 import org.rigel5.exceptions.MissingListException;
@@ -44,7 +45,9 @@ abstract public class FormBase extends RigelEditBaseScreen
   protected void doBuildTemplate2(CoreRunData data, Context context)
      throws Exception
   {
-    String type = data.getParameters().getString("type");
+    final ParameterParser pp = data.getParameters();
+
+    String type = pp.getString("type");
     if(type == null)
       throw new Exception("Errore interno: parametro type non definito; rivedere flusso.");
 
@@ -53,7 +56,7 @@ abstract public class FormBase extends RigelEditBaseScreen
     boolean forceNew = false, duplica = false, nuovoDetail = false;
     String baseUri = makeSelfUrl(data, type);
 
-    String cmd = SU.okStr(data.getParameters().getString("command")); // NOI18N
+    String cmd = SU.okStr(pp.getString("command")); // NOI18N
 
     switch(cmd)
     {
@@ -77,7 +80,7 @@ abstract public class FormBase extends RigelEditBaseScreen
       return;
     }
 
-    if(forceNew || SU.isOkStr(data.getParameters().getString("new")))
+    if(forceNew || SU.isOkStr(pp.getString("new")))
     {
       if(!pwl.isNewEnabled())
         throw new Exception("Creazione nuovi oggetti non consentita.");

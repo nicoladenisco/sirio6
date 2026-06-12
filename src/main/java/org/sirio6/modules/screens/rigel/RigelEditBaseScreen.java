@@ -66,6 +66,16 @@ abstract public class RigelEditBaseScreen extends CoreBaseScreen
      throws Exception
   {
     WrapperCacheBase wpc = MDL.getWrapperCache(data);
+
+    if(type.startsWith("ReadOnly"))
+    {
+      // ritorna una versione read only del form
+      HtmlWrapperBase rv = wpc.getDispCache(type.substring(8));
+      rv.setSaveEnabled(false);
+      rv.setNewEnabled(false);
+      return rv;
+    }
+
     return wpc.getFormCache(type);
   }
 

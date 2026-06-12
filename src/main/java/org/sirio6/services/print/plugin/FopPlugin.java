@@ -30,6 +30,7 @@ import org.apache.turbine.Turbine;
 import org.commonlib5.exec.ExecHelper;
 import org.commonlib5.utils.CommonFileUtils;
 import org.commonlib5.utils.OsIdent;
+import org.rigel5.UrlBuilder;
 import org.sirio6.services.print.AbstractReportParametersInfo;
 import org.sirio6.services.print.PdfPrint;
 import org.sirio6.services.print.PrintContext;
@@ -157,14 +158,14 @@ public class FopPlugin extends BasePdfPlugin
 
       if(reportParams == null || reportParams.isEmpty())
       {
-        String query = context.getAsString(PdfPrint.QUERY_STRING);
+        String query = context.getAsStringNullMultiKeys(PdfPrint.QUERY_STRING, PdfPrint.ALTERNATE_QUERY_STRING);
         if(query != null)
           sUrl += "?" + query;
       }
       else
       {
         // aggiunge eventuali parametri dal form del report
-        sUrl = LI.mergeUrl(sUrl, reportParams);
+        sUrl = UrlBuilder.build(sUrl).mergeUrlMap(reportParams).toString();
       }
     }
 

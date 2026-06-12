@@ -584,4 +584,16 @@ public class SirioGenericContext extends HashMap<String, Object>
   {
     return new MapParser((Map) get(key, defval));
   }
+
+  public String getAsStringNullMultiKeys(String... keys)
+  {
+    String tmp;
+    for(String key : keys)
+    {
+      if((tmp = SU.okStrNull(get(key))) != null)
+        return tmp;
+    }
+
+    return null;
+  }
 }

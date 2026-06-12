@@ -51,6 +51,7 @@ public interface PdfPrint extends CoreServiceExtension
   public static final String QUERY_STRING = "QUERY_STRING";
   public static final String CONTEXT_PATH = "CONTEXT_PATH";
   public static final String XML_BUILD_URL = "xmlBuildUrl";
+  public static final String ALTERNATE_QUERY_STRING = "ALTERNATE_QUERY_STRING";
 
   /**
    * Descrittore di un job di stampa.

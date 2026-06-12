@@ -320,6 +320,8 @@ public class pdfmaker extends HttpServlet
     SessionParamsBean sb = SessionParamsBean.getFromSession(request.getSession());
     context.putAll(sb.getSavedParams());
     sb.removeAllParams();
+    if(SU.isOkStr(sb.getOriginQuery()))
+      context.put(PdfPrint.ALTERNATE_QUERY_STRING, sb.getOriginQuery());
 
     int idUser = authRequest(request);
     String mappaParametri = context.getAsString("special_map", PdfPrint.PRINT_PARAM);

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.CRC32;
@@ -44,7 +45,6 @@ import org.sirio6.services.token.TokenAuthService;
 public class FileTransferServerHelper extends CoreTokenBean
 {
   private final String unique;
-  private static final Object semaforo = new Object();
   //
   public static final String REF_TRANSFER_CACHE_KEY = "refTransferCacheKey";
   public static final int DEFAULT_BLOCK_SIZE = (int) (16 * CoreConst.KILOBYTE);
@@ -56,7 +56,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     public long numBlock, sizeBlock, currBlock, fileSize;
     public File toTransfer;
     public RandomAccessFile stream = null;
-    public CRC32 checksum = new CRC32();
+    public final CRC32 checksum = new CRC32();
   }
 
   public static class TransferCachedObject extends CoreCachedObject
@@ -67,14 +67,14 @@ public class FileTransferServerHelper extends CoreTokenBean
     }
 
     @Override
-    public synchronized void deletingExpired()
+    public void deletingExpired()
     {
       try
       {
         super.deletingExpired();
 
         TransferInfo ti = (TransferInfo) getContents();
-        synchronized(ti)
+        // synchronized(ti)
         {
           if(ti.stream != null)
             ti.stream.close();
@@ -96,30 +96,21 @@ public class FileTransferServerHelper extends CoreTokenBean
   public Map preparaDownload(String fileName, File toTransfer, int suggestBlockSize)
      throws Exception
   {
-    synchronized(semaforo)
-    {
-      TransferInfo ti = new TransferInfo();
+    TransferInfo ti = new TransferInfo();
+    ti.id = "dw_" + UUID.randomUUID().toString();
+    ti.toTransfer = toTransfer;
+    ti.fileName = fileName;
+    ti.fileSize = (int) toTransfer.length();
+    ti.sizeBlock = getBlockSize(suggestBlockSize);
+    ti.numBlock = (int) (ti.fileSize / ti.sizeBlock);
+    if((ti.fileSize % ti.sizeBlock) != 0)
+      ti.numBlock++;
 
-      do
-      {
-        ti.id = "dw_" + System.currentTimeMillis();
-      }
-      while(getInfo(ti.id) != null);
+    ti.stream = new RandomAccessFile(ti.toTransfer, "r");
+    CACHE.addObject(REF_TRANSFER_CACHE_KEY, ti.id,
+       new TransferCachedObject(ti));
 
-      ti.toTransfer = toTransfer;
-      ti.fileName = fileName;
-      ti.fileSize = (int) toTransfer.length();
-      ti.sizeBlock = getBlockSize(suggestBlockSize);
-      ti.numBlock = (int) (ti.fileSize / ti.sizeBlock);
-      if((ti.fileSize % ti.sizeBlock) != 0)
-        ti.numBlock++;
-
-      ti.stream = new RandomAccessFile(ti.toTransfer, "r");
-      CACHE.addObject(REF_TRANSFER_CACHE_KEY, ti.id,
-         new TransferCachedObject(ti));
-
-      return populateTransferInfo(ti, new HashtableRpc());
-    }
+    return populateTransferInfo(ti, new HashtableRpc());
   }
 
   protected HashtableRpc populateTransferInfo(TransferInfo ti, HashtableRpc rv)
@@ -149,7 +140,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    synchronized(ti)
+    // synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -186,7 +177,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    synchronized(ti)
+    // synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -214,37 +205,28 @@ public class FileTransferServerHelper extends CoreTokenBean
   public Map preparaUpload(String fileName, int fileSize, int suggestBlockSize)
      throws Exception
   {
-    synchronized(semaforo)
-    {
-      TransferInfo ti = new TransferInfo();
+    // recupera una directory per il file temporaneo
+    TokenAuthService ta = (TokenAuthService) TurbineServices
+       .getInstance().getService(TokenAuthService.SERVICE_NAME);
+    File dirTmp = ta.getWorkTmpFile("FileTransferServer");
+    dirTmp.mkdirs();
 
-      // recupera una directory per il file temporaneo
-      TokenAuthService ta = (TokenAuthService) TurbineServices
-         .getInstance().getService(TokenAuthService.SERVICE_NAME);
-      File dirTmp = ta.getWorkTmpFile("FileTransferServer");
-      dirTmp.mkdirs();
+    TransferInfo ti = new TransferInfo();
+    ti.id = "up_" + UUID.randomUUID().toString();
+    ti.fileName = fileName;
+    ti.fileSize = fileSize;
+    ti.toTransfer = File.createTempFile(unique, ".tmp", dirTmp);
+    ti.toTransfer.deleteOnExit();
+    ti.sizeBlock = getBlockSize(suggestBlockSize);
+    ti.numBlock = (int) (ti.fileSize / ti.sizeBlock);
+    if((ti.fileSize % ti.sizeBlock) != 0)
+      ti.numBlock++;
 
-      do
-      {
-        ti.id = "up_" + System.currentTimeMillis();
-      }
-      while(getInfo(ti.id) != null);
+    ti.stream = new RandomAccessFile(ti.toTransfer, "rw");
+    CACHE.addObject(REF_TRANSFER_CACHE_KEY, ti.id,
+       new TransferCachedObject(ti));
 
-      ti.fileName = fileName;
-      ti.fileSize = fileSize;
-      ti.toTransfer = File.createTempFile(unique, ".tmp", dirTmp);
-      ti.toTransfer.deleteOnExit();
-      ti.sizeBlock = getBlockSize(suggestBlockSize);
-      ti.numBlock = (int) (ti.fileSize / ti.sizeBlock);
-      if((ti.fileSize % ti.sizeBlock) != 0)
-        ti.numBlock++;
-
-      ti.stream = new RandomAccessFile(ti.toTransfer, "rw");
-      CACHE.addObject(REF_TRANSFER_CACHE_KEY, ti.id,
-         new TransferCachedObject(ti));
-
-      return populateTransferInfo(ti, new HashtableRpc());
-    }
+    return populateTransferInfo(ti, new HashtableRpc());
   }
 
   /**
@@ -264,7 +246,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    synchronized(ti)
+    // synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -295,7 +277,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    synchronized(ti)
+    // synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -321,7 +303,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    synchronized(ti)
+    // synchronized(ti)
     {
       ti.stream.close();
       ti.stream = null;

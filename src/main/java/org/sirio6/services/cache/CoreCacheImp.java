@@ -219,34 +219,39 @@ public class CoreCacheImp implements CoreCacheServices
    * @param idLeftPart stringa iniziale degli id da rimuovere
    */
   @Override
-  public synchronized void removeAllObjects(String objClass, String idLeftPart)
+  public void removeAllObjects(String objClass, String idLeftPart)
   {
     removeAllObjects(objClass, (String key, CachedObject value) -> key.startsWith(idLeftPart));
   }
 
   @Override
-  public synchronized void removeAllObjects(String objClass, testRemoveInterface test)
+  public void removeAllObjects(String objClass, testRemoveInterface test)
   {
+    // NOTA: l'ordine di acquisizione dei lock deve essere semClear -> this,
+    // identico a clearCache(), per evitare un deadlock AB-BA con il thread cleaner.
     // acquisisce semaforo cancellazione in corso
     synchronized(semClear)
     {
-      ArrayList<String> arKeysDelete = new ArrayList<>();
-      Map<String, CachedObject> cache = getCache(objClass);
-
-      for(Map.Entry<String, CachedObject> entrySet : cache.entrySet())
+      synchronized(this)
       {
-        String key = entrySet.getKey();
-        CachedObject value = entrySet.getValue();
+        ArrayList<String> arKeysDelete = new ArrayList<>();
+        Map<String, CachedObject> cache = getCache(objClass);
 
-        if(test != null && !test.testForRemove(key, value))
-          continue;
+        for(Map.Entry<String, CachedObject> entrySet : cache.entrySet())
+        {
+          String key = entrySet.getKey();
+          CachedObject value = entrySet.getValue();
 
-        if(notifyRemoveObject(value))
-          arKeysDelete.add(key);
+          if(test != null && !test.testForRemove(key, value))
+            continue;
+
+          if(notifyRemoveObject(value))
+            arKeysDelete.add(key);
+        }
+
+        for(String key : arKeysDelete)
+          cache.remove(key);
       }
-
-      for(String key : arKeysDelete)
-        cache.remove(key);
     }
   }
 

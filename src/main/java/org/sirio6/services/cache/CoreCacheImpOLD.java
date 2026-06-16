@@ -24,10 +24,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.fulcrum.cache.CachedObject;
@@ -43,9 +43,9 @@ import org.sirio6.services.bus.BusMessages;
  *
  * @author Nicola De Nisco
  */
-public class CoreCacheImp implements CoreCacheServices
+public class CoreCacheImpOLD implements CoreCacheServices
 {
-  protected final ConcurrentHashMap<String, CacheBlock> htClasses = new ConcurrentHashMap<>();
+  protected HashMap<String, CacheBlockOLD> htClasses = new HashMap<>();
   /**
    * Initial size of hash table.
    * Default = 20
@@ -70,12 +70,12 @@ public class CoreCacheImp implements CoreCacheServices
   protected int cacheInitialSize = DEFAULT_INITIAL_CACHE_SIZE;
   protected long cacheCheckFrequency = DEFAULT_CACHE_CHECK_FREQUENCY;
 
-  protected CacheBlock getCacheBlock(String objClass)
+  protected CacheBlockOLD getCacheBlock(String objClass)
   {
-    CacheBlock cb = (CacheBlock) (htClasses.get(objClass));
+    CacheBlockOLD cb = (CacheBlockOLD) (htClasses.get(objClass));
     if(cb == null)
     {
-      cb = new CacheBlock();
+      cb = new CacheBlockOLD();
       htClasses.put(objClass, cb);
     }
     return cb;
@@ -175,8 +175,8 @@ public class CoreCacheImp implements CoreCacheServices
   @Override
   public synchronized void addObject(String objClass, String id, CachedObject o)
   {
-    CacheBlock cb = getCacheBlock(objClass);
-    Map cache = cb.cache;
+    CacheBlockOLD cb = getCacheBlock(objClass);
+    HashMap cache = cb.cache;
 
     // If the cache already contains the key, remove it and add
     // the fresh one.
@@ -227,26 +227,32 @@ public class CoreCacheImp implements CoreCacheServices
   @Override
   public void removeAllObjects(String objClass, testRemoveInterface test)
   {
-    Map<String, CachedObject> cache = getCache(objClass);
-    ArrayList<String> arKeysDelete = new ArrayList<>();
-
-    synchronized(this)
+    // NOTA: l'ordine di acquisizione dei lock deve essere semClear -> this,
+    // identico a clearCache(), per evitare un deadlock AB-BA con il thread cleaner.
+    // acquisisce semaforo cancellazione in corso
+    synchronized(semClear)
     {
-      for(Map.Entry<String, CachedObject> entrySet : cache.entrySet())
+      synchronized(this)
       {
-        String key = entrySet.getKey();
-        CachedObject value = entrySet.getValue();
+        ArrayList<String> arKeysDelete = new ArrayList<>();
+        Map<String, CachedObject> cache = getCache(objClass);
 
-        if(test != null && !test.testForRemove(key, value))
-          continue;
+        for(Map.Entry<String, CachedObject> entrySet : cache.entrySet())
+        {
+          String key = entrySet.getKey();
+          CachedObject value = entrySet.getValue();
 
-        if(notifyRemoveObject(value))
-          arKeysDelete.add(key);
+          if(test != null && !test.testForRemove(key, value))
+            continue;
+
+          if(notifyRemoveObject(value))
+            arKeysDelete.add(key);
+        }
+
+        for(String key : arKeysDelete)
+          cache.remove(key);
       }
     }
-
-    for(String key : arKeysDelete)
-      cache.remove(key);
   }
 
   /**
@@ -292,7 +298,7 @@ public class CoreCacheImp implements CoreCacheServices
       }
       catch(Throwable t)
       {
-        Logger.getLogger(CoreCacheImp.class.getName()).log(Level.SEVERE, "Error in cache cleaner:", t);
+        Logger.getLogger(CoreCacheImpOLD.class.getName()).log(Level.SEVERE, "Error in cache cleaner:", t);
       }
     }
   }
@@ -305,126 +311,136 @@ public class CoreCacheImp implements CoreCacheServices
     ArrayList<CachedObject> refreshThese = new ArrayList<>();
     ArrayList<CoreCachedObject> deleteThese = new ArrayList<>();
 
-    // Sync on this object so that other threads do not
-    // change the HashMap while enumerating over it.
-    synchronized(this)
+    // acquisisce semaforo cancellazione in corso
+    synchronized(semClear)
     {
-      for(Map.Entry<String, CacheBlock> entryClasses : htClasses.entrySet())
+      // Sync on this object so that other threads do not
+      // change the HashMap while enumerating over it.
+      synchronized(this)
       {
-        String objClass = entryClasses.getKey();
-        CacheBlock cb = entryClasses.getValue();
-        Map<String, CachedObject> cache = cb.cache;
-        ArrayList<String> toRemoveKeys = new ArrayList<>();
-
-        for(Map.Entry<String, CachedObject> entryItem : cache.entrySet())
+        for(Map.Entry<String, CacheBlockOLD> entryClasses : htClasses.entrySet())
         {
-          String key = entryItem.getKey();
-          CachedObject co = entryItem.getValue();
+          String objClass = entryClasses.getKey();
+          CacheBlockOLD cb = entryClasses.getValue();
+          HashMap<String, CachedObject> cache = cb.cache;
+          ArrayList<String> toRemoveKeys = new ArrayList<>();
 
-          if(co instanceof RefreshableCachedObject)
+          for(Map.Entry<String, CachedObject> entryItem : cache.entrySet())
           {
-            RefreshableCachedObject rco = (RefreshableCachedObject) co;
-            if(rco.isUntouched())
+            String key = entryItem.getKey();
+            CachedObject co = entryItem.getValue();
+
+            if(co instanceof RefreshableCachedObject)
             {
-              toRemoveKeys.add(key);
+              RefreshableCachedObject rco = (RefreshableCachedObject) co;
+              if(rco.isUntouched())
+              {
+                toRemoveKeys.add(key);
+              }
+              else if(rco.isStale())
+              {
+                // Do refreshing outside of sync block so as not
+                // to prolong holding the lock on this object
+                refreshThese.add(rco);
+              }
             }
-            else if(rco.isStale())
+            else if(co instanceof CoreRefreshableCachedObject)
             {
-              // Do refreshing outside of sync block so as not
-              // to prolong holding the lock on this object
-              refreshThese.add(rco);
+              CoreRefreshableCachedObject wrco = (CoreRefreshableCachedObject) co;
+
+              if(wrco.isUntouched())
+              {
+                // un oggetto non cancellabile non puo' essere rimosso dalla cache
+                if(!wrco.isDeletable())
+                  continue;
+
+                // segnala che sta per essere cancellato
+                deleteThese.add(wrco);
+                toRemoveKeys.add(key);
+              }
+              else if(wrco.isStale())
+              {
+                // Do refreshing outside of sync block so as not
+                // to prolong holding the lock on this object
+                refreshThese.add(wrco);
+              }
+            }
+            else if(co instanceof CoreCachedObject)
+            {
+              CoreCachedObject wco = (CoreCachedObject) co;
+
+              if(co.isStale())
+              {
+                // un oggetto non cancellabile non puo' essere rimosso dalla cache
+                if(!wco.isDeletable())
+                  continue;
+
+                // segnala che sta per essere cancellato
+                deleteThese.add(wco);
+                toRemoveKeys.add(key);
+              }
+            }
+            else
+            {
+              if(co.isStale())
+                toRemoveKeys.add(key);
             }
           }
-          else if(co instanceof CoreRefreshableCachedObject)
-          {
-            CoreRefreshableCachedObject wrco = (CoreRefreshableCachedObject) co;
 
-            if(wrco.isUntouched())
-            {
-              // un oggetto non cancellabile non puo' essere rimosso dalla cache
-              if(!wrco.isDeletable())
-                continue;
+          // rimuove tutti gli oggetti scaduti dalla cache
+          for(String key : toRemoveKeys)
+            cache.remove(key);
 
-              // segnala che sta per essere cancellato
-              deleteThese.add(wrco);
-              toRemoveKeys.add(key);
-            }
-            else if(wrco.isStale())
-            {
-              // Do refreshing outside of sync block so as not
-              // to prolong holding the lock on this object
-              refreshThese.add(wrco);
-            }
-          }
-          else if(co instanceof CoreCachedObject)
-          {
-            CoreCachedObject wco = (CoreCachedObject) co;
-
-            if(co.isStale())
-            {
-              // un oggetto non cancellabile non puo' essere rimosso dalla cache
-              if(!wco.isDeletable())
-                continue;
-
-              // segnala che sta per essere cancellato
-              deleteThese.add(wco);
-              toRemoveKeys.add(key);
-            }
-          }
-          else
-          {
-            if(co.isStale())
-              toRemoveKeys.add(key);
-          }
-        }
-
-        // rimuove tutti gli oggetti scaduti dalla cache
-        for(String key : toRemoveKeys)
-          cache.remove(key);
-
-        // verifica se la cache ha un limite ed eventualmente cancella
-        int limit = cb.limit;
-        if(limit != UNLIMITED && cache.size() >= limit)
-          checkLimit(cache, limit, deleteThese);
-      }
-    }
-
-    // notifica agli oggetti la loro rimozione dalla cache
-    if(!deleteThese.isEmpty())
-    {
-      for(CachedObject o : deleteThese)
-      {
-        try
-        {
-          CoreCachedObject co = (CoreCachedObject) o;
-          co.deletingExpired();
-        }
-        catch(Throwable ex)
-        {
+          // verifica se la cache ha un limite ed eventualmente cancella
+          int limit = cb.limit;
+          if(limit != UNLIMITED && cache.size() >= limit)
+            checkLimit(cache, limit, deleteThese);
         }
       }
-    }
 
-    // chiama il metodo refresh per gli elementi che lo richiedono
-    if(!refreshThese.isEmpty())
-    {
-      for(CachedObject co : refreshThese)
+      // notifica agli oggetti la loro rimozione dalla cache
+      if(!deleteThese.isEmpty())
       {
-        try
+        synchronized(semDelete)
         {
-          if(co instanceof RefreshableCachedObject)
+          for(CachedObject o : deleteThese)
           {
-            RefreshableCachedObject rco = (RefreshableCachedObject) co;
-            rco.refresh();
-          }
-          else if(co instanceof CoreRefreshableCachedObject)
-          {
-            CoreRefreshableCachedObject wrco = (CoreRefreshableCachedObject) co;
-            wrco.refresh();
+            try
+            {
+              CoreCachedObject co = (CoreCachedObject) o;
+              co.deletingExpired();
+            }
+            catch(Throwable ex)
+            {
+            }
           }
         }
-        catch(Throwable ex)
+      }
+
+      // chiama il metodo refresh per gli elementi che lo richiedono
+      if(!refreshThese.isEmpty())
+      {
+        synchronized(semUpdate)
         {
+          for(CachedObject co : refreshThese)
+          {
+            try
+            {
+              if(co instanceof RefreshableCachedObject)
+              {
+                RefreshableCachedObject rco = (RefreshableCachedObject) co;
+                rco.refresh();
+              }
+              else if(co instanceof CoreRefreshableCachedObject)
+              {
+                CoreRefreshableCachedObject wrco = (CoreRefreshableCachedObject) co;
+                wrco.refresh();
+              }
+            }
+            catch(Throwable ex)
+            {
+            }
+          }
         }
       }
     }
@@ -439,10 +455,10 @@ public class CoreCacheImp implements CoreCacheServices
   public synchronized int getNumberOfObjects()
   {
     int numItem = 0;
-    for(Map.Entry<String, CacheBlock> entryClasses : htClasses.entrySet())
+    for(Map.Entry<String, CacheBlockOLD> entryClasses : htClasses.entrySet())
     {
       String objClass = entryClasses.getKey();
-      CacheBlock cb = entryClasses.getValue();
+      CacheBlockOLD cb = entryClasses.getValue();
       numItem += cb.cache.size();
     }
 
@@ -473,11 +489,11 @@ public class CoreCacheImp implements CoreCacheServices
   {
     int objectsize = 0;
 
-    for(Map.Entry<String, CacheBlock> entryClasses : htClasses.entrySet())
+    for(Map.Entry<String, CacheBlockOLD> entryClasses : htClasses.entrySet())
     {
       String objClass = entryClasses.getKey();
-      CacheBlock cb = entryClasses.getValue();
-      Map cache = cb.cache;
+      CacheBlockOLD cb = entryClasses.getValue();
+      HashMap cache = cb.cache;
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream out = new ObjectOutputStream(baos);
@@ -500,10 +516,10 @@ public class CoreCacheImp implements CoreCacheServices
   @Override
   public synchronized void flushCache()
   {
-    for(Map.Entry<String, CacheBlock> entryClasses : htClasses.entrySet())
+    for(Map.Entry<String, CacheBlockOLD> entryClasses : htClasses.entrySet())
     {
       String objClass = entryClasses.getKey();
-      CacheBlock cb = entryClasses.getValue();
+      CacheBlockOLD cb = entryClasses.getValue();
       if(cb.flushPermitted)
         flushCache(objClass);
     }
@@ -546,7 +562,7 @@ public class CoreCacheImp implements CoreCacheServices
     }
     catch(Exception ex)
     {
-      Logger.getLogger(CoreCacheImp.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(CoreCacheImpOLD.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
@@ -558,7 +574,7 @@ public class CoreCacheImp implements CoreCacheServices
   @Override
   public void setLimit(String objClass, int limit)
   {
-    CacheBlock cb = getCacheBlock(objClass);
+    CacheBlockOLD cb = getCacheBlock(objClass);
     cb.limit = limit;
   }
 
@@ -570,21 +586,21 @@ public class CoreCacheImp implements CoreCacheServices
   @Override
   public int getLimit(String objClass)
   {
-    CacheBlock cb = getCacheBlock(objClass);
+    CacheBlockOLD cb = getCacheBlock(objClass);
     return cb.limit;
   }
 
   @Override
   public void setFlushPermitted(String objClass, boolean flushPermitted)
   {
-    CacheBlock cb = getCacheBlock(objClass);
+    CacheBlockOLD cb = getCacheBlock(objClass);
     cb.flushPermitted = flushPermitted;
   }
 
   @Override
   public boolean isFlushPermitted(String objClass)
   {
-    CacheBlock cb = getCacheBlock(objClass);
+    CacheBlockOLD cb = getCacheBlock(objClass);
     return cb.flushPermitted;
   }
 
@@ -605,7 +621,7 @@ public class CoreCacheImp implements CoreCacheServices
     CachedObject[] coArr = new CachedObject[c.size()];
     c.toArray(coArr);
 
-    // ordina l'array dal più vecchio (getCreated() piu basso)
+    // ordina l'array dal più vecchio
     Arrays.sort(coArr, (CachedObject o1, CachedObject o2) -> Long.compare(o1.getCreated(), o2.getCreated()));
 
     // rimuove dalla cache gli elementi più vecchi fino a rientrare nel limite imposto
@@ -625,7 +641,6 @@ public class CoreCacheImp implements CoreCacheServices
         deleteThese.add(wco);
       }
 
-      // rimuove oggetto dalla cache; questo vale per qualsiasi tipo di oggetto
       c.remove(co);
     }
   }

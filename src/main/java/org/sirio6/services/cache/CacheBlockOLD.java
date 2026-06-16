@@ -17,7 +17,7 @@
  */
 package org.sirio6.services.cache;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import org.apache.fulcrum.cache.CachedObject;
 import static org.sirio6.services.cache.CoreCacheServices.UNLIMITED;
 
@@ -26,9 +26,9 @@ import static org.sirio6.services.cache.CoreCacheServices.UNLIMITED;
  *
  * @author Nicola De Nisco
  */
-public class CacheBlock
+public class CacheBlockOLD
 {
   public int limit = UNLIMITED;
   public boolean flushPermitted = true;
-  public final ConcurrentHashMap<String, CachedObject> cache = new ConcurrentHashMap<>();
+  public HashMap<String, CachedObject> cache = new HashMap<>();
 }

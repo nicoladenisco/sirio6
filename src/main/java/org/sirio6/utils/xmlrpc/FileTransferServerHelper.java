@@ -74,7 +74,7 @@ public class FileTransferServerHelper extends CoreTokenBean
         super.deletingExpired();
 
         TransferInfo ti = (TransferInfo) getContents();
-        // synchronized(ti)
+        synchronized(ti)
         {
           if(ti.stream != null)
             ti.stream.close();
@@ -140,7 +140,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    // synchronized(ti)
+    synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -177,7 +177,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    // synchronized(ti)
+    synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -246,7 +246,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    // synchronized(ti)
+    synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -277,7 +277,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    // synchronized(ti)
+    synchronized(ti)
     {
       if(ti.stream == null)
         throw new IOException(INT.I("Il trasferimento è già stato completato."));
@@ -303,7 +303,7 @@ public class FileTransferServerHelper extends CoreTokenBean
     if(ti == null)
       throw new IOException(INT.I("IO non inizializzato o eccessivo timeout."));
 
-    // synchronized(ti)
+    synchronized(ti)
     {
       ti.stream.close();
       ti.stream = null;

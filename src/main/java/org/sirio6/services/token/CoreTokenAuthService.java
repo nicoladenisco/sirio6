@@ -433,7 +433,7 @@ public class CoreTokenAuthService extends AbstractCoreBaseService
   }
 
   @Override
-  public String encryptTokenOauth2(HttpServletRequest req, TokenAuthItem ti)
+  public String encryptTokenOauth2(HttpServletRequest req, TokenAuthItem ti, Map<String, String> extraParams)
      throws Exception
   {
     JSONObject jo = new JSONObject();
@@ -441,6 +441,7 @@ public class CoreTokenAuthService extends AbstractCoreBaseService
     jo.put("user", ti.getUsr().getName());
     jo.put("address", req.getRemoteAddr());
     jo.put("time", System.currentTimeMillis());
+    extraParams.forEach((k, v) -> jo.put(k, v));
 
     ByteBufferInputStream input = new ByteBufferInputStream(false, jo.toString().getBytes(StandardCharsets.UTF_8));
     ByteBufferOutputStream encrypt = new ByteBufferOutputStream();

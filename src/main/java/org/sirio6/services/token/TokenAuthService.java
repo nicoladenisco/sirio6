@@ -18,6 +18,8 @@
 package org.sirio6.services.token;
 
 import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.turbine.om.security.User;
@@ -138,7 +140,23 @@ public interface TokenAuthService extends CoreServiceExtension
    * @return token OAuth2
    * @throws Exception
    */
-  public String encryptTokenOauth2(HttpServletRequest req, TokenAuthItem ti)
+  default public String encryptTokenOauth2(HttpServletRequest req, TokenAuthItem ti)
+     throws Exception
+  {
+    return encryptTokenOauth2(req, ti, Collections.EMPTY_MAP);
+  }
+
+  /**
+   * Genera token OAuth2 a partire da un item.
+   * Viene prodotto un JSON con i dati principali del token;
+   * questo JSON viene crittografato con la chiave privata e convertito in base64.
+   * @param req richiesta HTTP per la generazione del token
+   * @param ti token già autenticato (vedi addClient)
+   * @param extraParams parametri supplementari da inserire nel token
+   * @return token OAuth2
+   * @throws Exception
+   */
+  public String encryptTokenOauth2(HttpServletRequest req, TokenAuthItem ti, Map<String, String> extraParams)
      throws Exception;
 
   /**

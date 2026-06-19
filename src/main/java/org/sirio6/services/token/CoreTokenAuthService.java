@@ -92,7 +92,7 @@ public class CoreTokenAuthService extends AbstractCoreBaseService
     }
 
     @Override
-    public synchronized void deletingExpired()
+    public void deletingExpired()
     {
       TokenAuthItem token = (TokenAuthItem) getContents();
 

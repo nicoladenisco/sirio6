@@ -245,6 +245,7 @@ public class CoreCacheImp implements CoreCacheServices
       }
     }
 
+    // questo può stare fuori dal synchronized essendo cache una ConcurrentHashMap
     for(String key : arKeysDelete)
       cache.remove(key);
   }
@@ -517,25 +518,30 @@ public class CoreCacheImp implements CoreCacheServices
    * @param objClass classe deglli oggetti
    */
   @Override
-  public synchronized void flushCache(String objClass)
+  public void flushCache(String objClass)
   {
     try
     {
       Map<String, CachedObject> cache = getCache(objClass);
       ArrayMap<String, CachedObject> toRemove = new ArrayMap<>();
-      for(Map.Entry<String, CachedObject> entry : cache.entrySet())
-      {
-        String key = entry.getKey();
-        CachedObject co = entry.getValue();
 
-        if(co != null)
+      synchronized(this)
+      {
+        for(Map.Entry<String, CachedObject> entry : cache.entrySet())
         {
-          if(notifyRemoveObject(co))
-            toRemove.put(key, co);
+          String key = entry.getKey();
+          CachedObject co = entry.getValue();
+
+          if(co != null)
+          {
+            if(notifyRemoveObject(co))
+              toRemove.put(key, co);
+          }
         }
       }
 
       // rimuove dalla cache tutte le entry
+      // questo può stare fuori dal synchronized essendo cache una ConcurrentHashMap
       toRemove.forEachKey((s) -> cache.remove(s));
 
       BusContext bc = new BusContext(

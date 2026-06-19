@@ -74,7 +74,8 @@ public class FileTransferServerHelper extends CoreTokenBean
         super.deletingExpired();
 
         TransferInfo ti = (TransferInfo) getContents();
-        synchronized(ti)
+        // questo synchronized puo bloccare la global cache
+        //synchronized(ti)
         {
           if(ti.stream != null)
             ti.stream.close();

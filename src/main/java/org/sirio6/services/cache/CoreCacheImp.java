@@ -673,7 +673,7 @@ public class CoreCacheImp implements CoreCacheServices
    * @return
    */
   @Override
-  public synchronized Iterator<String> classNames()
+  public Iterator<String> classNames()
   {
     // BUG: l'iteratore provocava un ConcurrentModificationException
     // creando un ArrayList ogni richiesta diventa indipendente
@@ -681,7 +681,7 @@ public class CoreCacheImp implements CoreCacheServices
   }
 
   @Override
-  public synchronized Iterator<CachedObject> cachedObjects(String className)
+  public Iterator<CachedObject> cachedObjects(String className)
   {
     Map<String, CachedObject> ht = getCache(className);
     // BUG: l'iteratore provocava un ConcurrentModificationException
@@ -721,7 +721,7 @@ public class CoreCacheImp implements CoreCacheServices
   }
 
   @Override
-  public synchronized boolean refreshObject(String id)
+  public boolean refreshObject(String id)
   {
     return refreshObject(GENERIC_OBJ_CLASS, id);
   }

@@ -123,16 +123,18 @@ public class CachedObjectSaver
   public static void saveDirect(Connection con, Persistent toSave, int idUser, int newStatoRec, int writeLevel)
      throws Exception
   {
-    // NON APPLICABILE: la modifica potrebbe riguardare il cambio di statorec; quindi è necessario procedere
-    //if(!toSave.isModified())
-    //  return;
-
     CoreObjectSaver ps = getObjectSaver(toSave);
 
     if(con == null)
       throw new Exception("Necessaria una connessione esplicita; con non puo essere null.");
     else
       ps.salvaDiretto(toSave, con, idUser, newStatoRec);
+  }
+
+  public static void saveDirect(Connection con, Persistent toSave, User user, int newStatoRec)
+     throws Exception
+  {
+    saveDirect(con, toSave, (int) user.getId(), newStatoRec, (int) user.getPerm(WRITE_LEVEL_PERM_STORAGE, 0));
   }
 
   /**

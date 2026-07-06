@@ -29,9 +29,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import org.apache.turbine.services.TurbineServices;
 import org.commonlib5.utils.DateTime;
 import org.commonlib5.utils.Pair;
+import org.rigel5.RigelI18nInterface;
 import org.sirio6.services.formatter.DataFormatter;
 import org.sirio6.services.localization.INT;
 
@@ -667,5 +669,65 @@ public class DT extends DateTime
       origin = new Date();
 
     return new Date(origin.getTime() + offset);
+  }
+
+  public static Date dataSpiazzata(Date origin, long offset, TimeUnit unit)
+  {
+    if(origin == null)
+      origin = new Date();
+
+    return new Date(origin.getTime() + unit.toMillis(offset));
+  }
+
+  /**
+   * Restituisce il tempo trascorso fra due date in formato leggibile.
+   * Esempi: 10 giorni, 3 ore, 15 minuti, 8 secondi.
+   *
+   * @param inizio data iniziale
+   * @param fine data finale
+   * @return tempo trascorso con l'unita' piu' significativa
+   */
+  public static String formatTempoTrascorso(Date inizio, Date fine, RigelI18nInterface i18n)
+  {
+    if(inizio == null)
+      inizio = new Date();
+
+    if(fine == null)
+      fine = new Date();
+
+    return formatTempoTrascorso(fine.getTime() - inizio.getTime(), i18n);
+  }
+
+  /**
+   * Restituisce il tempo trascorso da una durata in millisecondi
+   * in formato leggibile con l'unita' piu' significativa.
+   *
+   * @param deltaMillis durata in millisecondi
+   * @param i18n internazionalizzazione messaggi
+   * @return tempo trascorso con l'unita' piu' significativa
+   */
+  public static String formatTempoTrascorso(long deltaMillis, RigelI18nInterface i18n)
+  {
+    long seconds = Math.abs(deltaMillis) / 1000;
+
+    if(seconds >= 24 * 60 * 60)
+    {
+      long giorni = seconds / (24 * 60 * 60);
+      return giorni + " " + (giorni == 1 ? i18n.msg("giorno") : i18n.msg("giorni"));
+    }
+
+    if(seconds >= 60 * 60)
+    {
+      long ore = seconds / (60 * 60);
+      return ore + " " + (ore == 1 ? i18n.msg("ora") : i18n.msg("ore"));
+    }
+
+    if(seconds >= 60)
+    {
+      long minuti = seconds / 60;
+      return minuti + " " + (minuti == 1 ? i18n.msg("minuto") : i18n.msg("minuti"));
+    }
+
+    return seconds + " " + (seconds == 1 ? i18n.msg("secondo") : i18n.msg("secondi"));
   }
 }

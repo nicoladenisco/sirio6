@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -18,11 +18,14 @@
 package org.sirio6.rigel;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.fulcrum.cache.CachedObject;
 import org.rigel5.RigelCacheManager;
 import org.rigel5.table.ForeignDataHolder;
 import org.sirio6.CoreConst;
 import org.sirio6.services.cache.CACHE;
+import org.sirio6.utils.SU;
 
 /**
  * Gestore della cache per Rigel.
@@ -101,9 +104,26 @@ public class CoreRigelCacheManager implements RigelCacheManager
    * @param nomeTabella nome della tabella aggiornata
    */
   @Override
-  public void purgeTabella(String nomeTabella)
+  public synchronized void purgeTabella(String nomeTabella)
   {
-    String upNomeTab = " FROM " + nomeTabella.toUpperCase() + " ";
-    CACHE.removeAllObjects(RIGEL_CACHE_SECTION, (key, value) -> key.toUpperCase().contains(upNomeTab));
+    CACHE.removeAllObjects(RIGEL_CACHE_SECTION,
+       (String key, CachedObject value) -> checkTable(key.toUpperCase(), nomeTabella));
   }
+
+  private boolean checkTable(String key, String nomeTabella)
+  {
+    Matcher m = purgeTabExp.matcher(key);
+    if(!m.find() || m.groupCount() != 1)
+      return false;
+
+    return SU.isEquNocase(nomeTabella, m.group(1));
+  }
+
+  public static final Pattern purgeTabExp = Pattern.compile("\\sFROM\\s+(.+?)\\s");
+
+//  public void purgeTabella(String nomeTabella)
+//  {
+//    String upNomeTab = " FROM " + nomeTabella.toUpperCase() + " ";
+//    CACHE.removeAllObjects(RIGEL_CACHE_SECTION, (key, value) -> key.toUpperCase().contains(upNomeTab));
+//  }
 }

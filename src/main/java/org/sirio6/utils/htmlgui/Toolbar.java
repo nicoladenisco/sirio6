@@ -22,6 +22,8 @@ import java.util.List;
 import org.rigel5.RigelI18nInterface;
 
 /**
+ * Toolbar per bootsrap 5.
+ * Generalmente usata come menu di pagina.
  *
  * @author Nicola De Nisco
  */

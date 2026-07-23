@@ -46,10 +46,12 @@ import org.commonlib5.utils.MacroResolver;
  * <li>TODAY - data odierna (solo data)</li>
  * <li>TODAYM30 - data odierna meno 30 giorni (solo data)</li>
  * <li>TODAYM60 - data odierna meno 60 giorni (solo data)</li>
+ * <li>TODAY_OFFSET(numGiorni) - data odierna con spiazzamento (solo data)</li>
  * <li>YESTERDAY - data giorno precedente (solo data)</li>
  * <li>TOTIME - data odierna (data e ora)</li>
  * <li>TOTIMEM30 - data odierna meno 30 giorni (data e ora)</li>
  * <li>TOTIMEM60 - data odierna meno 60 giorni (data e ora)</li>
+ * <li>TOTIME_OFFSET(numGiorni) - data odierna con spiazzamento (data e ora)</li>
  * <li>YESTERDAY_TIME - data giorno precedente (data e ora)</li>
  * <li>IYEAR - intervallo primo e ultimo giorno dell'anno</li>
  * <li>IMOUNTH - intervallo primo e ultimo giorno del mese</li>
@@ -358,6 +360,14 @@ public class SirioMacroResolver extends MacroResolver
       return formatIso(cal.getTime());
     });
 
+    mapFunction.put("TODAY_OFFSET", (seg) ->
+    {
+      int giorni = SU.parseInt(seg);
+      GregorianCalendar cal = new GregorianCalendar();
+      cal.add(Calendar.DAY_OF_YEAR, giorni);
+      return formatData(cal.getTime());
+    });
+
     mapFunction.put("ISO_TOTIMEM30", (seg) ->
     {
       GregorianCalendar cal = new GregorianCalendar();
@@ -378,6 +388,14 @@ public class SirioMacroResolver extends MacroResolver
       GregorianCalendar cal = new GregorianCalendar();
       cal.add(Calendar.DAY_OF_YEAR, giorni);
       return formatIsoFull(cal.getTime());
+    });
+
+    mapFunction.put("TOTIME_OFFSET", (seg) ->
+    {
+      int giorni = SU.parseInt(seg);
+      GregorianCalendar cal = new GregorianCalendar();
+      cal.add(Calendar.DAY_OF_YEAR, giorni);
+      return formatDataFull(cal.getTime());
     });
 
     mapFunction.put("USER", (seg) -> (u == null) ? "" : u.getFirstName() + " " + u.getLastName());

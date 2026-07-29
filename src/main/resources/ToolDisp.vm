@@ -1,0 +1,10 @@
+<!-- INIZIO ToolDisp.vm -->
+
+<div id="innerbody$formName">
+  <!-- form fittizio: serve solo ad evitare che eventuali campi non interferiscano con altri form -->
+  <form action="" method="post" name="$formName">
+    $phtml
+  </form>
+</div>
+
+<!-- FINE ToolDisp.vm -->

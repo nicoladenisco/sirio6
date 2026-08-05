@@ -351,11 +351,6 @@ public class CoreBaseScreen extends VelocitySecureScreen
      throws Exception
   {
     SU.doCommand(this, command, data, params, args);
-
-//    // questo è importante: dopo aver consumato il comando va rimosso dalla cache
-//    final HttpSession session = data.getSession();
-//    SU.removeParam(session, "command");
-//    SU.removeParam(session, "action");
   }
 
   public void ASSERT(boolean test, String cause)

@@ -39,7 +39,7 @@ import org.commonlib5.utils.Pair;
 public class CoreGoogleLocalizationService extends CoreLocalizationService
 {
   /** Logging */
-  private static Log log = LogFactory.getLog(CoreGoogleLocalizationService.class);
+  private static final Log log = LogFactory.getLog(CoreGoogleLocalizationService.class);
 
   protected GoogleTranslate gt;
   protected String credFilePath;
@@ -152,5 +152,10 @@ public class CoreGoogleLocalizationService extends CoreLocalizationService
       gt = null;
       log.error("Autorizzazione API google fallita.", e);
     }
+  }
+
+  public boolean isTranslatorActive()
+  {
+    return gt != null;
   }
 }

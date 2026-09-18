@@ -23,6 +23,7 @@ import org.apache.commons.configuration2.Configuration;
 import org.commonlib5.gui.validator.ItalianParser;
 import org.commonlib5.utils.Pair;
 import org.sirio6.services.AbstractCoreBaseService;
+import org.sirio6.utils.SU;
 
 public class ItalianDataFormatter extends AbstractCoreBaseService
    implements DataFormatter
@@ -143,6 +144,9 @@ public class ItalianDataFormatter extends AbstractCoreBaseService
   public Date parseDataFull(String s)
      throws Exception
   {
+    if(SU.isEquAny(s, "@oggi", "oggi", "@today", "today"))
+      return new Date();
+
     Date d = itParser.parseDate(s, null);
     if(d == null)
       throw new ParseException("Non riesco ad interpretare la data/ora.", 0);
@@ -154,6 +158,9 @@ public class ItalianDataFormatter extends AbstractCoreBaseService
   public Date parseDataFull(String s, int flags)
      throws Exception
   {
+    if(SU.isEquAny(s, "@oggi", "oggi", "@today", "today"))
+      s = itParser.fmtDate(new Date());
+
     Date d = itParser.parseDate(s, null, flags);
     if(d == null)
       throw new ParseException("Non riesco ad interpretare la data/ora.", 0);

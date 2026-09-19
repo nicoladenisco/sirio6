@@ -18,6 +18,8 @@
 package org.sirio6.utils;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.List;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.torque.Torque;
@@ -102,6 +104,21 @@ public class JndiDatabaseInfo
   public boolean haveJndi()
   {
     return haveJndi;
+  }
+
+  /**
+   * Tenta una apertura diretta della connessione.
+   * Utile quando la configurazione prevede JNDI ma
+   * ho bisogno di una connessione diretta al db.
+   * Da usare esclusivamente con un try/finally o try with resources.
+   * @return
+   * @throws Exception
+   */
+  public Connection getDirectConnection()
+     throws Exception
+  {
+    Class.forName(dbDriver);
+    return DriverManager.getConnection(dbUri, dbUser, dbPass);
   }
 
   /**

@@ -59,6 +59,34 @@ public class BUS
   }
 
   /**
+   * Aggiunge un ascoltatore di eventi al bus.
+   * Il nome dell'ascoltatore è il nome della classe.
+   * @param listener ascoltatore dei messaggi
+   */
+  public static void registerEventListnerExplicitPull(MessageBusListener listener)
+  {
+    registerEventListnerExplicitPull(listener.getClass().getName(), listener);
+  }
+
+  /**
+   * Aggiunge un ascoltatore di eventi al bus.
+   * @param name nome simbolico con cui un ascoltatore si registra sul bus eventi.
+   * @param listener ascoltatore dei messaggi
+   */
+  public static void registerEventListnerExplicitPull(String name, MessageBusListener listener)
+  {
+    MessageBus service = getService();
+    if(service instanceof CoreMessageBusExplicitPull)
+    {
+      ((CoreMessageBusExplicitPull) service).registerEventListnerExplicitPull(name, listener);
+    }
+    else
+    {
+      service.registerEventListner(name, listener);
+    }
+  }
+
+  /**
    * Rimuove un ascoltatore.
    * @param name simbolico con il quale l'ascoltatore si è registrato
    */
@@ -70,10 +98,38 @@ public class BUS
   /**
    * Rimuove un ascoltatore.
    * Il nome dell'ascoltatore è il nome della classe.
+   * @param listener interfaccia di ascolto
    */
   public static void removeEventListner(MessageBusListener listener)
   {
     getService().removeEventListner(listener.getClass().getName());
+  }
+
+  /**
+   * Rimuove un ascoltatore.
+   * Il nome dell'ascoltatore è il nome della classe.
+   * @param listener interfaccia di ascolto
+   */
+  public static void removeEventListnerExplicitPull(MessageBusListener listener)
+  {
+    removeEventListnerExplicitPull(listener.getClass().getName());
+  }
+
+  /**
+   * Rimuove un ascoltatore.
+   * @param name simbolico con il quale l'ascoltatore si è registrato
+   */
+  public static void removeEventListnerExplicitPull(String name)
+  {
+    MessageBus service = getService();
+    if(service instanceof CoreMessageBusExplicitPull)
+    {
+      ((CoreMessageBusExplicitPull) service).removeEventListnerExplicitPull(name);
+    }
+    else
+    {
+      getService().removeEventListner(name);
+    }
   }
 
   /**
@@ -213,5 +269,35 @@ public class BUS
   public static BusMessageQueueHelper getHelper()
   {
     return new BusMessageQueueHelper();
+  }
+
+  /**
+   * Invia i messaggi in attesa all'ascoltatore.
+   * Tipicamente viene chiamata dall'ascoltatore per ricevere
+   * i messaggi a lui destinati.
+   * @param listener interfaccia di ascolto
+   * @throws Exception
+   */
+  public static void sendEventExplicitPull(MessageBusListener listener)
+     throws Exception
+  {
+    sendEventExplicitPull(listener.getClass().getName());
+  }
+
+  /**
+   * Invia i messaggi in attesa all'ascoltatore.
+   * Tipicamente viene chiamata dall'ascoltatore per ricevere
+   * i messaggi a lui destinati.
+   * @param name nome simbolico dell'ascoltatore
+   * @throws Exception
+   */
+  public static void sendEventExplicitPull(String name)
+     throws Exception
+  {
+    MessageBus service = getService();
+    if(service instanceof CoreMessageBusExplicitPull)
+    {
+      ((CoreMessageBusExplicitPull) service).sendEventExplicitPull(name);
+    }
   }
 }

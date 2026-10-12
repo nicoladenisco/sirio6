@@ -49,6 +49,7 @@ import org.apache.commons.configuration2.tree.OverrideCombiner;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.commonlib5.utils.ArraySet;
 import org.commonlib5.utils.ClassOper;
 import org.commonlib5.utils.Pair;
 import org.sirio6.services.CoreServiceException;
@@ -115,25 +116,40 @@ public abstract class CoreAbstractPluginFactory<T extends CoreBasePlugin>
   }
 
   /**
-   * Cerca ricorsivamente nel package indicato le classi annotate con
+   * Cerca ricorsivamente nei package indicati in in basePath e vPaths le classi annotate con
    * {@link CorePlugin} compatibili con il tipo della factory.
    * Le classi trovate sono registrate con il nome definito nell'annotation
    * oppure, se non specificato, con il nome semplice della classe.
    * I plugin già dichiarati in configurazione mantengono la precedenza.
-   * La scansione avviene in basePath e vPaths.
    *
    * @param pluginType tipo concreto supportato dalla factory
-   * @throws IOException in caso di errore nella lettura delle risorse classpath
    */
   public void autoScan(Class<T> pluginType)
-     throws IOException
   {
-    autoScan(basePath, pluginType);
+    // costruisce un set univoco di tutti i percorsi da scansionare ...
+    ArraySet<String> toScan = new ArraySet<>();
 
-    for(String path : vPaths)
+    toScan.add(basePath);
+    if(vPaths != null)
     {
-      if(path != null)
-        autoScan(path, pluginType);
+      for(String path : vPaths)
+      {
+        if(path != null)
+          toScan.add(path);
+      }
+    }
+
+    // ... e quindi esegue lo scan di tutti i percorsi
+    for(String spath : toScan)
+    {
+      try
+      {
+        autoScan(spath, pluginType);
+      }
+      catch(Exception e)
+      {
+        log.error("Scan fallito per il percorso " + spath, e);
+      }
     }
   }
 
@@ -283,6 +299,10 @@ public abstract class CoreAbstractPluginFactory<T extends CoreBasePlugin>
       throw new IllegalArgumentException("Proprietà non valide in @CorePlugin per " + pluginName, ex);
     }
 
+    // i parametri letti da setup sovrascrivono quelli indicati nell'annotation;
+    // ovvero i parmetri indicati nell'annotation sono considerati un default
+    // eventualmente sovrascrivibile con una chiave di setup;
+    // OverrideCombiner aggiunge solo se la chiave non è gia presente
     CombinedConfiguration combined = new CombinedConfiguration(new OverrideCombiner());
     combined.addConfiguration(fileConfiguration);
     combined.addConfiguration(annotationConfiguration);

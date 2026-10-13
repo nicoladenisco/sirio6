@@ -434,9 +434,9 @@ abstract public class AbstractCoreSecurity extends BaseService
   }
 
   @Override
-  public void salvaPermessi(String permesso)
+  public void salvaPermessi(String permessi)
   {
-    StringTokenizer stk = new StringTokenizer(permesso, ",; ");
+    StringTokenizer stk = new StringTokenizer(permessi, ",; ");
     while(stk.hasMoreTokens())
     {
       String p = SU.okStr(stk.nextToken());
@@ -449,6 +449,42 @@ abstract public class AbstractCoreSecurity extends BaseService
   public void salvaPermesso(String permesso)
   {
     pman.salvaPermesso(permesso);
+  }
+
+  @Override
+  public void salvaGruppi(String gruppi)
+  {
+    StringTokenizer stk = new StringTokenizer(gruppi, ",; ");
+    while(stk.hasMoreTokens())
+    {
+      String g = SU.okStr(stk.nextToken());
+      if(g.length() > 0)
+        pman.salvaGruppo(g);
+    }
+  }
+
+  @Override
+  public void salvaGruppo(String gruppo)
+  {
+    pman.salvaGruppo(gruppo);
+  }
+
+  @Override
+  public void salvaRuoli(String ruoli)
+  {
+    StringTokenizer stk = new StringTokenizer(ruoli, ",; ");
+    while(stk.hasMoreTokens())
+    {
+      String r = SU.okStr(stk.nextToken());
+      if(r.length() > 0)
+        pman.salvaRuolo(r);
+    }
+  }
+
+  @Override
+  public void salvaRuolo(String ruolo)
+  {
+    pman.salvaRuolo(ruolo);
   }
 
   @Override

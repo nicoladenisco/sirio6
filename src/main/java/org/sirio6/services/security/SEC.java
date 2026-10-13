@@ -25,6 +25,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.fulcrum.security.entity.Group;
+import org.apache.fulcrum.security.entity.Permission;
 import org.apache.fulcrum.security.entity.Role;
 import org.apache.fulcrum.security.model.turbine.TurbineAccessControlList;
 import org.apache.fulcrum.security.torque.om.TorqueTurbineRole;
@@ -550,6 +551,42 @@ public class SEC
   }
 
   /**
+   * Salvataggio automatico gruppi non presenti.
+   * @param gruppi lista di gruppi separati da ',;' o spazio
+   */
+  public static void salvaGruppi(String gruppi)
+  {
+    getSirioSecurity().salvaGruppi(gruppi);
+  }
+
+  /**
+   * Salvataggio automatico gruppo non presente.
+   * @param gruppo gruppo da salvare
+   */
+  public static void salvaGruppo(String gruppo)
+  {
+    getSirioSecurity().salvaGruppo(gruppo);
+  }
+
+  /**
+   * Salvataggio automatico ruoli non presenti.
+   * @param ruoli lista di ruoli separati da ',;' o spazio
+   */
+  public static void salvaRuoli(String ruoli)
+  {
+    getSirioSecurity().salvaRuoli(ruoli);
+  }
+
+  /**
+   * Salvataggio automatico ruolo non presente.
+   * @param ruolo ruolo da salvare
+   */
+  public static void salvaRuolo(String ruolo)
+  {
+    getSirioSecurity().salvaRuolo(ruolo);
+  }
+
+  /**
    * Ritorna vero se attiva autenticazione via LDAP.
    * @return vero per ldap (Active Directory)
    */
@@ -621,20 +658,6 @@ public class SEC
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  public static Role createRole(String roleName)
-     throws Exception
-  {
-    Role r = getTurbineSecurity().getRoleInstance(roleName);
-    return getTurbineSecurity().addRole(r);
-  }
-
-  public static Group createGroup(String groupName)
-     throws Exception
-  {
-    Group r = getTurbineSecurity().getGroupInstance(groupName);
-    return getTurbineSecurity().addGroup(r);
-  }
-
   /**
    * Ritorna permessi non posseduti dagli utenti.
    * Durante la verifica permessi vengono memorizzati
@@ -652,5 +675,52 @@ public class SEC
   public static void clearMissingPermission()
   {
     getSirioSecurity().clearMissingPermission();
+  }
+
+  public static Role getRoleByName(String roleName)
+     throws Exception
+  {
+    return getTurbineSecurity().getRoleByName(roleName);
+  }
+
+  public static PermissionSet getPermissions(Role role)
+     throws Exception
+  {
+    return getTurbineSecurity().getPermissions(role);
+  }
+
+  public static void grant(Role role, Permission p)
+     throws Exception
+  {
+    getTurbineSecurity().grant(role, p);
+  }
+
+  public static void grantByNames(String roleName, String permissionName)
+     throws Exception
+  {
+    getTurbineSecurity().grant(
+       getRoleByName(roleName),
+       getTurbineSecurity().getPermissionByName(permissionName));
+  }
+
+  public static void grant(User us, Group g, Role t)
+     throws Exception
+  {
+    getTurbineSecurity().grant(us, g, t);
+  }
+
+  public static void grantByNames(String userName, String groupName, String roleName)
+     throws Exception
+  {
+    getTurbineSecurity().grant(
+       getUser(userName),
+       getGroupByName(groupName),
+       getRoleByName(roleName));
+  }
+
+  public static Group getGroupByName(String groupName)
+     throws Exception
+  {
+    return getTurbineSecurity().getGroupByName(groupName);
   }
 }

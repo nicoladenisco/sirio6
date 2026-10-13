@@ -155,6 +155,30 @@ public interface CoreSecurity extends Service
   public void salvaPermesso(String permesso);
 
   /**
+   * Salvataggio automatico gruppi non presenti.
+   * @param gruppi lista di gruppi separati da ',;' o spazio
+   */
+  public void salvaGruppi(String gruppi);
+
+  /**
+   * Salvataggio automatico gruppo non presente.
+   * @param gruppo gruppo da salvare
+   */
+  public void salvaGruppo(String gruppo);
+
+  /**
+   * Salvataggio automatico ruoli non presenti.
+   * @param ruoli lista di ruoli separati da ',;' o spazio
+   */
+  public void salvaRuoli(String ruoli);
+
+  /**
+   * Salvataggio automatico ruolo non presente.
+   * @param ruolo ruolo da salvare
+   */
+  public void salvaRuolo(String ruolo);
+
+  /**
    * Recupera tutti i permessi (bufferata).
    * @return tutti i permessi
    * @throws Exception

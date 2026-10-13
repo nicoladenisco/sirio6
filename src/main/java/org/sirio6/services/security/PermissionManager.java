@@ -19,6 +19,7 @@ package org.sirio6.services.security;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.fulcrum.security.entity.Group;
 import org.apache.fulcrum.security.entity.Permission;
 import org.apache.fulcrum.security.entity.Role;
 import org.apache.fulcrum.security.util.EntityExistsException;
@@ -92,6 +93,40 @@ public class PermissionManager
         adminRole.setName(ADMIN_ROLE);
         security.addRole(adminRole);
       }
+    }
+  }
+
+  void salvaGruppo(String gruppo)
+  {
+    try
+    {
+      Group group = security.getGroupInstance(gruppo);
+      security.addGroup(group);
+    }
+    catch(EntityExistsException ex)
+    {
+      // eccezione ignorata: il gruppo già esiste
+    }
+    catch(Exception ex)
+    {
+      log.error("Errore generico:", ex);
+    }
+  }
+
+  void salvaRuolo(String r)
+  {
+    try
+    {
+      Role ruolo = security.getRoleInstance(r);
+      security.addRole(ruolo);
+    }
+    catch(EntityExistsException ex)
+    {
+      // eccezione ignorata: il ruolo già esiste
+    }
+    catch(Exception ex)
+    {
+      log.error("Errore generico:", ex);
     }
   }
 }

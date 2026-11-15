@@ -25,6 +25,7 @@ import org.commonlib5.utils.StringJoin;
 import org.commonlib5.xmlrpc.MapParser;
 import org.rigel5.RigelI18nInterface;
 import org.sirio6.rigel.RigelDefaultI18n;
+import org.sirio6.rigel.RigelHtmlI18n;
 
 /**
  * Context generico.
@@ -37,17 +38,19 @@ import org.sirio6.rigel.RigelDefaultI18n;
 public class SirioGenericContext extends HashMap<String, Object>
    implements Serializable
 {
-  private transient RigelI18nInterface i18n = new RigelDefaultI18n();
+  private transient RigelI18nInterface i18n;
   private final List<String> messages = new ArrayList<>();
   protected boolean mustSerializable = false;
 
   public SirioGenericContext()
   {
+    i18n = new RigelDefaultI18n();
   }
 
   public SirioGenericContext(Map<? extends String, ? extends Object> m)
   {
     super(m);
+    i18n = new RigelDefaultI18n();
   }
 
   public SirioGenericContext(SirioGenericContext ctx)
@@ -56,6 +59,16 @@ public class SirioGenericContext extends HashMap<String, Object>
     this.i18n = ctx.i18n;
     this.messages.addAll(ctx.messages);
     this.mustSerializable = ctx.mustSerializable;
+  }
+
+  public SirioGenericContext(RigelI18nInterface i)
+  {
+    i18n = i;
+  }
+
+  public SirioGenericContext(CoreRunData data)
+  {
+    setI18n(new RigelHtmlI18n(data));
   }
 
   public RigelI18nInterface getI18n()
@@ -124,19 +137,19 @@ public class SirioGenericContext extends HashMap<String, Object>
   public void putAllWithoutCollection(Map params)
   {
     params.forEach((k, v) ->
-    {
-      if(!(v instanceof Collection))
-      {
-        this.put(k.toString(), v);
-      }
+       {
+         if(!(v instanceof Collection))
+         {
+           this.put(k.toString(), v);
+         }
     });
   }
 
   public void putAllObjects(Map params)
   {
     params.forEach((k, v) ->
-    {
-      this.put(k.toString(), v);
+       {
+         this.put(k.toString(), v);
     });
   }
 

@@ -11,7 +11,7 @@
  *  Via di Collodi, 6/C
  *  50141 Firenze
  */
-package org.sirio6.utils.htmlgui.parametri;
+package org.sirio6.utils.htmlgui.forms;
 
 import java.util.Map;
 import org.apache.commons.logging.Log;
@@ -201,7 +201,7 @@ public class Bootstrap5Formatter implements ParametriFormatter
   public void saveData(ParametriValuesMap eSetup, RigelI18nInterface i18n)
      throws Exception
   {
-    saveSetupParametri(eSetup, i18n);
+    saveDataParametri(eSetup, i18n);
   }
 
   @Override
@@ -312,19 +312,21 @@ public class Bootstrap5Formatter implements ParametriFormatter
     String campo = getNomeCampo(idx, pd.getCodice());
     String tmp = ctx.getAsString(campo);
     pd.parseString(tmp);
+    if(pd.isError())
+      errorsInTag = true;
     log.debug(pd.getCodice() + "=" + pd.getVal());
   }
 
-  public void saveSetupParametri(ParametriValuesMap eSetup, RigelI18nInterface i18n)
+  public void saveDataParametri(ParametriValuesMap eSetup, RigelI18nInterface i18n)
      throws Exception
   {
     for(Parametro pd : block.getParametri())
     {
-      saveSetupParametro(eSetup, pd, i18n);
+      saveDataParametro(eSetup, pd, i18n);
     }
   }
 
-  public void saveSetupParametro(ParametriValuesMap eSetup, Parametro pd, RigelI18nInterface i18n)
+  public void saveDataParametro(ParametriValuesMap eSetup, Parametro pd, RigelI18nInterface i18n)
      throws Exception
   {
     eSetup.put(pd.getCodice(), pd.getValueAsString());

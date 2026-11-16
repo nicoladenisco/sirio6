@@ -11,7 +11,7 @@
  *  Via di Collodi, 6/C
  *  50141 Firenze
  */
-package org.sirio6.utils.htmlgui.parametri;
+package org.sirio6.utils.htmlgui.forms;
 
 import java.util.ArrayList;
 import java.util.List;

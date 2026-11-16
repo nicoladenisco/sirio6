@@ -15,26 +15,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.sirio6.utils.htmlgui.parametri;
+package org.sirio6.utils.htmlgui.forms;
 
 /**
- * Tipi di visualizzazione possibili.
+ * Tipi di dati possibili.
  *
- * 0=Campo semplice 1=Campo area 2=checkbox 3=radio 4=combo
+ * 0=stringa 1=intero 2=double 3=data 4=boolean
  *
  * @author Nicola De Nisco
  */
-public enum ParametroTipoVis
+public enum ParametroTipoDati
 {
-  TIPO_VIS_TESTO(0),
-  TIPO_VIS_AREA(1),
-  TIPO_VIS_CHECK(2),
-  TIPO_VIS_RADIO(3),
-  TIPO_VIS_COMBO(4);
+  TIPO_TESTO(0),
+  TIPO_INTERO(1),
+  TIPO_FLOAT(2),
+  TIPO_DATA(3),
+  TIPO_BOOL(4);
 
   private int savetype;
 
-  ParametroTipoVis(int value)
+  ParametroTipoDati(int value)
   {
     this.savetype = value;
   }
@@ -44,9 +44,9 @@ public enum ParametroTipoVis
     return savetype;
   }
 
-  public static ParametroTipoVis fromInt(int value)
+  public static ParametroTipoDati fromInt(int value)
   {
-    for(ParametroTipoVis type : values())
+    for(ParametroTipoDati type : values())
     {
       if(type.savetype == value)
         return type;

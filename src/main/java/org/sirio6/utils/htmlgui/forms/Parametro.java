@@ -11,7 +11,7 @@
  *  Via di Collodi, 6/C
  *  50141 Firenze
  */
-package org.sirio6.utils.htmlgui.parametri;
+package org.sirio6.utils.htmlgui.forms;
 
 import java.util.Collections;
 import java.util.Date;
@@ -188,7 +188,7 @@ public class Parametro<T>
     val = (T) convert(tipo, valore, defval);
 
     if(validatore != null)
-      error = validatore.apply(val);
+      error = !validatore.apply(val);
   }
 
   public boolean isValid()

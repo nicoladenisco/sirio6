@@ -13,8 +13,11 @@
  */
 package org.sirio6.utils.htmlgui.forms;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -48,6 +51,7 @@ public class Parametro<T>
   protected Function<T, Boolean> validatore;
 
   protected final Map<T, String> listaValori = new ArrayMap<>();
+  protected final List<T> listaAutoCompleta = new ArrayList<>();
 
   /**
    * Costruisce il parametro.
@@ -64,7 +68,25 @@ public class Parametro<T>
      String nome, String descrizione, String helpBlock,
      T defval, ParametroTipoVis visualizzazione, Map<T, String> listaValori)
   {
-    this(blocco, codice, nome, descrizione, helpBlock, defval, visualizzazione, listaValori, false);
+    this(blocco, codice, nome, descrizione, helpBlock, defval, visualizzazione, listaValori, Collections.EMPTY_LIST, false);
+  }
+
+  /**
+   * Costruisce il parametro.
+   * @param blocco riferimento al blocco parametri
+   * @param codice il codice identificativo
+   * @param nome nome breve del parametro
+   * @param descrizione la descrizione del parametro
+   * @param helpBlock il messaggio di help inserito sotto il campo
+   * @param defval il valore di default; <b>non puo essere nullo</b>
+   * @param visualizzazione TIPO_VIS_... 0=Campo semplice 1=Campo area 2=checkbox 3=radio 4=combo
+   * @param listaAutoCompleta lista valori per autocompletamento
+   */
+  public Parametro(BloccoParametri blocco, String codice,
+     String nome, String descrizione, String helpBlock,
+     T defval, ParametroTipoVis visualizzazione, List<T> listaAutoCompleta)
+  {
+    this(blocco, codice, nome, descrizione, helpBlock, defval, visualizzazione, Collections.EMPTY_MAP, listaAutoCompleta, false);
   }
 
   /**
@@ -81,12 +103,12 @@ public class Parametro<T>
      String nome, String descrizione, String helpBlock,
      T defval, ParametroTipoVis visualizzazione)
   {
-    this(blocco, codice, nome, descrizione, helpBlock, defval, visualizzazione, Collections.EMPTY_MAP, false);
+    this(blocco, codice, nome, descrizione, helpBlock, defval, visualizzazione, Collections.EMPTY_MAP, Collections.EMPTY_LIST, false);
   }
 
   private Parametro(BloccoParametri blocco, String codice,
      String nome, String descrizione, String helpBlock,
-     T defval, ParametroTipoVis visualizzazione, Map<T, String> listaValori, boolean buildInternal)
+     T defval, ParametroTipoVis visualizzazione, Map<T, String> listaValori, List<T> listaAutoCompleta, boolean buildInternal)
   {
     if(defval == null)
       throw new NullPointerException("Il valore di default non puo essere null.");
@@ -105,6 +127,7 @@ public class Parametro<T>
     this.tipo = checkTipo(defval);
     this.visualizzazione = visualizzazione;
     this.listaValori.putAll(listaValori);
+    this.listaAutoCompleta.addAll(listaAutoCompleta);
 
     if(blocco != null)
       blocco.addParametro(this);
@@ -294,6 +317,38 @@ public class Parametro<T>
     }
   }
 
+  public List<T> getListaAutoCompleta()
+  {
+    return listaAutoCompleta;
+  }
+
+  public void setListaAutoCompleta(Collection<T> listaAutoCompleta)
+  {
+    if(!SU.isEqu(this.listaAutoCompleta, listaAutoCompleta))
+    {
+      this.listaAutoCompleta.clear();
+      this.listaAutoCompleta.addAll(listaAutoCompleta);
+      modified = true;
+    }
+  }
+
+  public void addListaAutoCompleta(T valore)
+  {
+    this.listaAutoCompleta.add(valore);
+    modified = true;
+  }
+
+  public void addListaAutoCompleta(Collection<T> valori)
+  {
+    listaAutoCompleta.addAll(valori);
+    modified = true;
+  }
+
+  public void clearListaAutoCompleta()
+  {
+    listaAutoCompleta.clear();
+  }
+
   public Map<T, String> getListaValori()
   {
     return listaValori;
@@ -400,8 +455,8 @@ public class Parametro<T>
   public static Parametro<?> buildFromJson(JSONObject jo)
      throws Exception
   {
-    ParametroTipoDati tipo = ParametroTipoDati.fromInt(jo.getInt("tipo"));
-    ParametroTipoVis visualizzazione = ParametroTipoVis.fromInt(jo.getInt("visualizzazione"));
+    ParametroTipoDati tipo = ParametroTipoDati.fromString(jo.getString("tipo"));
+    ParametroTipoVis visualizzazione = ParametroTipoVis.fromString(jo.getString("visualizzazione"));
 
     Object val = jo.get("val");
     Object defval = jo.opt("defval");
@@ -416,19 +471,19 @@ public class Parametro<T>
     switch(tipo)
     {
       case TIPO_TESTO:
-        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, "", visualizzazione, Collections.EMPTY_MAP, true);
+        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, "", visualizzazione, Collections.EMPTY_MAP, Collections.EMPTY_LIST, true);
         break;
       case TIPO_INTERO:
-        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, 0, visualizzazione, Collections.EMPTY_MAP, true);
+        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, 0, visualizzazione, Collections.EMPTY_MAP, Collections.EMPTY_LIST, true);
         break;
       case TIPO_FLOAT:
-        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, 0.0, visualizzazione, Collections.EMPTY_MAP, true);
+        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, 0.0, visualizzazione, Collections.EMPTY_MAP, Collections.EMPTY_LIST, true);
         break;
       case TIPO_DATA:
-        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, new Date(), visualizzazione, Collections.EMPTY_MAP, true);
+        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, new Date(), visualizzazione, Collections.EMPTY_MAP, Collections.EMPTY_LIST, true);
         break;
       case TIPO_BOOL:
-        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, false, visualizzazione, Collections.EMPTY_MAP, true);
+        rv = new Parametro<>(null, codice, nome, descrizione, helpBlock, false, visualizzazione, Collections.EMPTY_MAP, Collections.EMPTY_LIST, true);
         break;
       default:
         throw new IllegalArgumentException("Il tipo richiesto non è supportato");
@@ -440,17 +495,27 @@ public class Parametro<T>
     rv.val = rv.convert(tipo, val, rv.defval);
 
     JSONArray listaValori = jo.optJSONArray("listaValori");
-    if(listaValori == null)
-      return rv;
-
-    for(int i = 0; i < listaValori.length(); i++)
+    if(listaValori != null)
     {
-      JSONObject jv = listaValori.getJSONObject(i);
+      for(int i = 0; i < listaValori.length(); i++)
+      {
+        JSONObject jv = listaValori.getJSONObject(i);
 
-      Object valore = jv.get("val");
-      String descri = jv.getString("des");
+        Object valore = jv.get("val");
+        String descri = jv.getString("des");
 
-      rv.addListaValori(rv.convert(tipo, valore, rv.defval), descri);
+        rv.addListaValori(rv.convert(tipo, valore, rv.defval), descri);
+      }
+    }
+
+    JSONArray listaAutoCompleta = jo.optJSONArray("listaAutoCompleta");
+    if(listaAutoCompleta != null)
+    {
+      for(int i = 0; i < listaAutoCompleta.length(); i++)
+      {
+        String valore = listaAutoCompleta.getString(i);
+        rv.addListaAutoCompleta(rv.convert(tipo, valore, rv.defval));
+      }
     }
 
     return rv;

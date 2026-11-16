@@ -15,6 +15,8 @@ package org.sirio6.utils.htmlgui.forms;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Blocco di parametri.
@@ -46,5 +48,17 @@ public class BloccoParametri
     sb.append("lsParametri=").append(lsParametri);
     sb.append('}');
     return sb.toString();
+  }
+
+  public void buildFromJson(JSONObject jo)
+     throws Exception
+  {
+    JSONArray jaCampi = jo.getJSONArray("campi");
+    for(int i = 0; i < jaCampi.length(); i++)
+    {
+      JSONObject campo = jaCampi.getJSONObject(i);
+      Parametro<?> parametro = Parametro.buildFromJson(campo);
+      lsParametri.add(parametro);
+    }
   }
 }

@@ -54,4 +54,15 @@ public enum ParametroTipoVis
 
     throw new IllegalArgumentException("Tipo di visualizzazione non valido: " + value);
   }
+
+  public static ParametroTipoVis fromString(String value)
+  {
+    for(ParametroTipoVis type : values())
+    {
+      if(type.name().equals(value))
+        return type;
+    }
+
+    throw new IllegalArgumentException("Tipo di visualizzazione non valido: " + value);
+  }
 }

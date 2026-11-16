@@ -13,6 +13,7 @@
  */
 package org.sirio6.utils.htmlgui.forms;
 
+import java.util.Collection;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,12 +30,29 @@ import org.sirio6.utils.SirioGenericContext;
 public class Bootstrap5Formatter implements ParametriFormatter
 {
   private static final Log log = LogFactory.getLog(Bootstrap5Formatter.class);
-  private boolean errosInName, errorsInTag;
+  protected boolean errosInName, errorsInTag;
   protected final BloccoParametri block;
+  protected int mb;
 
   public Bootstrap5Formatter(BloccoParametri block)
   {
     this.block = block;
+  }
+
+  public Bootstrap5Formatter(BloccoParametri block, int mb)
+  {
+    this.block = block;
+    this.mb = mb;
+  }
+
+  public int getMb()
+  {
+    return mb;
+  }
+
+  public void setMb(int mb)
+  {
+    this.mb = mb;
   }
 
   @Override
@@ -54,45 +72,60 @@ public class Bootstrap5Formatter implements ParametriFormatter
     return errorsInTag;
   }
 
-  @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
   protected void guscioCampo(int idx, StringBuilder html, SirioGenericContext ctx,
      String nome, String campo, String inner, String helpblock, boolean evierror)
   {
     String m = evierror ? " text-danger" : "";
     String fgc = ctx.getAsString("form-group-classes");
-    html.append("  <div class=\"form-group " + fgc + "\">\n");
-    html.append("    <label for=\"" + campo + "\" class=\"control-label" + m + "\">" + nome + "</label>\n");
+    html.append("  <div class=\"form-group ").append(fgc).append("\">\n");
+    if(mb > 0)
+      html.append("   <div class=\"mb-").append(mb).append("\">");
+    html.append("    <label for=\"").append(campo).append("\" class=\"control-label").append(m).append("\">").append(nome).append("</label>\n");
 
     html.append(inner);
 
     if(helpblock != null)
-      html.append("    <small id=\"help_" + campo + "\" class=\"help-block\">" + helpblock + "</small>\n");
+      html.append("    <small id=\"help_").append(campo).append("\" class=\"help-block\">").append(helpblock).append("</small>\n");
+    if(mb > 0)
+      html.append("   </div>");
 
     html.append("  </div>\n");
   }
 
   protected void formatCampoTestoNonVuoto(int idx, StringBuilder html, SirioGenericContext ctx,
-     String nome, String campo, String valore, String placeholder, String helpblock)
+     String nome, String campo, String valore, String placeholder, String helpblock,
+     Collection listaAutoCompleta)
   {
-    formatCampoTesto(idx, html, ctx, nome, campo, valore, placeholder, helpblock, !SU.isOkStr(valore));
+    formatCampoTesto(idx, html, ctx, nome, campo, valore, placeholder, helpblock, !SU.isOkStr(valore), listaAutoCompleta);
   }
 
-  @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
   protected void formatCampoTesto(int idx, StringBuilder html, SirioGenericContext ctx,
-     String nome, String campo, String valore, String placeholder, String helpblock, boolean evierror)
+     String nome, String campo, String valore, String placeholder, String helpblock, boolean evierror,
+     Collection listaAutoCompleta)
   {
     String m = evierror ? " is-invalid" : "";
     StringBuilder inner = new StringBuilder();
-    inner.append("<input type=\"text\" name=\"" + campo + "\" value=\"" + valore + "\"");
-    inner.append(" class=\"form-control" + m + "\" id=\"" + campo + "\"\n");
+    inner.append("<input type=\"text\" name=\"").append(campo).append("\" value=\"").append(valore).append("\"");
+    inner.append(" class=\"form-control").append(m).append("\" id=\"").append(campo).append("\"\n");
 
     if(placeholder != null)
-      inner.append(" placeholder=\"" + placeholder + "\"\n");
+      inner.append(" placeholder=\"").append(placeholder).append("\"\n");
 
     if(helpblock != null)
-      inner.append(" aria-describedby=\"help_" + campo + "\"\n");
+      inner.append(" aria-describedby=\"help_").append(campo).append("\"\n");
+
+    if(!listaAutoCompleta.isEmpty())
+      inner.append(" list=\"").append(campo).append("-datalistOptions\"\n");
 
     inner.append(">\n");
+
+    if(!listaAutoCompleta.isEmpty())
+    {
+      inner.append("  <datalist id=\"").append(campo).append("-datalistOptions\">\n");
+      listaAutoCompleta.forEach((v) -> inner.append("<option value=\"").append(v.toString()).append("\"/>"));
+      inner.append("  <datalist/>");
+    }
+
     guscioCampo(idx, html, ctx, nome, campo, inner.toString(), helpblock, evierror);
   }
 
@@ -263,7 +296,8 @@ public class Bootstrap5Formatter implements ParametriFormatter
            pd.getValueAsString(),
            ctx.msg(pd.getDescrizione()),
            ctx.msg(pd.getHelpBlock()),
-           pd.isError());
+           pd.isError(),
+           pd.getListaAutoCompleta());
         break;
       case TIPO_VIS_AREA:
         formatCampoTextArea(

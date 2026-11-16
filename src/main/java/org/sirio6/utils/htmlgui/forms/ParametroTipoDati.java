@@ -54,4 +54,15 @@ public enum ParametroTipoDati
 
     throw new IllegalArgumentException("Tipo di visualizzazione non valido: " + value);
   }
+
+  public static ParametroTipoDati fromString(String value)
+  {
+    for(ParametroTipoDati type : values())
+    {
+      if(type.name().equals(value))
+        return type;
+    }
+
+    throw new IllegalArgumentException("Tipo di visualizzazione non valido: " + value);
+  }
 }

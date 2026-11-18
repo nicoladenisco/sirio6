@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Nicola De Nisco
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,7 @@ public class BusMessages
   public static final int CLEAR_GLOBAL_CACHE = 120;
   public static final int CLEAR_GLOBAL_CACHE_CLASS = 121;
   public static final int RIGEL_XML_LIST_RELOADED = 122;
+  public static final int RIGEL_LIST_REFRESH = 123;
   public static final int ASSOCIATION_LIST_CHANGED = 130;
 
   // gestione allarmi

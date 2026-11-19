@@ -37,6 +37,7 @@ public class FU
   public static final String CONTENT_TYPE_DICOM = "application/dicom";
   public static final String CONTENT_TYPE_JPEG = "image/jpeg";
   public static final String CONTENT_TYPE_ZIP = "application/zip";
+  public static final String CONTENT_TYPE_XML = "application/xml";
   public static final int BUFFER_GZIP = 4096; //4KBytes
 
   /**
@@ -48,8 +49,7 @@ public class FU
    * @param enableGzip
    * @throws Exception
    */
-  public static void sendFileAsPDF(HttpServletRequest request, HttpServletResponse response,
-     File fPdf, boolean enableGzip)
+  public static void sendFileAsPDF(HttpServletRequest request, HttpServletResponse response, File fPdf, boolean enableGzip)
      throws Exception
   {
     sendFileResponse(request, response, fPdf, CONTENT_TYPE_PDF, fPdf.getName(), enableGzip);
@@ -64,8 +64,7 @@ public class FU
    * @param enableGzip
    * @throws Exception
    */
-  public static void sendFileAsZIP(HttpServletRequest request, HttpServletResponse response,
-     File fzip, boolean enableGzip)
+  public static void sendFileAsZIP(HttpServletRequest request, HttpServletResponse response, File fzip, boolean enableGzip)
      throws Exception
   {
     sendFileResponse(request, response, fzip, CONTENT_TYPE_ZIP, fzip.getName(), enableGzip);
@@ -80,15 +79,14 @@ public class FU
    * @param enableGzip
    * @throws Exception
    */
-  public static void sendFileAsHTML(HttpServletRequest request,
-     HttpServletResponse response, File fHtml, boolean enableGzip)
+  public static void sendFileAsHTML(HttpServletRequest request, HttpServletResponse response, File fHtml, boolean enableGzip)
      throws Exception
   {
     sendFileResponse(request, response, fHtml, CONTENT_TYPE_HTML, fHtml.getName(), enableGzip);
   }
 
   /**
-   * Invia un file di risposta HTML.
+   * Invia un file di risposta DICOM.
    * In una servlet consente di inviare un file HTML come risposta.
    * @param request
    * @param response
@@ -96,15 +94,14 @@ public class FU
    * @param enableGzip
    * @throws Exception
    */
-  public static void sendFileAsDicom(HttpServletRequest request,
-     HttpServletResponse response, File fDicom, boolean enableGzip)
+  public static void sendFileAsDicom(HttpServletRequest request, HttpServletResponse response, File fDicom, boolean enableGzip)
      throws Exception
   {
     sendFileResponse(request, response, fDicom, CONTENT_TYPE_DICOM, fDicom.getName(), enableGzip);
   }
 
   /**
-   * Invia un file di risposta HTML.
+   * Invia un file di risposta JPEG.
    * In una servlet consente di inviare un file HTML come risposta.
    * @param request
    * @param response
@@ -112,11 +109,25 @@ public class FU
    * @param enableGzip
    * @throws Exception
    */
-  public static void sendFileAsJpeg(HttpServletRequest request,
-     HttpServletResponse response, File fjpeg, boolean enableGzip)
+  public static void sendFileAsJpeg(HttpServletRequest request, HttpServletResponse response, File fjpeg, boolean enableGzip)
      throws Exception
   {
     sendFileResponse(request, response, fjpeg, CONTENT_TYPE_JPEG, fjpeg.getName(), enableGzip);
+  }
+
+  /**
+   * Invia un file di risposta XML.
+   * In una servlet consente di inviare un file HTML come risposta.
+   * @param request
+   * @param response
+   * @param fxml
+   * @param enableGzip
+   * @throws Exception
+   */
+  public static void sendFileAsXml(HttpServletRequest request, HttpServletResponse response, File fxml, boolean enableGzip, boolean attachment)
+     throws Exception
+  {
+    sendFileResponse(request, response, fxml, CONTENT_TYPE_XML, fxml.getName(), enableGzip, attachment);
   }
 
   /**
@@ -187,11 +198,36 @@ public class FU
      File fPdf, String tipoMime, String saveFileName, boolean enableGzip)
      throws Exception
   {
+    sendFileResponse(request, response, fPdf, tipoMime, saveFileName, enableGzip, false);
+  }
+
+  /**
+   * Invio file come risposta servlet.
+   * Invia un file con "Content-Disposition", "inline;", ovvero il browser
+   * se può cerca di renderizzarlo direttamente nella pagina.
+   * @param request
+   * @param response
+   * @param fPdf
+   * @param tipoMime
+   * @param saveFileName
+   * @param enableGzip
+   * @param attachment se vero viene inviato come attachment altrimenti inline
+   * @throws Exception
+   */
+  public static void sendFileResponse(HttpServletRequest request, HttpServletResponse response,
+     File fPdf, String tipoMime, String saveFileName, boolean enableGzip, boolean attachment)
+     throws Exception
+  {
     // invio del file pdf come risposta
     response.setContentType(tipoMime);
     response.setContentLength((int) (fPdf.length()));
     if(saveFileName != null)
-      response.setHeader("Content-Disposition", "inline; filename=" + saveFileName);
+    {
+      if(attachment)
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + saveFileName + "\"");
+      else
+        response.setHeader("Content-Disposition", "inline; filename=" + saveFileName);
+    }
     response.setHeader("Cache-Control", "no-cache");
     response.setDateHeader("Expires", 0);
     response.setHeader("Pragma", "No-cache");
